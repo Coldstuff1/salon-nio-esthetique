@@ -1,6 +1,11 @@
 spring:
   application:
     name: backend
+  modulith:
+    events:
+      jdbc:
+        schema-initialization:
+          enabled: true
   session:
     jdbc:
       initialize-schema: always
@@ -13,3 +18,7 @@ spring:
         jwt:
           issuer-uri: http://localhost:8180/realms/nio
           jwk-set-uri: http://localhost:8180/realms/nio/protocol/openid-connect/certs
+
+salon:
+  zone: America/Toronto
+  slot-step-minutes: 15

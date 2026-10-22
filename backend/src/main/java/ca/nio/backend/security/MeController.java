@@ -8,16 +8,26 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import ca.nio.backend.services.CurrentUserService;
+import lombok.RequiredArgsConstructor;
+
 @RestController
 @RequestMapping("/api/me")
+@RequiredArgsConstructor
 public class MeController {
+
+    private final CurrentUserService currentUser;
 
     @GetMapping
     public Me me(@AuthenticationPrincipal Jwt jwt) {
+        List<String> roles = KeycloakJwtAuthenticationConverter.realmRoles(jwt);
+        if (roles.contains("client")) {
+            currentUser.customer(jwt);
+        }
         return new Me(
                 jwt.getClaimAsString("preferred_username"),
                 jwt.getClaimAsString("email"),
-                KeycloakJwtAuthenticationConverter.realmRoles(jwt));
+                roles);
     }
 
     public record Me(String username, String email, List<String> roles) {
