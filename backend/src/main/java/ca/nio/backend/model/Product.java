@@ -24,15 +24,17 @@ public class Product {
     @Nullable
     private String description;
     private String sku;
+    private int costCents;
     private boolean active = true;
     @Version
     private Integer version;
 
-    public Product(String name, String description, String sku) {
+    public Product(String name, String description, String sku, int costCents) {
         this.id = UUID.randomUUID();
         this.name = name;
         this.description = description;
         this.sku = sku;
+        this.costCents = costCents;
     }
 
 }

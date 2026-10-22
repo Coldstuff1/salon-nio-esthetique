@@ -65,7 +65,7 @@ class BookingFlowIntegrationTest {
     @BeforeEach
     void setUpEmployee() throws Exception {
         facial = serviceTypes.save(new ServiceType("Facial", null, "face"));
-        cream = products.save(new Product("Cream", null, "CR-" + UUID.randomUUID()));
+        cream = products.save(new Product("Cream", null, "CR-" + UUID.randomUUID(), 1500));
 
         send(put("/api/staff/me/availability"), employee(), List.of(
                 Map.of("dayOfWeek", 1, "startTime", "09:00", "endTime", "12:00")))

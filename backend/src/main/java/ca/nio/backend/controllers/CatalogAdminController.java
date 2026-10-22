@@ -25,6 +25,7 @@ import ca.nio.backend.repositories.ServiceTypeRepository;
 import ca.nio.backend.services.ConflictException;
 import ca.nio.backend.services.NotFoundException;
 import jakarta.validation.Valid;
+import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
@@ -81,7 +82,7 @@ public class CatalogAdminController {
     @PostMapping("/products")
     @ResponseStatus(HttpStatus.CREATED)
     public Product createProduct(@Valid @RequestBody ProductRequest request) {
-        return products.save(new Product(request.name(), request.description(), request.sku()));
+        return products.save(new Product(request.name(), request.description(), request.sku(), request.costCents()));
     }
 
     @PutMapping("/products/{id}")
@@ -90,6 +91,7 @@ public class CatalogAdminController {
         product.setName(request.name());
         product.setDescription(request.description());
         product.setSku(request.sku());
+        product.setCostCents(request.costCents());
         product.setActive(request.active() == null || request.active());
         return products.save(product);
     }
@@ -136,7 +138,8 @@ public class CatalogAdminController {
     }
 
     public record ProductRequest(@NotBlank @Size(max = 120) String name, @Nullable String description,
-                                 @NotBlank @Size(max = 60) String sku, @Nullable Boolean active) {
+                                 @NotBlank @Size(max = 60) String sku, @Min(0) int costCents,
+                                 @Nullable Boolean active) {
     }
 
     public record EmployeeRequest(@NotNull UUID id, @NotBlank @Size(max = 120) String displayName, @Nullable String bio) {

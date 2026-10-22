@@ -28,7 +28,7 @@ class PriceCalculatorTest {
 
     ServiceType facial = new ServiceType("Facial", null, "face");
     ServiceType manicure = new ServiceType("Manicure", null, "hands");
-    Product cream = new Product("Cream", null, "CR-1");
+    Product cream = new Product("Cream", null, "CR-1", 1500);
     Employee employee = new Employee(UUID.randomUUID(), "Nio");
 
     @BeforeEach

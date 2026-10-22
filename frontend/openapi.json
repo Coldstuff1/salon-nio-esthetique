@@ -2009,11 +2009,16 @@
             "maxLength" : 60,
             "minLength" : 0
           },
+          "costCents" : {
+            "type" : "integer",
+            "format" : "int32",
+            "minimum" : 0
+          },
           "active" : {
             "type" : [ "boolean", "null" ]
           }
         },
-        "required" : [ "name", "sku" ]
+        "required" : [ "costCents", "name", "sku" ]
       },
       "Product" : {
         "type" : "object",
@@ -2031,6 +2036,10 @@
           "sku" : {
             "type" : "string"
           },
+          "costCents" : {
+            "type" : "integer",
+            "format" : "int32"
+          },
           "active" : {
             "type" : "boolean"
           },
@@ -2039,7 +2048,7 @@
             "format" : "int32"
           }
         },
-        "required" : [ "active", "id", "name", "sku", "version" ]
+        "required" : [ "active", "costCents", "id", "name", "sku", "version" ]
       },
       "TimeOffRequest" : {
         "type" : "object",

@@ -513,6 +513,8 @@ export interface components {
             name: string;
             description?: string | null;
             sku: string;
+            /** Format: int32 */
+            costCents: number;
             active?: boolean | null;
         };
         Product: {
@@ -521,6 +523,8 @@ export interface components {
             name: string;
             description?: string | null;
             sku: string;
+            /** Format: int32 */
+            costCents: number;
             active: boolean;
             /** Format: int32 */
             version: number;
