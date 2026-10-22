@@ -2,6 +2,7 @@ package ca.nio.backend.model;
 
 import java.util.UUID;
 
+import org.jspecify.annotations.Nullable;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.annotation.Version;
 
@@ -21,7 +22,9 @@ public class ServiceType {
     @Id
     private UUID id;
     private String name;
+    @Nullable
     private String description;
+    @Nullable
     private String category;
     private boolean active = true;
     @Version

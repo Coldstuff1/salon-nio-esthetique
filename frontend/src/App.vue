@@ -1,18 +1,18 @@
 <script setup lang="ts">
 import { ref } from 'vue'
-import { apiFetch } from './api/http'
+import { api, type Schemas } from './api/http'
 import { useAuth } from './auth/keycloak'
 
 const { authenticated, username, roles, login, logout } = useAuth()
 
-const me = ref<unknown>()
+const me = ref<Schemas['Me']>()
 const error = ref<string>()
 
 async function whoAmI() {
   error.value = undefined
-  const response = await apiFetch('/api/me')
-  if (response.ok) {
-    me.value = await response.json()
+  const { data, response } = await api.GET('/api/me')
+  if (data) {
+    me.value = data
   } else {
     me.value = undefined
     error.value = `${response.status} ${response.statusText}`

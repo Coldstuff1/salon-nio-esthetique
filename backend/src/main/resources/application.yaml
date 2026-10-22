@@ -19,6 +19,14 @@ spring:
           issuer-uri: http://localhost:8180/realms/nio
           jwk-set-uri: http://localhost:8180/realms/nio/protocol/openid-connect/certs
 
+springdoc:
+  swagger-ui:
+    oauth:
+      client-id: nio-swagger
+      scopes: openid
+      use-pkce-with-authorization-code-grant: true
+    persist-authorization: true
+
 salon:
-  zone: America/Toronto
+  zone: America/Montreal
   slot-step-minutes: 15

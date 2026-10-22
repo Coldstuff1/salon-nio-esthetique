@@ -3,10 +3,12 @@ package ca.nio.backend.model;
 import java.time.Instant;
 import java.util.UUID;
 
+import org.jspecify.annotations.Nullable;
+
 /**
  * A one-off block where the employee can't be booked (vacation, sick day...).
  */
-public record TimeOff(UUID id, Instant startsAt, Instant endsAt, String reason) {
+public record TimeOff(UUID id, Instant startsAt, Instant endsAt, @Nullable String reason) {
 
     public TimeOff {
         if (!startsAt.isBefore(endsAt)) {

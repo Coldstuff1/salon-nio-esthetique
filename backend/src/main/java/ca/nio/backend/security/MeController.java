@@ -2,6 +2,7 @@ package ca.nio.backend.security;
 
 import java.util.List;
 
+import org.jspecify.annotations.Nullable;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -30,7 +31,7 @@ public class MeController {
                 roles);
     }
 
-    public record Me(String username, String email, List<String> roles) {
+    public record Me(String username, @Nullable String email, List<String> roles) {
     }
 
 }

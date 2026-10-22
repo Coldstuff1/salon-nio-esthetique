@@ -7,6 +7,7 @@ import java.util.List;
 import java.util.Set;
 import java.util.UUID;
 
+import org.jspecify.annotations.Nullable;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -112,7 +113,7 @@ public class StaffController {
                 .toList();
     }
 
-    public record ProfileRequest(@NotBlank @Size(max = 120) String displayName, String bio) {
+    public record ProfileRequest(@NotBlank @Size(max = 120) String displayName, @Nullable String bio) {
     }
 
     public record AvailabilityRequest(@Min(1) @Max(7) int dayOfWeek, @NotNull LocalTime startTime,
@@ -120,16 +121,18 @@ public class StaffController {
     }
 
     public record TimeOffRequest(@NotNull Instant startsAt, @NotNull Instant endsAt,
-                                 @Size(max = 255) String reason) {
+                                 @Size(max = 255) @Nullable String reason) {
     }
 
-    public record ServiceOfferingRequest(@Min(0) int priceCents, @Min(5) int durationMinutes, Boolean active) {
+    public record ServiceOfferingRequest(@Min(0) int priceCents, @Min(5) int durationMinutes,
+                                         @Nullable Boolean active) {
     }
 
-    public record ProductOfferingRequest(@Min(0) int priceCents, @Min(0) int quantityOnHand, Boolean active) {
+    public record ProductOfferingRequest(@Min(0) int priceCents, @Min(0) int quantityOnHand,
+                                         @Nullable Boolean active) {
     }
 
-    public record StaffProfile(UUID id, String displayName, String bio, boolean active,
+    public record StaffProfile(UUID id, String displayName, @Nullable String bio, boolean active,
                                List<Availability> availability, List<TimeOff> timeOff,
                                Set<ServiceOffering> serviceOfferings, Set<ProductOffering> productOfferings) {
 

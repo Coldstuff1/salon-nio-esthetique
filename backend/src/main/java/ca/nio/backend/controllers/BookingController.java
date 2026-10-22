@@ -4,6 +4,7 @@ import java.time.Instant;
 import java.util.List;
 import java.util.UUID;
 
+import org.jspecify.annotations.Nullable;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.Authentication;
@@ -73,8 +74,8 @@ public class BookingController {
     }
 
     public record BookingRequest(@NotNull UUID employeeId, @NotNull Instant startsAt,
-                                 @NotEmpty List<UUID> serviceIds, List<@Valid ProductSelection> products,
-                                 @Size(max = 1000) String notes) {
+                                 @NotEmpty List<UUID> serviceIds, @Nullable List<@Valid ProductSelection> products,
+                                 @Size(max = 1000) @Nullable String notes) {
     }
 
 }

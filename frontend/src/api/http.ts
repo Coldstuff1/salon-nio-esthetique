@@ -1,16 +1,26 @@
+import createClient, { type Middleware } from 'openapi-fetch'
 import { keycloak } from '@/auth/keycloak'
+import type { components, paths } from './schema'
 
-export async function apiFetch(path: string, init: RequestInit = {}): Promise<Response> {
-  const headers = new Headers(init.headers)
+/** Request/response shapes from the backend's OpenAPI spec, e.g. `Schemas['BookingView']`. */
+export type Schemas = components['schemas']
 
-  if (keycloak.authenticated) {
-    await keycloak.updateToken(30)
-    headers.set('Authorization', `Bearer ${keycloak.token}`)
-  }
-
-  const response = await fetch(path, { ...init, headers })
-  if (response.status === 401) {
-    await keycloak.login()
-  }
-  return response
+const auth: Middleware = {
+  async onRequest({ request }) {
+    if (keycloak.authenticated) {
+      await keycloak.updateToken(30)
+      request.headers.set('Authorization', `Bearer ${keycloak.token}`)
+    }
+    return request
+  },
+  async onResponse({ response }) {
+    if (response.status === 401) {
+      await keycloak.login()
+    }
+    return response
+  },
 }
+
+/** Typed client generated from `openapi.json`; run `npm run gen:api` after backend changes. */
+export const api = createClient<paths>()
+api.use(auth)

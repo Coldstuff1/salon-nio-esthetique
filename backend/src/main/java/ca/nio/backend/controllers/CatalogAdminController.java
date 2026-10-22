@@ -3,6 +3,7 @@ package ca.nio.backend.controllers;
 import java.util.List;
 import java.util.UUID;
 
+import org.jspecify.annotations.Nullable;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -130,15 +131,15 @@ public class CatalogAdminController {
         return products.findById(id).orElseThrow(() -> new NotFoundException("Product " + id + " not found"));
     }
 
-    public record ServiceTypeRequest(@NotBlank @Size(max = 120) String name, String description,
-                                     @Size(max = 60) String category, Boolean active) {
+    public record ServiceTypeRequest(@NotBlank @Size(max = 120) String name, @Nullable String description,
+                                     @Size(max = 60) @Nullable String category, @Nullable Boolean active) {
     }
 
-    public record ProductRequest(@NotBlank @Size(max = 120) String name, String description,
-                                 @NotBlank @Size(max = 60) String sku, Boolean active) {
+    public record ProductRequest(@NotBlank @Size(max = 120) String name, @Nullable String description,
+                                 @NotBlank @Size(max = 60) String sku, @Nullable Boolean active) {
     }
 
-    public record EmployeeRequest(@NotNull UUID id, @NotBlank @Size(max = 120) String displayName, String bio) {
+    public record EmployeeRequest(@NotNull UUID id, @NotBlank @Size(max = 120) String displayName, @Nullable String bio) {
     }
 
 }

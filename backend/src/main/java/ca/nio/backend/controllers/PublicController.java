@@ -9,6 +9,7 @@ import java.util.UUID;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
+import org.jspecify.annotations.Nullable;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -105,10 +106,10 @@ public class PublicController {
     }
 
     public record QuoteRequest(@NotNull UUID employeeId, @NotEmpty List<UUID> serviceIds,
-                               List<@Valid ProductSelection> products) {
+                               @Nullable List<@Valid ProductSelection> products) {
     }
 
-    public record EmployeeSummary(UUID id, String displayName, String bio) {
+    public record EmployeeSummary(UUID id, String displayName, @Nullable String bio) {
 
         static EmployeeSummary of(Employee employee) {
             return new EmployeeSummary(employee.getId(), employee.getDisplayName(), employee.getBio());
@@ -116,7 +117,8 @@ public class PublicController {
 
     }
 
-    public record ServiceView(UUID serviceTypeId, String name, String description, String category,
+    public record ServiceView(UUID serviceTypeId, String name, @Nullable String description,
+                              @Nullable String category,
                               int priceCents, int durationMinutes) {
 
         static ServiceView of(ServiceType type, ServiceOffering offering) {
@@ -126,7 +128,8 @@ public class PublicController {
 
     }
 
-    public record ProductView(UUID productId, String name, String description, int priceCents, int inStock) {
+    public record ProductView(UUID productId, String name, @Nullable String description, int priceCents,
+                              int inStock) {
 
         static ProductView of(Product product, ProductOffering offering) {
             return new ProductView(product.getId(), product.getName(), product.getDescription(),
