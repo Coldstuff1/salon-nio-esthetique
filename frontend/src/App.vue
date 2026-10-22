@@ -1,47 +1,61 @@
 <script setup lang="ts">
-import HelloWorld from './components/HelloWorld.vue'
-import TheWelcome from './components/TheWelcome.vue'
+import { ref } from 'vue'
+import { apiFetch } from './api/http'
+import { useAuth } from './auth/keycloak'
+
+const { authenticated, username, roles, login, logout } = useAuth()
+
+const me = ref<unknown>()
+const error = ref<string>()
+
+async function whoAmI() {
+  error.value = undefined
+  const response = await apiFetch('/api/me')
+  if (response.ok) {
+    me.value = await response.json()
+  } else {
+    me.value = undefined
+    error.value = `${response.status} ${response.statusText}`
+  }
+}
 </script>
 
 <template>
   <header>
-    <img alt="Vue logo" class="logo" src="./assets/logo.svg" width="125" height="125" />
+    <h1>Nio Esthétique</h1>
 
-    <div class="wrapper">
-      <HelloWorld msg="You did it!" />
+    <div v-if="authenticated" class="auth">
+      <span>{{ username }} <small>({{ roles.join(', ') }})</small></span>
+      <button @click="logout">Log out</button>
+    </div>
+    <div v-else class="auth">
+      <button @click="login">Log in</button>
     </div>
   </header>
 
-  <main>
-    <TheWelcome />
+  <main v-if="authenticated">
+    <button @click="whoAmI">Who am I?</button>
+    <pre v-if="me">{{ me }}</pre>
+    <p v-if="error" class="error">{{ error }}</p>
   </main>
 </template>
 
 <style scoped>
 header {
-  line-height: 1.5;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 1rem;
+  margin-bottom: 2rem;
 }
 
-.logo {
-  display: block;
-  margin: 0 auto 2rem;
+.auth {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
 }
 
-@media (min-width: 1024px) {
-  header {
-    display: flex;
-    place-items: center;
-    padding-right: calc(var(--section-gap) / 2);
-  }
-
-  .logo {
-    margin: 0 2rem 0 0;
-  }
-
-  header .wrapper {
-    display: flex;
-    place-items: flex-start;
-    flex-wrap: wrap;
-  }
+.error {
+  color: crimson;
 }
 </style>

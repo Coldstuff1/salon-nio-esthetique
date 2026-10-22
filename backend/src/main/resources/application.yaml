@@ -7,3 +7,9 @@ spring:
   docker:
     compose:
       lifecycle-management: start-only
+  security:
+    oauth2:
+      resourceserver:
+        jwt:
+          issuer-uri: http://localhost:8180/realms/nio
+          jwk-set-uri: http://localhost:8180/realms/nio/protocol/openid-connect/certs
