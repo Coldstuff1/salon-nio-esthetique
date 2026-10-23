@@ -61,7 +61,8 @@ const arcId = useId()
   </svg>
 
   <span v-else class="inline-flex items-baseline gap-1.5 leading-none text-ink">
-    <span class="display-caps text-xl font-semibold">Salon Nio</span>
-    <span class="font-script text-2xl text-accent">Esthétique</span>
+    <span class="display-caps text-lg font-semibold whitespace-nowrap sm:text-xl">Salon Nio</span>
+    <!-- dropped on phones so the header actions fit -->
+    <span class="hidden font-script text-2xl text-accent sm:inline">Esthétique</span>
   </span>
 </template>

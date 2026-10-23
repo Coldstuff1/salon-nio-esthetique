@@ -61,5 +61,31 @@
     "save": "Save",
     "cancel": "Cancel",
     "required": "Required"
+  },
+  "welcome": {
+    "eyebrow": "Aesthetic care",
+    "title": "Salon Nio",
+    "script": "esthétique",
+    "intro": "A cozy space to care for your skin: facials, waxing and brow styling, with gentle products and personal attention.",
+    "book": "Book an appointment",
+    "seePrices": "See prices",
+    "servicesTitle": "Our treatments",
+    "servicesScript": "for you",
+    "from": "From {price}",
+    "facial": {
+      "title": "Facials",
+      "text": "Cleansing, exfoliation and a mask suited to your skin, with a sculpting or dermaplaning option."
+    },
+    "waxing": {
+      "title": "Waxing",
+      "text": "Bikini, Brazilian, legs, arms and underarms, done with precision and care."
+    },
+    "brows": {
+      "title": "Brows",
+      "text": "Careful shaping for defined brows that naturally frame your eyes."
+    },
+    "pricesTitle": "Price list",
+    "closingScript": "Treat yourself",
+    "closingText": "Book your next treatment in a few clicks."
   }
 }

@@ -9,7 +9,7 @@ import PageSection from './components/layout/PageSection.vue'
 import BaseAlert from './components/ui/BaseAlert.vue'
 import BaseButton from './components/ui/BaseButton.vue'
 import BaseCard from './components/ui/BaseCard.vue'
-import ScriptTitle from './components/brand/ScriptTitle.vue'
+import WelcomeView from './views/WelcomeView.vue'
 
 // dev-only design system catalogue at /#styleguide, until there's a router
 const StyleGuide = import.meta.env.DEV
@@ -45,13 +45,10 @@ async function whoAmI() {
     <main class="flex-1">
       <component :is="StyleGuide" v-if="StyleGuide && hash === '#styleguide'" />
 
-      <PageSection v-else narrow>
-        <div class="mb-12 text-center">
-          <ScriptTitle as="h1" :title="t('brand.name')" />
-          <p class="label-caps mt-4 text-ink-muted">{{ t('brand.tagline') }}</p>
-        </div>
+      <WelcomeView v-else />
 
-        <BaseCard v-if="authenticated" class="flex flex-col items-start gap-4">
+      <PageSection v-if="authenticated" narrow>
+        <BaseCard class="flex flex-col items-start gap-4">
           <p class="text-sm text-ink-muted">{{ roles.join(', ') }}</p>
           <BaseButton variant="outline" @click="whoAmI">{{ t('auth.whoAmI') }}</BaseButton>
           <pre v-if="me" class="w-full overflow-x-auto bg-surface-soft p-4 text-sm">{{ me }}</pre>

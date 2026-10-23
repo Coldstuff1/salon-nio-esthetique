@@ -12,7 +12,7 @@ const { t } = useI18n()
 
 <template>
   <header class="border-b border-line-soft bg-paper/90 backdrop-blur-sm sticky top-0 z-20">
-    <div class="page-container flex items-center justify-between gap-4 py-4">
+    <div class="page-container flex items-center justify-between gap-3 py-4">
       <a href="/" class="shrink-0" :aria-label="t('nav.home')">
         <BrandLogo variant="wordmark" />
       </a>
@@ -21,7 +21,7 @@ const { t } = useI18n()
         <slot />
       </nav>
 
-      <div class="flex items-center gap-2 sm:gap-3">
+      <div class="flex items-center gap-1 sm:gap-3">
         <LocaleSwitch />
         <ThemeToggle />
         <template v-if="authenticated">

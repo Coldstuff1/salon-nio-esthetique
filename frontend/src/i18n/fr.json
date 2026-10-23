@@ -61,5 +61,31 @@
     "save": "Enregistrer",
     "cancel": "Annuler",
     "required": "Champ requis"
+  },
+  "welcome": {
+    "eyebrow": "Soins esthétiques",
+    "title": "Salon Nio",
+    "script": "esthétique",
+    "intro": "Un espace douillet pour prendre soin de votre peau : soins du visage, épilation à la cire et mise en beauté des sourcils, avec des produits doux et une attention personnalisée.",
+    "book": "Prendre rendez-vous",
+    "seePrices": "Voir les prix",
+    "servicesTitle": "Nos soins",
+    "servicesScript": "pour vous",
+    "from": "À partir de {price}",
+    "facial": {
+      "title": "Soins du visage",
+      "text": "Nettoyage, exfoliation et masque adaptés à votre peau, avec option sculptante ou dermaplaning."
+    },
+    "waxing": {
+      "title": "Épilation à la cire",
+      "text": "Bikini, brésilien, jambes, bras et aisselles, réalisés avec précision et douceur."
+    },
+    "brows": {
+      "title": "Sourcils",
+      "text": "Mise en forme soignée pour des sourcils définis qui encadrent naturellement le regard."
+    },
+    "pricesTitle": "Liste de prix",
+    "closingScript": "Prenez soin de vous",
+    "closingText": "Réservez votre prochain soin en quelques clics."
   }
 }
