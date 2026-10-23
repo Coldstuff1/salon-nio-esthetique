@@ -1,5 +1,6 @@
 {
   "realm": "nio",
+  "displayName": "Salon Nio Esthétique",
   "enabled": true,
   "registrationAllowed": true,
   "loginWithEmailAllowed": true,
