@@ -1,0 +1,159 @@
+# Production stack for a single server:
+#   docker compose -f compose.prod.yaml --env-file .env.prod up -d --build
+# Only Caddy is reachable from outside (ports 80/443); Keycloak's admin port is bound to the server's loopback
+# for SSH-tunnel access. Each service gets only the secrets it uses. See docs/operations.md.
+name: nio
+
+x-service: &service
+  restart: unless-stopped
+  security_opt: ['no-new-privileges:true']
+  logging:
+    driver: json-file
+    options:
+      max-size: 10m
+      max-file: '5'
+
+services:
+  caddy:
+    <<: *service
+    image: 'caddy:2.11.7-alpine'
+    ports:
+      - '80:80'
+      - '443:443'
+      - '443:443/udp'
+    environment:
+      NIO_SITE_DOMAIN: ${NIO_SITE_DOMAIN:?}
+      NIO_AUTH_DOMAIN: ${NIO_AUTH_DOMAIN:?}
+      NIO_ACME_EMAIL: ${NIO_ACME_EMAIL:?}
+      NIO_CADDY_EXTRA_GLOBAL: ${NIO_CADDY_EXTRA_GLOBAL:-}
+    volumes:
+      - './deploy/Caddyfile:/etc/caddy/Caddyfile:ro'
+      - 'caddy-data:/data'
+      - 'caddy-config:/config'
+    networks: [edge]
+    depends_on:
+      frontend:
+        condition: service_started
+      keycloak:
+        condition: service_healthy
+
+  frontend:
+    <<: *service
+    build:
+      context: ./frontend
+      args:
+        VITE_KEYCLOAK_URL: https://${NIO_AUTH_DOMAIN:?}
+    environment:
+      NIO_AUTH_ORIGIN: https://${NIO_AUTH_DOMAIN:?}
+      # where browsers fetch photos and send uploads
+      NIO_MEDIA_ORIGIN: ${NIO_S3_PUBLIC_ENDPOINT:-${NIO_S3_ENDPOINT:?}}
+    read_only: true
+    tmpfs:
+      - '/tmp'
+      - '/etc/nginx/conf.d:uid=101,gid=101'
+    cap_drop: [ALL]
+    networks: [edge]
+    depends_on:
+      backend:
+        condition: service_healthy
+
+  backend:
+    <<: *service
+    build: ./backend
+    environment:
+      SPRING_PROFILES_ACTIVE: prod
+      JAVA_TOOL_OPTIONS: '-XX:MaxRAMPercentage=75'
+      NIO_DB_URL: jdbc:postgresql://postgres:5432/nio
+      NIO_DB_USER: nio_app
+      NIO_DB_PASSWORD: ${NIO_DB_PASSWORD:?}
+      NIO_AUTH_URL: https://${NIO_AUTH_DOMAIN:?}
+      NIO_S3_ENDPOINT: ${NIO_S3_ENDPOINT:?}
+      NIO_S3_PUBLIC_ENDPOINT: ${NIO_S3_PUBLIC_ENDPOINT:-${NIO_S3_ENDPOINT:?}}
+      NIO_S3_REGION: ${NIO_S3_REGION:?}
+      NIO_S3_BUCKET: ${NIO_S3_BUCKET:?}
+      NIO_S3_ACCESS_KEY: ${NIO_S3_ACCESS_KEY:?}
+      NIO_S3_SECRET_KEY: ${NIO_S3_SECRET_KEY:?}
+    read_only: true
+    tmpfs: ['/tmp']
+    cap_drop: [ALL]
+    # edge for the frontend's /api proxy and outbound calls to the bucket; data for Postgres and Keycloak
+    networks: [edge, data]
+    healthcheck:
+      # bash for /dev/tcp: the image has no curl or wget, and its /bin/sh is dash
+      test: ['CMD', 'bash', '-c', "exec 3<>/dev/tcp/localhost/8081 && printf 'GET /actuator/health HTTP/1.1\\r\\nHost: localhost\\r\\nConnection: close\\r\\n\\r\\n' >&3 && grep -q '\"UP\"' <&3"]
+      interval: 15s
+      timeout: 5s
+      retries: 20
+      start_period: 30s
+    depends_on:
+      postgres:
+        condition: service_healthy
+
+  keycloak:
+    <<: *service
+    build: ./backend/docker/keycloak
+    environment:
+      KC_DB_URL: jdbc:postgresql://postgres:5432/keycloak
+      KC_DB_USERNAME: keycloak
+      KC_DB_PASSWORD: ${KEYCLOAK_DB_PASSWORD:?}
+      KC_HOSTNAME: https://${NIO_AUTH_DOMAIN:?}
+      # the admin console answers only on the loopback port below (Caddy hides it from the internet too)
+      KC_HOSTNAME_ADMIN: http://localhost:8180
+      KC_PROXY_HEADERS: xforwarded
+      KC_HTTP_ENABLED: 'true'
+      # first start only: sign in through the tunnel, create a permanent admin with OTP, delete this one
+      KC_BOOTSTRAP_ADMIN_USERNAME: ${KC_BOOTSTRAP_ADMIN_USERNAME:-bootstrap-admin}
+      KC_BOOTSTRAP_ADMIN_PASSWORD: ${KC_BOOTSTRAP_ADMIN_PASSWORD:?}
+      # read by the realm import (backend/docker/keycloak/realm-nio.json) on first start
+      NIO_SITE_URL: https://${NIO_SITE_DOMAIN:?}
+      NIO_SMTP_HOST: ${NIO_SMTP_HOST:?}
+      NIO_SMTP_PORT: ${NIO_SMTP_PORT:-587}
+      NIO_SMTP_FROM: ${NIO_SMTP_FROM:?}
+      NIO_SMTP_USER: ${NIO_SMTP_USER:?}
+      NIO_SMTP_PASSWORD: ${NIO_SMTP_PASSWORD:?}
+      NIO_RECAPTCHA_SITE_KEY: ${NIO_RECAPTCHA_SITE_KEY:?}
+      NIO_RECAPTCHA_SECRET_KEY: ${NIO_RECAPTCHA_SECRET_KEY:?}
+    ports:
+      - '127.0.0.1:8180:8080'
+    networks: [edge, data]
+    healthcheck:
+      test: ['CMD-SHELL', "exec 3<>/dev/tcp/localhost/9000 && printf 'GET /health/ready HTTP/1.1\\r\\nHost: localhost\\r\\nConnection: close\\r\\n\\r\\n' >&3 && grep -q '\"UP\"' <&3"]
+      interval: 10s
+      timeout: 5s
+      retries: 30
+      start_period: 60s
+    depends_on:
+      postgres:
+        condition: service_healthy
+
+  postgres:
+    <<: *service
+    image: 'postgres:18.6'
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?}
+      # read by docker/postgres-init/01-init.sh, which runs once on an empty volume
+      KEYCLOAK_DB_PASSWORD: ${KEYCLOAK_DB_PASSWORD:?}
+      NIO_DB_NAME: nio
+      NIO_DB_USER: nio_app
+      NIO_DB_PASSWORD: ${NIO_DB_PASSWORD:?}
+    volumes:
+      - 'pgdata:/var/lib/postgresql'
+      - './backend/docker/postgres-init:/docker-entrypoint-initdb.d:ro'
+    networks: [data]
+    healthcheck:
+      test: ['CMD-SHELL', 'pg_isready -U postgres -d nio']
+      interval: 5s
+      timeout: 5s
+      retries: 20
+
+networks:
+  edge:
+  # no route to the internet: Postgres only talks to the backend and Keycloak
+  data:
+    internal: true
+
+volumes:
+  pgdata:
+  caddy-data:
+  caddy-config:

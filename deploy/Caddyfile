@@ -1,0 +1,33 @@
+# Public entry point: the only service with published ports. Caddy obtains and renews Let's Encrypt
+# certificates for both hostnames, redirects HTTP to HTTPS, and passes X-Forwarded-* headers on.
+{
+	email {$NIO_ACME_EMAIL}
+	# staging only, e.g. "local_certs" for a self-signed local CA
+	{$NIO_CADDY_EXTRA_GLOBAL}
+}
+
+(hardening) {
+	header {
+		Strict-Transport-Security "max-age=31536000; includeSubDomains"
+		-Server
+		-Via
+		# apply after the upstream's headers, replacing rather than duplicating them
+		defer
+	}
+	encode zstd gzip
+}
+
+{$NIO_SITE_DOMAIN} {
+	import hardening
+	reverse_proxy frontend:8080
+}
+
+{$NIO_AUTH_DOMAIN} {
+	import hardening
+	# the SPA's nginx sends its own; Keycloak's pages need none of these
+	header Permissions-Policy "camera=(), microphone=(), geolocation=(), payment=()"
+	# the admin console and the master realm are only reachable through an SSH tunnel (docs/operations.md)
+	@admin path /admin /admin/* /realms/master /realms/master/*
+	respond @admin 404
+	reverse_proxy keycloak:8080
+}

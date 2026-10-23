@@ -9,14 +9,17 @@ import java.util.UUID;
 import org.jspecify.annotations.Nullable;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.PlatformTransactionManager;
+import org.springframework.transaction.TransactionDefinition;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.transaction.support.TransactionOperations;
+import org.springframework.transaction.support.TransactionTemplate;
 import org.springframework.util.unit.DataSize;
 
 import ca.nio.backend.model.Media;
 import ca.nio.backend.model.MediaStatus;
 import ca.nio.backend.repositories.MediaRepository;
 
-import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
 /**
@@ -25,14 +28,27 @@ import lombok.extern.slf4j.Slf4j;
  */
 @Slf4j
 @Service
-@RequiredArgsConstructor
 public class MediaService {
 
     static final Duration PENDING_TTL = Duration.ofHours(24);
+    /** Enough of the file to recognize every accepted format by its leading bytes. */
+    static final int SIGNATURE_BYTES = 16;
 
     private final MediaRepository media;
     private final MediaStorage storage;
     private final MediaProperties properties;
+    /** Commits on its own, so a rejected upload is gone even though the request that found it fails. */
+    private final TransactionOperations separately;
+
+    public MediaService(MediaRepository media, MediaStorage storage, MediaProperties properties,
+                        PlatformTransactionManager transactions) {
+        this.media = media;
+        this.storage = storage;
+        this.properties = properties;
+        TransactionTemplate template = new TransactionTemplate(transactions);
+        template.setPropagationBehavior(TransactionDefinition.PROPAGATION_REQUIRES_NEW);
+        this.separately = template;
+    }
 
     @Transactional
     public UploadTicket requestUpload(UUID ownerId, String contentType, long sizeBytes) {
@@ -41,14 +57,18 @@ public class MediaService {
             throw new InvalidRequestException(ErrorCode.FILE_SIZE,
                     "File must be between 1 byte and " + max.toMegabytes() + " MB", Map.of("maxMegabytes", max.toMegabytes()));
         }
+        if (media.countByOwnerIdAndStatus(ownerId, MediaStatus.PENDING) >= properties.maxPendingUploads()) {
+            throw new ConflictException(ErrorCode.TOO_MANY_UPLOADS, "Too many unfinished uploads; try again later",
+                    Map.of("max", properties.maxPendingUploads()));
+        }
         Media pending = media.save(new Media(ownerId, contentType, sizeBytes));
         return new UploadTicket(pending.getId(), storage.presignPut(pending.objectKey(), contentType, sizeBytes),
                 Instant.now().plus(properties.uploadUrlTtl()));
     }
 
     /**
-     * Verifies the caller's upload landed with the declared type and size and marks it ready.
-     * Claiming media that is already ready is allowed so retries are harmless.
+     * Verifies the caller's upload landed with the declared type and size, and that its bytes really are that
+     * type, then marks it ready. Claiming media that is already ready is allowed so retries are harmless.
      */
     @Transactional
     public Media claim(UUID mediaId, UUID ownerId) {
@@ -61,9 +81,10 @@ public class MediaService {
         var head = storage.head(item.objectKey())
                 .orElseThrow(() -> new InvalidRequestException(ErrorCode.FILE_NOT_UPLOADED,
                         "Media " + mediaId + " has not been uploaded"));
-        if (head.contentLength() != item.getSizeBytes() || !item.getContentType().equals(head.contentType())) {
+        if (head.contentLength() != item.getSizeBytes() || !item.getContentType().equals(head.contentType())
+                || !hasSignature(item.getContentType(), storage.readPrefix(item.objectKey(), SIGNATURE_BYTES))) {
             storage.delete(item.objectKey());
-            media.delete(item);
+            separately.executeWithoutResult(status -> media.delete(item));
             throw new InvalidRequestException(ErrorCode.FILE_MISMATCH,
                     "Uploaded file does not match the declared type and size");
         }
@@ -113,6 +134,30 @@ public class MediaService {
             throw new InvalidRequestException(ErrorCode.FILE_TYPE, "Unsupported media type " + contentType);
         }
         return max;
+    }
+
+    /** Whether the file starts the way files of {@code contentType} do. */
+    static boolean hasSignature(String contentType, byte[] head) {
+        return switch (contentType) {
+            case "image/jpeg" -> startsWith(head, 0, 0xFF, 0xD8, 0xFF);
+            case "image/png" -> startsWith(head, 0, 0x89, 'P', 'N', 'G', 0x0D, 0x0A, 0x1A, 0x0A);
+            case "image/webp" -> startsWith(head, 0, 'R', 'I', 'F', 'F') && startsWith(head, 8, 'W', 'E', 'B', 'P');
+            case "video/mp4" -> startsWith(head, 4, 'f', 't', 'y', 'p');
+            case "video/webm" -> startsWith(head, 0, 0x1A, 0x45, 0xDF, 0xA3);
+            default -> false;
+        };
+    }
+
+    private static boolean startsWith(byte[] bytes, int offset, int... expected) {
+        if (bytes.length < offset + expected.length) {
+            return false;
+        }
+        for (int i = 0; i < expected.length; i++) {
+            if ((bytes[offset + i] & 0xFF) != expected[i]) {
+                return false;
+            }
+        }
+        return true;
     }
 
 }

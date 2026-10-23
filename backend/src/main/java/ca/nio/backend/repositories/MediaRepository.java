@@ -13,4 +13,6 @@ public interface MediaRepository extends ListCrudRepository<Media, UUID> {
 
     List<Media> findByStatusAndCreatedAtBefore(MediaStatus status, Instant cutoff);
 
+    long countByOwnerIdAndStatus(UUID ownerId, MediaStatus status);
+
 }

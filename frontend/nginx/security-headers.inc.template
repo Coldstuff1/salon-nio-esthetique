@@ -1,0 +1,10 @@
+# Included in each location that serves the SPA (a location's own add_header drops inherited ones).
+# The site loads scripts, styles and fonts only from itself, talks to Keycloak and the media bucket, and frames
+# only Keycloak (keycloak-js's silent sign-in check) and itself (where that check lands). It may be framed only by
+# itself: silent-check-sso.html runs inside the site's own hidden frame, so 'none'/DENY would break sign-in.
+add_header Content-Security-Policy "default-src 'self'; script-src 'self'; style-src 'self'; img-src 'self' data: ${NIO_MEDIA_ORIGIN}; media-src 'self' ${NIO_MEDIA_ORIGIN}; connect-src 'self' ${NIO_AUTH_ORIGIN} ${NIO_MEDIA_ORIGIN}; frame-src 'self' ${NIO_AUTH_ORIGIN}; font-src 'self'; object-src 'none'; base-uri 'self'; form-action 'self'; frame-ancestors 'self'" always;
+add_header X-Content-Type-Options "nosniff" always;
+add_header X-Frame-Options "SAMEORIGIN" always;
+add_header Referrer-Policy "strict-origin-when-cross-origin" always;
+add_header Permissions-Policy "camera=(), microphone=(), geolocation=(), payment=()" always;
+add_header Cross-Origin-Opener-Policy "same-origin" always;

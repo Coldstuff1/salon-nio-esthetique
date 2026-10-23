@@ -1,0 +1,61 @@
+# Serves the SPA and proxies /api to the backend. In production it sits behind Caddy, which terminates TLS and
+# adds HSTS. ${NIO_*} variables are filled in from the container environment when nginx starts (nginx's
+# templates feature); nginx's own $variables are left alone.
+
+# per-client rate limit for the API: 10 requests/second, bursts of 30
+limit_req_zone $binary_remote_addr zone=api:10m rate=10r/s;
+limit_req_status 429;
+
+# the client address arrives in X-Forwarded-For from Caddy, over Docker's private network
+set_real_ip_from 10.0.0.0/8;
+set_real_ip_from 172.16.0.0/12;
+set_real_ip_from 192.168.0.0/16;
+real_ip_header X-Forwarded-For;
+real_ip_recursive on;
+
+map $http_x_forwarded_proto $forwarded_proto {
+    default $http_x_forwarded_proto;
+    ''      $scheme;
+}
+
+server_tokens off;
+
+# Docker's DNS: look the backend up again every 10 seconds instead of once at startup. A restarted backend can
+# come back on a new address, and another container (say Keycloak) can inherit its old one.
+resolver 127.0.0.11 valid=10s ipv6=off;
+
+server {
+    listen 8080;
+    root /usr/share/nginx/html;
+    index index.html;
+
+    # the backend sets its own security headers
+    location /api/ {
+        limit_req zone=api burst=30 nodelay;
+        client_max_body_size 64k;
+        # a variable makes nginx resolve per request through the resolver above
+        set $backend http://backend:8080;
+        proxy_pass $backend;
+        proxy_set_header Host $host;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto $forwarded_proto;
+    }
+
+    # hashed file names: cache forever
+    location /assets/ {
+        include /etc/nginx/conf.d/security-headers.inc;
+        add_header Cache-Control "public, max-age=31536000, immutable" always;
+        try_files $uri =404;
+    }
+
+    # every route serves index.html; always revalidate it so a deploy shows up at once
+    location = /index.html {
+        include /etc/nginx/conf.d/security-headers.inc;
+        add_header Cache-Control "no-cache" always;
+    }
+
+    location / {
+        include /etc/nginx/conf.d/security-headers.inc;
+        try_files $uri $uri/ /index.html;
+    }
+}

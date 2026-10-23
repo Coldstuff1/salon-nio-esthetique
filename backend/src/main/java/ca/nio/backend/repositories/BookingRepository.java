@@ -13,6 +13,8 @@ public interface BookingRepository extends ListCrudRepository<Booking, UUID> {
 
     List<Booking> findByCustomerIdOrderByStartsAtDesc(UUID customerId);
 
+    long countByCustomerIdAndStatusAndStartsAtAfter(UUID customerId, BookingStatus status, Instant after);
+
     /** Bookings overlapping {@code [from, to)}. */
     List<Booking> findByEmployeeIdAndStartsAtBeforeAndEndsAtAfterOrderByStartsAt(UUID employeeId, Instant to,
                                                                                   Instant from);

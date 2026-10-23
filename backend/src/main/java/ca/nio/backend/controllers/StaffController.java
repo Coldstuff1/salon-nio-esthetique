@@ -86,7 +86,7 @@ public class StaffController {
 
     @PutMapping("/availability")
     public StaffProfile replaceAvailability(@AuthenticationPrincipal Jwt jwt,
-                                            @RequestBody List<@Valid AvailabilityRequest> windows) {
+                                            @RequestBody @Size(max = 50) List<@Valid AvailabilityRequest> windows) {
         UUID id = currentUser.employee(jwt).getId();
         return profile(staffService.replaceAvailability(id, windows.stream()
                 .map(w -> new Availability(w.dayOfWeek(), w.startTime(), w.endTime()))
@@ -125,7 +125,7 @@ public class StaffController {
     @GetMapping("/schedule")
     public List<BookingView> schedule(@AuthenticationPrincipal Jwt jwt, @RequestParam Instant from,
                                       @RequestParam Instant to) {
-        return views.of(bookingService.schedule(CurrentUserService.userId(jwt), from, to));
+        return views.of(bookingService.schedule(currentUser.employee(jwt).getId(), from, to));
     }
 
     private StaffProfile profile(Employee employee) {
@@ -135,7 +135,8 @@ public class StaffController {
     public record PhotoRequest(@NotNull UUID mediaId) {
     }
 
-    public record ProfileRequest(@NotBlank @Size(max = 120) String displayName, @Nullable String bio) {
+    public record ProfileRequest(@NotBlank @Size(max = 120) String displayName,
+                                 @Size(max = 2000) @Nullable String bio) {
     }
 
     public record AvailabilityRequest(@Min(1) @Max(7) int dayOfWeek, @NotNull LocalTime startTime,
@@ -146,11 +147,14 @@ public class StaffController {
                                  @Size(max = 255) @Nullable String reason) {
     }
 
-    public record ServiceOfferingRequest(@Min(0) int priceCents, @Min(5) int durationMinutes,
+    public record ServiceOfferingRequest(@Min(0) @Max(1_000_000) int priceCents,
+                                         @Min(5) @Max(600) int durationMinutes,
                                          @Nullable Boolean active) {
     }
 
-    public record ProductOfferingRequest(@Min(0) int priceCents, @Min(0) int costCents, @Min(0) int quantityOnHand,
+    public record ProductOfferingRequest(@Min(0) @Max(1_000_000) int priceCents,
+                                         @Min(0) @Max(1_000_000) int costCents,
+                                         @Min(0) @Max(100_000) int quantityOnHand,
                                          @Nullable Boolean active) {
     }
 

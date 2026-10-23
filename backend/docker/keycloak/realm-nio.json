@@ -3,13 +3,54 @@
   "enabled": true,
   "registrationAllowed": true,
   "loginWithEmailAllowed": true,
-  "sslRequired": "external",
+  "duplicateEmailsAllowed": false,
+  "verifyEmail": true,
   "resetPasswordAllowed": true,
+  "editUsernameAllowed": false,
   "rememberMe": true,
+  "sslRequired": "all",
+  "passwordPolicy": "length(12) and maxLength(128) and notUsername and notEmail",
+  "bruteForceProtected": true,
+  "permanentLockout": false,
+  "failureFactor": 5,
+  "waitIncrementSeconds": 60,
+  "maxFailureWaitSeconds": 900,
+  "quickLoginCheckMilliSeconds": 1000,
+  "minimumQuickLoginWaitSeconds": 60,
+  "maxDeltaTimeSeconds": 43200,
+  "ssoSessionIdleTimeoutRememberMe": 604800,
+  "ssoSessionMaxLifespanRememberMe": 2592000,
+  "eventsEnabled": true,
+  "eventsExpiration": 7776000,
+  "adminEventsEnabled": true,
+  "adminEventsDetailsEnabled": false,
   "loginTheme": "nio",
   "internationalizationEnabled": true,
-  "supportedLocales": ["fr", "en"],
+  "supportedLocales": [
+    "fr",
+    "en"
+  ],
   "defaultLocale": "fr",
+  "browserSecurityHeaders": {
+    "contentSecurityPolicyReportOnly": "",
+    "xContentTypeOptions": "nosniff",
+    "referrerPolicy": "no-referrer",
+    "xRobotsTag": "none",
+    "xFrameOptions": "SAMEORIGIN",
+    "contentSecurityPolicy": "frame-src 'self' https://www.google.com/recaptcha/; frame-ancestors 'self'; object-src 'none'; base-uri 'self';",
+    "strictTransportSecurity": "max-age=31536000; includeSubDomains"
+  },
+  "smtpServer": {
+    "host": "${NIO_SMTP_HOST}",
+    "port": "${NIO_SMTP_PORT:587}",
+    "from": "${NIO_SMTP_FROM}",
+    "fromDisplayName": "Salon Nio Esthétique",
+    "auth": "true",
+    "user": "${NIO_SMTP_USER}",
+    "password": "${NIO_SMTP_PASSWORD}",
+    "starttls": "true",
+    "ssl": "false"
+  },
   "roles": {
     "realm": [
       {
@@ -18,11 +59,27 @@
       },
       {
         "name": "employee",
-        "description": "Salon staff"
+        "description": "Salon staff",
+        "composite": true,
+        "composites": {
+          "realm": [
+            "otp-required"
+          ]
+        }
       },
       {
         "name": "admin",
-        "description": "Administrator"
+        "description": "Administrator",
+        "composite": true,
+        "composites": {
+          "realm": [
+            "otp-required"
+          ]
+        }
+      },
+      {
+        "name": "otp-required",
+        "description": "Signs in with a one-time code as well as a password; part of the employee and admin roles"
       },
       {
         "name": "offline_access",
@@ -38,8 +95,6 @@
         "composite": true,
         "composites": {
           "realm": [
-            "offline_access",
-            "uma_authorization",
             "client"
           ],
           "client": {
@@ -67,97 +122,359 @@
       "implicitFlowEnabled": false,
       "directAccessGrantsEnabled": false,
       "serviceAccountsEnabled": false,
-      "rootUrl": "http://localhost:5173",
+      "rootUrl": "${NIO_SITE_URL}",
       "baseUrl": "/",
       "redirectUris": [
-        "http://localhost:5173/*"
+        "${NIO_SITE_URL}/*"
       ],
       "webOrigins": [
-        "http://localhost:5173"
+        "${NIO_SITE_URL}"
       ],
       "attributes": {
         "pkce.code.challenge.method": "S256",
-        "post.logout.redirect.uris": "http://localhost:5173/*"
-      }
+        "post.logout.redirect.uris": "${NIO_SITE_URL}/*"
+      },
+      "protocolMappers": [
+        {
+          "name": "nio-backend audience",
+          "protocol": "openid-connect",
+          "protocolMapper": "oidc-audience-mapper",
+          "consentRequired": false,
+          "config": {
+            "included.custom.audience": "nio-backend",
+            "access.token.claim": "true",
+            "id.token.claim": "false",
+            "introspection.token.claim": "true"
+          }
+        }
+      ],
+      "defaultClientScopes": [
+        "web-origins",
+        "acr",
+        "profile",
+        "roles",
+        "basic",
+        "email"
+      ],
+      "optionalClientScopes": [
+        "address",
+        "phone",
+        "organization",
+        "microprofile-jwt"
+      ]
     },
     {
-      "clientId": "nio-swagger",
-      "name": "Nio Esthétique API docs (Swagger UI)",
-      "enabled": true,
+      "clientId": "admin-cli",
+      "name": "${client_admin-cli}",
+      "enabled": false,
       "publicClient": true,
       "protocol": "openid-connect",
-      "standardFlowEnabled": true,
-      "implicitFlowEnabled": false,
-      "directAccessGrantsEnabled": false,
-      "serviceAccountsEnabled": false,
-      "redirectUris": [
-        "http://localhost:8080/swagger-ui/oauth2-redirect.html"
-      ],
-      "webOrigins": [
-        "http://localhost:8080"
-      ],
-      "attributes": {
-        "pkce.code.challenge.method": "S256"
-      }
+      "standardFlowEnabled": false,
+      "directAccessGrantsEnabled": false
     }
   ],
-  "users": [
+  "browserFlow": "browser-nio",
+  "registrationFlow": "registration-nio",
+  "authenticationFlows": [
     {
-      "username": "client1",
-      "email": "client1@example.com",
-      "firstName": "Client",
-      "lastName": "One",
-      "emailVerified": true,
-      "enabled": true,
-      "credentials": [
+      "alias": "browser-nio",
+      "description": "Browser based authentication",
+      "providerId": "basic-flow",
+      "topLevel": true,
+      "builtIn": false,
+      "authenticationExecutions": [
         {
-          "type": "password",
-          "value": "password",
-          "temporary": false
+          "authenticator": "auth-cookie",
+          "authenticatorFlow": false,
+          "requirement": "ALTERNATIVE",
+          "priority": 10,
+          "autheticatorFlow": false,
+          "userSetupAllowed": false
+        },
+        {
+          "authenticator": "auth-spnego",
+          "authenticatorFlow": false,
+          "requirement": "DISABLED",
+          "priority": 20,
+          "autheticatorFlow": false,
+          "userSetupAllowed": false
+        },
+        {
+          "authenticator": "identity-provider-redirector",
+          "authenticatorFlow": false,
+          "requirement": "ALTERNATIVE",
+          "priority": 25,
+          "autheticatorFlow": false,
+          "userSetupAllowed": false
+        },
+        {
+          "authenticatorFlow": true,
+          "requirement": "ALTERNATIVE",
+          "priority": 26,
+          "autheticatorFlow": true,
+          "flowAlias": "browser-nio Organization",
+          "userSetupAllowed": false
+        },
+        {
+          "authenticatorFlow": true,
+          "requirement": "ALTERNATIVE",
+          "priority": 30,
+          "autheticatorFlow": true,
+          "flowAlias": "browser-nio forms",
+          "userSetupAllowed": false
         }
-      ],
-      "realmRoles": [
-        "default-roles-nio",
-        "client"
       ]
     },
     {
-      "username": "employee1",
-      "email": "employee1@example.com",
-      "firstName": "Employee",
-      "lastName": "One",
-      "emailVerified": true,
-      "enabled": true,
-      "credentials": [
+      "alias": "browser-nio Browser - Conditional 2FA",
+      "description": "Flow to determine if any 2FA is required for the authentication",
+      "providerId": "basic-flow",
+      "topLevel": false,
+      "builtIn": false,
+      "authenticationExecutions": [
         {
-          "type": "password",
-          "value": "password",
-          "temporary": false
+          "authenticator": "conditional-user-configured",
+          "authenticatorFlow": false,
+          "requirement": "REQUIRED",
+          "priority": 10,
+          "autheticatorFlow": false,
+          "userSetupAllowed": false
+        },
+        {
+          "authenticatorConfig": "browser-nio browser-conditional-credential",
+          "authenticator": "conditional-credential",
+          "authenticatorFlow": false,
+          "requirement": "REQUIRED",
+          "priority": 20,
+          "autheticatorFlow": false,
+          "userSetupAllowed": false
+        },
+        {
+          "authenticator": "auth-otp-form",
+          "authenticatorFlow": false,
+          "requirement": "ALTERNATIVE",
+          "priority": 30,
+          "autheticatorFlow": false,
+          "userSetupAllowed": false
+        },
+        {
+          "authenticator": "webauthn-authenticator",
+          "authenticatorFlow": false,
+          "requirement": "DISABLED",
+          "priority": 40,
+          "autheticatorFlow": false,
+          "userSetupAllowed": false
+        },
+        {
+          "authenticator": "auth-recovery-authn-code-form",
+          "authenticatorFlow": false,
+          "requirement": "DISABLED",
+          "priority": 50,
+          "autheticatorFlow": false,
+          "userSetupAllowed": false
+        },
+        {
+          "authenticatorConfig": "nio-unless-otp-required",
+          "authenticator": "conditional-user-role",
+          "authenticatorFlow": false,
+          "requirement": "REQUIRED",
+          "priority": 51,
+          "autheticatorFlow": false,
+          "userSetupAllowed": false
         }
-      ],
-      "realmRoles": [
-        "default-roles-nio",
-        "employee"
       ]
     },
     {
-      "username": "admin1",
-      "email": "admin1@example.com",
-      "firstName": "Admin",
-      "lastName": "One",
-      "emailVerified": true,
-      "enabled": true,
-      "credentials": [
+      "alias": "browser-nio Browser - Conditional Organization",
+      "description": "Flow to determine if the organization identity-first login is to be used",
+      "providerId": "basic-flow",
+      "topLevel": false,
+      "builtIn": false,
+      "authenticationExecutions": [
         {
-          "type": "password",
-          "value": "password",
-          "temporary": false
+          "authenticator": "conditional-user-configured",
+          "authenticatorFlow": false,
+          "requirement": "REQUIRED",
+          "priority": 10,
+          "autheticatorFlow": false,
+          "userSetupAllowed": false
+        },
+        {
+          "authenticator": "organization",
+          "authenticatorFlow": false,
+          "requirement": "ALTERNATIVE",
+          "priority": 20,
+          "autheticatorFlow": false,
+          "userSetupAllowed": false
         }
-      ],
-      "realmRoles": [
-        "default-roles-nio",
-        "admin"
       ]
+    },
+    {
+      "alias": "browser-nio Organization",
+      "providerId": "basic-flow",
+      "topLevel": false,
+      "builtIn": false,
+      "authenticationExecutions": [
+        {
+          "authenticatorFlow": true,
+          "requirement": "CONDITIONAL",
+          "priority": 10,
+          "autheticatorFlow": true,
+          "flowAlias": "browser-nio Browser - Conditional Organization",
+          "userSetupAllowed": false
+        }
+      ]
+    },
+    {
+      "alias": "browser-nio forms",
+      "description": "Username, password, otp and other auth forms.",
+      "providerId": "basic-flow",
+      "topLevel": false,
+      "builtIn": false,
+      "authenticationExecutions": [
+        {
+          "authenticator": "auth-username-password-form",
+          "authenticatorFlow": false,
+          "requirement": "REQUIRED",
+          "priority": 10,
+          "autheticatorFlow": false,
+          "userSetupAllowed": false
+        },
+        {
+          "authenticatorFlow": true,
+          "requirement": "CONDITIONAL",
+          "priority": 20,
+          "autheticatorFlow": true,
+          "flowAlias": "browser-nio Browser - Conditional 2FA",
+          "userSetupAllowed": false
+        },
+        {
+          "authenticatorFlow": true,
+          "requirement": "CONDITIONAL",
+          "priority": 21,
+          "autheticatorFlow": true,
+          "flowAlias": "browser-nio staff 2FA",
+          "userSetupAllowed": false
+        }
+      ]
+    },
+    {
+      "alias": "browser-nio staff 2FA",
+      "description": "Employees and admins always confirm their sign-in with a one-time code",
+      "providerId": "basic-flow",
+      "topLevel": false,
+      "builtIn": false,
+      "authenticationExecutions": [
+        {
+          "authenticatorConfig": "nio-otp-required",
+          "authenticator": "conditional-user-role",
+          "authenticatorFlow": false,
+          "requirement": "REQUIRED",
+          "priority": 0,
+          "autheticatorFlow": false,
+          "userSetupAllowed": false
+        },
+        {
+          "authenticator": "auth-otp-form",
+          "authenticatorFlow": false,
+          "requirement": "REQUIRED",
+          "priority": 1,
+          "autheticatorFlow": false,
+          "userSetupAllowed": false
+        }
+      ]
+    },
+    {
+      "alias": "registration-nio",
+      "description": "Registration flow",
+      "providerId": "basic-flow",
+      "topLevel": true,
+      "builtIn": false,
+      "authenticationExecutions": [
+        {
+          "authenticator": "registration-page-form",
+          "authenticatorFlow": true,
+          "requirement": "REQUIRED",
+          "priority": 10,
+          "autheticatorFlow": true,
+          "flowAlias": "registration-nio registration form",
+          "userSetupAllowed": false
+        }
+      ]
+    },
+    {
+      "alias": "registration-nio registration form",
+      "description": "Registration form",
+      "providerId": "form-flow",
+      "topLevel": false,
+      "builtIn": false,
+      "authenticationExecutions": [
+        {
+          "authenticator": "registration-user-creation",
+          "authenticatorFlow": false,
+          "requirement": "REQUIRED",
+          "priority": 20,
+          "autheticatorFlow": false,
+          "userSetupAllowed": false
+        },
+        {
+          "authenticator": "registration-password-action",
+          "authenticatorFlow": false,
+          "requirement": "REQUIRED",
+          "priority": 50,
+          "autheticatorFlow": false,
+          "userSetupAllowed": false
+        },
+        {
+          "authenticatorConfig": "nio-recaptcha",
+          "authenticator": "registration-recaptcha-action",
+          "authenticatorFlow": false,
+          "requirement": "REQUIRED",
+          "priority": 60,
+          "autheticatorFlow": false,
+          "userSetupAllowed": false
+        },
+        {
+          "authenticator": "registration-terms-and-conditions",
+          "authenticatorFlow": false,
+          "requirement": "DISABLED",
+          "priority": 70,
+          "autheticatorFlow": false,
+          "userSetupAllowed": false
+        }
+      ]
+    }
+  ],
+  "authenticatorConfig": [
+    {
+      "alias": "browser-nio browser-conditional-credential",
+      "config": {
+        "credentials": "webauthn-passwordless"
+      }
+    },
+    {
+      "alias": "nio-otp-required",
+      "config": {
+        "condUserRole": "otp-required",
+        "negate": "false"
+      }
+    },
+    {
+      "alias": "nio-recaptcha",
+      "config": {
+        "action": "register",
+        "recaptcha.v3": "false",
+        "secret.key": "**********",
+        "useRecaptchaNet": "false",
+        "site.key": "${NIO_RECAPTCHA_SITE_KEY}"
+      }
+    },
+    {
+      "alias": "nio-unless-otp-required",
+      "config": {
+        "condUserRole": "otp-required",
+        "negate": "true"
+      }
     }
   ]
 }

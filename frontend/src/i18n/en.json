@@ -200,7 +200,12 @@
       "media-not-found": "This file couldn't be found.",
       "data-conflict": "This change conflicts with existing data.",
       "concurrent-update": "The data changed in the meantime. Reload the page and try again.",
-      "sku-taken": "Another product already uses this SKU."
+      "sku-taken": "Another product already uses this SKU.",
+      "too-many-bookings": "You already have {max} upcoming appointments. Cancel one, or wait until one has passed, to book another.",
+      "too-far-ahead": "Bookings open {days} days ahead. Please choose an earlier date.",
+      "too-many-uploads": "Too many uploads are waiting. Please try again later.",
+      "email-not-verified": "Please confirm your email first, using the link we sent you.",
+      "employee-inactive": "Your staff account has been deactivated. Please contact the salon's administration."
     }
   },
   "services": {

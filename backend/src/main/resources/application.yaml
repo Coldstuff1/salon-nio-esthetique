@@ -6,9 +6,6 @@ spring:
       jdbc:
         schema-initialization:
           enabled: true
-  session:
-    jdbc:
-      initialize-schema: always
   docker:
     compose:
       lifecycle-management: start-only
@@ -18,6 +15,17 @@ spring:
         jwt:
           issuer-uri: http://localhost:8180/realms/nio
           jwk-set-uri: http://localhost:8180/realms/nio/protocol/openid-connect/certs
+          # only tokens Keycloak minted for this API (see the nio-backend-audience client scope)
+          audiences: nio-backend
+
+# health checks only, on a port that is never published
+management:
+  server:
+    port: 8081
+  endpoints:
+    web:
+      exposure:
+        include: health
 
 springdoc:
   swagger-ui:

@@ -4,3 +4,4 @@ dist/
 .vscode/
 *.iml
 Dockerfile
+.env*.local

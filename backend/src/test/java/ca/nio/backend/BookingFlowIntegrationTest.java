@@ -2,6 +2,7 @@ package ca.nio.backend;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.jwt;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
@@ -196,6 +197,77 @@ class BookingFlowIntegrationTest {
                 .andExpect(jsonPath("$.length()").value(0));
     }
 
+    @Test
+    void capsHowManyUpcomingBookingsAClientHolds() throws Exception {
+        book(at(9, 0), 0).andExpect(status().isCreated());
+        book(at(10, 0), 0).andExpect(status().isCreated());
+        book(at(11, 0), 0).andExpect(status().isCreated());
+
+        book(ZonedDateTime.of(monday.plusWeeks(1), LocalTime.of(9, 0), ZONE).toInstant(), 0)
+                .andExpect(status().isConflict())
+                .andExpect(jsonPath("$.code").value("too-many-bookings"))
+                .andExpect(jsonPath("$.params.max").value(3));
+    }
+
+    @Test
+    void onlyBooksWithinTheBookingHorizon() throws Exception {
+        LocalDate farMonday = monday.plusWeeks(12);
+
+        book(ZonedDateTime.of(farMonday, LocalTime.of(9, 0), ZONE).toInstant(), 0)
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.code").value("too-far-ahead"));
+        mockMvc.perform(get("/api/public/employees/" + employeeId + "/slots")
+                        .param("date", farMonday.toString()).param("serviceIds", facial.getId().toString()))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.length()").value(0));
+    }
+
+    @Test
+    void requiresAVerifiedEmailToBook() throws Exception {
+        JwtRequestPostProcessor unverified = jwt()
+                .jwt(token -> token
+                        .subject(customerId.toString())
+                        .claim("preferred_username", "client-" + customerId)
+                        .claim("email_verified", false)
+                        .claim("realm_access", Map.of("roles", List.of("client"))))
+                .authorities(new KeycloakJwtAuthenticationConverter()::authorities);
+
+        send(post("/api/bookings"), unverified, Map.of("employeeId", employeeId, "startsAt", at(9, 0),
+                "serviceIds", List.of(facial.getId())))
+                .andExpect(status().isForbidden())
+                .andExpect(jsonPath("$.code").value("email-not-verified"));
+    }
+
+    @Test
+    void deactivatedEmployeesLoseAccessToTheirSchedule() throws Exception {
+        String id = com.jayway.jsonpath.JsonPath.read(book(at(9, 0), 0)
+                .andExpect(status().isCreated())
+                .andReturn().getResponse().getContentAsString(), "$.id");
+        mockMvc.perform(delete("/api/admin/employees/" + employeeId).with(keycloakJwt(UUID.randomUUID(), "admin")))
+                .andExpect(status().isNoContent());
+
+        mockMvc.perform(get("/api/staff/me/schedule").with(employee())
+                        .param("from", at(0, 0).toString()).param("to", at(23, 0).toString()))
+                .andExpect(status().isForbidden())
+                .andExpect(jsonPath("$.code").value("employee-inactive"));
+        mockMvc.perform(post("/api/bookings/" + id + "/complete").with(employee()))
+                .andExpect(status().isForbidden());
+        mockMvc.perform(post("/api/bookings/" + id + "/cancel").with(employee()))
+                .andExpect(status().isForbidden());
+        // the client can still cancel their own booking
+        mockMvc.perform(post("/api/bookings/" + id + "/cancel").with(customer()))
+                .andExpect(status().isOk());
+    }
+
+    @Test
+    void boundsScheduleRanges() throws Exception {
+        mockMvc.perform(get("/api/staff/me/schedule").with(employee())
+                        .param("from", at(0, 0).toString())
+                        .param("to", at(0, 0).plus(java.time.Duration.ofDays(400)).toString()))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.code").value("invalid-range"));
+    }
+
     private ResultActions book(Instant startsAt, int creams) throws Exception {
         List<Map<String, Object>> selection = creams == 0 ? List.of()
                 : List.of(Map.of("productId", cream.getId(), "quantity", creams));
@@ -231,6 +303,7 @@ class BookingFlowIntegrationTest {
                 .jwt(token -> token
                         .subject(subject.toString())
                         .claim("preferred_username", role + "-" + subject)
+                        .claim("email_verified", true)
                         .claim("realm_access", Map.of("roles", List.of(role))))
                 .authorities(new KeycloakJwtAuthenticationConverter()::authorities);
     }

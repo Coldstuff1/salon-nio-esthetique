@@ -13,6 +13,7 @@ import org.springframework.util.unit.DataSize;
  * @param publicEndpoint S3 endpoint browsers can reach; presigned URLs are signed for this host
  * @param createBucket   create the bucket and its CORS rule on startup (dev and tests only)
  * @param allowedOrigins browser origins allowed to upload and download directly, used when creating the bucket
+ * @param maxPendingUploads uploads one person can have requested but not yet used, so nobody can fill the bucket
  */
 @ConfigurationProperties("salon.media")
 public record MediaProperties(URI endpoint,
@@ -26,5 +27,6 @@ public record MediaProperties(URI endpoint,
                               @DefaultValue("10m") Duration uploadUrlTtl,
                               @DefaultValue("1h") Duration downloadUrlTtl,
                               @DefaultValue("10MB") DataSize maxImageSize,
-                              @DefaultValue("500MB") DataSize maxVideoSize) {
+                              @DefaultValue("100MB") DataSize maxVideoSize,
+                              @DefaultValue("5") int maxPendingUploads) {
 }

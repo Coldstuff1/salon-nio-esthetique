@@ -39,6 +39,7 @@ import ca.nio.backend.services.Quote;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Size;
 import lombok.RequiredArgsConstructor;
 
 /**
@@ -130,7 +131,7 @@ public class PublicController {
 
     @GetMapping("/employees/{id}/slots")
     public List<Instant> slots(@PathVariable UUID id, @RequestParam LocalDate date,
-                               @RequestParam List<UUID> serviceIds) {
+                               @RequestParam @Size(max = 10) List<UUID> serviceIds) {
         return bookingService.freeSlots(id, date, serviceIds);
     }
 
@@ -147,8 +148,8 @@ public class PublicController {
         return items.stream().collect(Collectors.toMap(id, Function.identity()));
     }
 
-    public record QuoteRequest(@NotNull UUID employeeId, @NotEmpty List<UUID> serviceIds,
-                               @Nullable List<@Valid ProductSelection> products) {
+    public record QuoteRequest(@NotNull UUID employeeId, @NotEmpty @Size(max = 10) List<UUID> serviceIds,
+                               @Size(max = 10) @Nullable List<@Valid ProductSelection> products) {
     }
 
     public record EmployeeSummary(UUID id, String displayName, @Nullable String bio, @Nullable URI photoUrl) {

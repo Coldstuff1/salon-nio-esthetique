@@ -1,4 +1,4 @@
-FROM eclipse-temurin:27-jdk AS build
+FROM eclipse-temurin:25.0.4.1_1-jdk-noble AS build
 WORKDIR /workspace
 COPY gradlew settings.gradle.kts build.gradle.kts ./
 COPY gradle gradle
@@ -7,12 +7,12 @@ COPY src src
 RUN ./gradlew bootJar -x test --no-daemon \
     && cp build/libs/*-SNAPSHOT.jar app.jar
 
-FROM eclipse-temurin:27-jdk AS extract
+FROM eclipse-temurin:25.0.4.1_1-jdk-noble AS extract
 WORKDIR /workspace
 COPY --from=build /workspace/app.jar app.jar
 RUN java -Djarmode=tools -jar app.jar extract --layers --launcher --destination extracted
 
-FROM eclipse-temurin:27-jre
+FROM eclipse-temurin:25.0.4.1_1-jre-noble
 RUN useradd --system --uid 1001 spring
 USER spring
 WORKDIR /app

@@ -1,0 +1,8 @@
+# Accepted image findings, each with a reason and an expiry so it gets looked at again.
+vulnerabilities:
+  - id: CVE-2026-114406
+    # ca-certificates in the upstream quay.io/keycloak/keycloak:26.8.1 image (UBI micro, no package manager to
+    # patch it). Only affects which CAs Keycloak trusts for its outgoing TLS (SMTP, reCAPTCHA). Goes away with
+    # the next Keycloak image; Dependabot proposes it.
+    statement: Inherited from the Keycloak base image; fixed by the next upstream release
+    expired_at: 2026-12-31

@@ -150,6 +150,35 @@ class MediaIntegrationTest {
     }
 
     @Test
+    void capsUploadsThatWereRequestedButNotUsed() throws Exception {
+        for (int i = 0; i < 5; i++) {
+            requestUpload(employee(), "image/jpeg", JPEG.length).andExpect(status().isCreated());
+        }
+
+        requestUpload(employee(), "image/jpeg", JPEG.length)
+                .andExpect(status().isConflict())
+                .andExpect(jsonPath("$.code").value("too-many-uploads"));
+    }
+
+    @Test
+    void rejectsFilesWhoseBytesArentTheDeclaredType() throws Exception {
+        byte[] html = "<html><script>alert(1)</script>".getBytes();
+        UUID mediaId = upload(employee(), "image/png", html);
+
+        send(put("/api/staff/me/photo"), employee(), Map.of("mediaId", mediaId))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.code").value("file-mismatch"));
+        assertThat(media.existsById(mediaId)).isFalse();
+        assertThat(storage.head(Media.objectKey(mediaId))).isEmpty();
+    }
+
+    @Test
+    void clientsCannotUpload() throws Exception {
+        requestUpload(keycloakJwt(UUID.randomUUID(), "client"), "image/jpeg", JPEG.length)
+                .andExpect(status().isForbidden());
+    }
+
+    @Test
     void anonymousUsersCannotUpload() throws Exception {
         send(post("/api/media/uploads"), null, Map.of("contentType", "image/jpeg", "sizeBytes", 10))
                 .andExpect(status().isUnauthorized());

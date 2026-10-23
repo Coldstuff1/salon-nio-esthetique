@@ -194,7 +194,8 @@ public class CatalogAdminController {
             implements LocalizedRequest {
     }
 
-    public record LocalizedDescription(@NotBlank String en, @Nullable String fr) implements LocalizedRequest {
+    public record LocalizedDescription(@NotBlank @Size(max = 5000) String en, @Size(max = 5000) @Nullable String fr)
+            implements LocalizedRequest {
     }
 
     public record ServiceTypeRequest(@NotNull @Valid LocalizedName name,
@@ -232,10 +233,12 @@ public class CatalogAdminController {
 
     }
 
-    public record EmployeeRequest(@NotNull UUID id, @NotBlank @Size(max = 120) String displayName, @Nullable String bio) {
+    public record EmployeeRequest(@NotNull UUID id, @NotBlank @Size(max = 120) String displayName,
+                                  @Size(max = 2000) @Nullable String bio) {
     }
 
-    public record EmployeeUpdateRequest(@NotBlank @Size(max = 120) String displayName, @Nullable String bio,
+    public record EmployeeUpdateRequest(@NotBlank @Size(max = 120) String displayName,
+                                        @Size(max = 2000) @Nullable String bio,
                                         @Nullable Boolean active) {
     }
 

@@ -1,3 +1,4 @@
+# The whole stack for local development (docker compose up --build). Production: compose.prod.yaml.
 include:
   - backend/compose.yaml
 
@@ -18,14 +19,17 @@ services:
       s3:
         condition: service_healthy
     ports:
-      - '8080:8080'
+      - '127.0.0.1:8080:8080'
 
   frontend:
-    build: ./frontend
+    build:
+      context: ./frontend
+      args:
+        VITE_KEYCLOAK_URL: http://localhost:8180
     depends_on:
       backend:
         condition: service_started
       keycloak:
         condition: service_healthy
     ports:
-      - '5173:80'
+      - '127.0.0.1:5173:8080'

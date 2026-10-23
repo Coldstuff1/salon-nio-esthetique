@@ -42,6 +42,7 @@ public class BookingController {
     @ResponseStatus(HttpStatus.CREATED)
     @PreAuthorize("hasRole('CLIENT')")
     public BookingView reserve(@AuthenticationPrincipal Jwt jwt, @Valid @RequestBody BookingRequest request) {
+        CurrentUserService.requireVerifiedEmail(jwt);
         UUID customerId = currentUser.customer(jwt).getId();
         return views.of(bookingService.reserve(customerId, new ReserveCommand(request.employeeId(),
                 request.startsAt(), request.serviceIds(), request.products(), request.notes())));
@@ -63,17 +64,18 @@ public class BookingController {
     @PostMapping("/{id}/complete")
     @PreAuthorize("hasRole('EMPLOYEE')")
     public BookingView complete(@PathVariable UUID id, @AuthenticationPrincipal Jwt jwt) {
-        return views.of(bookingService.close(id, CurrentUserService.userId(jwt), BookingStatus.COMPLETED));
+        return views.of(bookingService.close(id, currentUser.employee(jwt).getId(), BookingStatus.COMPLETED));
     }
 
     @PostMapping("/{id}/no-show")
     @PreAuthorize("hasRole('EMPLOYEE')")
     public BookingView noShow(@PathVariable UUID id, @AuthenticationPrincipal Jwt jwt) {
-        return views.of(bookingService.close(id, CurrentUserService.userId(jwt), BookingStatus.NO_SHOW));
+        return views.of(bookingService.close(id, currentUser.employee(jwt).getId(), BookingStatus.NO_SHOW));
     }
 
     public record BookingRequest(@NotNull UUID employeeId, @NotNull Instant startsAt,
-                                 @NotEmpty List<UUID> serviceIds, @Nullable List<@Valid ProductSelection> products,
+                                 @NotEmpty @Size(max = 10) List<UUID> serviceIds,
+                                 @Size(max = 10) @Nullable List<@Valid ProductSelection> products,
                                  @Size(max = 1000) @Nullable String notes) {
     }
 

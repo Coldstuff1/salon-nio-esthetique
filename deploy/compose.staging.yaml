@@ -1,0 +1,43 @@
+# Adds local stand-ins for the external services, to rehearse compose.prod.yaml on a workstation:
+#   docker compose -f compose.prod.yaml -f deploy/compose.staging.yaml --env-file deploy/staging.env up -d --build
+services:
+  backend:
+    environment:
+      # SeaweedFS starts empty: let the backend create the bucket and its CORS rule
+      SALON_MEDIA_CREATEBUCKET: 'true'
+      SALON_MEDIA_ALLOWEDORIGINS: https://${NIO_SITE_DOMAIN}
+    depends_on:
+      s3:
+        condition: service_healthy
+
+  keycloak:
+    environment:
+      # every request in the logs, to see what the browser and keycloak-js do
+      KC_HTTP_ACCESS_LOG_ENABLED: 'true'
+    depends_on:
+      mailpit:
+        condition: service_started
+
+  mailpit:
+    image: 'axllent/mailpit:v1.32.0'
+    environment:
+      MP_SMTP_AUTH_ACCEPT_ANY: 'true'
+      MP_SMTP_AUTH_ALLOW_INSECURE: 'true'
+    ports:
+      - '127.0.0.1:8025:8025'
+    networks: [edge]
+
+  s3:
+    image: 'chrislusf/seaweedfs:4.48'
+    command: ['server', '-dir=/data', '-ip.bind=0.0.0.0', '-s3', '-s3.port=8333', '-s3.config=/etc/seaweedfs/s3.json']
+    ports:
+      - '127.0.0.1:8333:8333'
+    volumes:
+      # relative to the repository root, like every path when this file is layered on compose.prod.yaml
+      - './backend/docker/seaweedfs/s3.json:/etc/seaweedfs/s3.json:ro'
+    networks: [edge]
+    healthcheck:
+      test: ['CMD-SHELL', 'wget -q -O /dev/null http://localhost:8333/healthz || exit 1']
+      interval: 5s
+      timeout: 5s
+      retries: 20

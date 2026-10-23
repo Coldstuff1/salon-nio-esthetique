@@ -29,12 +29,19 @@ public enum ErrorCode {
     CANCEL_AFTER_START,
     BOOKING_CLOSED,
     INVALID_OUTCOME,
+    TOO_MANY_BOOKINGS,
+    TOO_FAR_AHEAD,
 
     // media
     FILE_SIZE,
     FILE_TYPE,
     FILE_NOT_UPLOADED,
     FILE_MISMATCH,
+    TOO_MANY_UPLOADS,
+
+    // accounts
+    EMAIL_NOT_VERIFIED,
+    EMPLOYEE_INACTIVE,
 
     // admin
     EMPLOYEE_EXISTS,

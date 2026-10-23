@@ -79,6 +79,12 @@ public class MediaStorage {
         }
     }
 
+    /** The first {@code length} bytes of the object, or all of it when it is shorter. */
+    public byte[] readPrefix(String key, int length) {
+        return client.getObjectAsBytes(r -> r.bucket(properties.bucket()).key(key).range("bytes=0-" + (length - 1)))
+                .asByteArray();
+    }
+
     public void delete(String key) {
         client.deleteObject(r -> r.bucket(properties.bucket()).key(key));
     }

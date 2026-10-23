@@ -1,0 +1,33 @@
+# Weekly update proposals for every dependency the stack pins: Java libraries, npm packages, base images and
+# CI actions.
+version: 2
+updates:
+  - package-ecosystem: gradle
+    directory: /backend
+    schedule:
+      interval: weekly
+  - package-ecosystem: npm
+    directory: /frontend
+    schedule:
+      interval: weekly
+    groups:
+      dev-dependencies:
+        dependency-type: development
+  - package-ecosystem: docker
+    directories:
+      - /backend
+      - /backend/docker/keycloak
+      - /frontend
+    schedule:
+      interval: weekly
+  - package-ecosystem: docker-compose
+    directories:
+      - /
+      - /backend
+      - /deploy
+    schedule:
+      interval: weekly
+  - package-ecosystem: github-actions
+    directory: /
+    schedule:
+      interval: weekly

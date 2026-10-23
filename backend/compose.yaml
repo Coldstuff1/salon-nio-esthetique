@@ -1,12 +1,15 @@
+# Local development only; production runs compose.prod.yaml at the repository root.
+# Every published port is bound to 127.0.0.1 so nothing here is reachable from the network.
 services:
   postgres:
-    image: 'postgres:18'
+    image: 'postgres:18.6'
     environment:
       - 'POSTGRES_DB=mydatabase'
       - 'POSTGRES_PASSWORD=secret'
       - 'POSTGRES_USER=myuser'
+      - 'KEYCLOAK_DB_PASSWORD=keycloak'
     ports:
-      - '5432'
+      - '127.0.0.1::5432'
     volumes:
       - 'pgdata:/var/lib/postgresql'
       - './docker/postgres-init:/docker-entrypoint-initdb.d:ro'
@@ -30,13 +33,15 @@ services:
       KC_BOOTSTRAP_ADMIN_USERNAME: admin
       KC_BOOTSTRAP_ADMIN_PASSWORD: admin
     ports:
-      - '8180:8080'
+      - '127.0.0.1:8180:8080'
     volumes:
-      - './docker/keycloak/realm-nio.json:/opt/keycloak/data/import/realm-nio.json:ro'
+      - './docker/keycloak/realm-nio-dev.json:/opt/keycloak/data/import/realm-nio.json:ro'
       - './docker/keycloak/themes/nio:/opt/keycloak/themes/nio:ro'
     depends_on:
       postgres:
         condition: service_healthy
+      mailpit:
+        condition: service_started
     healthcheck:
       test: ['CMD-SHELL', "exec 3<>/dev/tcp/localhost/9000 && printf 'GET /health/ready HTTP/1.1\\r\\nHost: localhost\\r\\nConnection: close\\r\\n\\r\\n' >&3 && grep -q '\"UP\"' <&3"]
       interval: 10s
@@ -44,11 +49,17 @@ services:
       retries: 30
       start_period: 30s
 
+  # catches Keycloak's verification and password-reset emails; read them at http://localhost:8025
+  mailpit:
+    image: 'axllent/mailpit:v1.32.0'
+    ports:
+      - '127.0.0.1:8025:8025'
+
   s3:
     image: 'chrislusf/seaweedfs:4.48'
     command: ['server', '-dir=/data', '-ip.bind=0.0.0.0', '-s3', '-s3.port=8333', '-s3.config=/etc/seaweedfs/s3.json']
     ports:
-      - '8333:8333'
+      - '127.0.0.1:8333:8333'
     volumes:
       - 'mediadata:/data'
       - './docker/seaweedfs/s3.json:/etc/seaweedfs/s3.json:ro'

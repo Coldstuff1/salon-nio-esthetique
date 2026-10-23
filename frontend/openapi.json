@@ -29,6 +29,16 @@
               }
             }
           },
+          "403" : {
+            "description" : "Forbidden",
+            "content" : {
+              "application/problem+json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ProblemDetail"
+                }
+              }
+            }
+          },
           "409" : {
             "description" : "Conflict",
             "content" : {
@@ -77,6 +87,16 @@
         "responses" : {
           "404" : {
             "description" : "Not Found",
+            "content" : {
+              "application/problem+json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ProblemDetail"
+                }
+              }
+            }
+          },
+          "403" : {
+            "description" : "Forbidden",
             "content" : {
               "application/problem+json" : {
                 "schema" : {
@@ -152,6 +172,16 @@
               }
             }
           },
+          "403" : {
+            "description" : "Forbidden",
+            "content" : {
+              "application/problem+json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ProblemDetail"
+                }
+              }
+            }
+          },
           "409" : {
             "description" : "Conflict",
             "content" : {
@@ -219,6 +249,16 @@
               }
             }
           },
+          "403" : {
+            "description" : "Forbidden",
+            "content" : {
+              "application/problem+json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ProblemDetail"
+                }
+              }
+            }
+          },
           "409" : {
             "description" : "Conflict",
             "content" : {
@@ -277,6 +317,16 @@
               }
             }
           },
+          "403" : {
+            "description" : "Forbidden",
+            "content" : {
+              "application/problem+json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ProblemDetail"
+                }
+              }
+            }
+          },
           "409" : {
             "description" : "Conflict",
             "content" : {
@@ -315,6 +365,16 @@
         "responses" : {
           "404" : {
             "description" : "Not Found",
+            "content" : {
+              "application/problem+json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ProblemDetail"
+                }
+              }
+            }
+          },
+          "403" : {
+            "description" : "Forbidden",
             "content" : {
               "application/problem+json" : {
                 "schema" : {
@@ -384,6 +444,16 @@
               }
             }
           },
+          "403" : {
+            "description" : "Forbidden",
+            "content" : {
+              "application/problem+json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ProblemDetail"
+                }
+              }
+            }
+          },
           "409" : {
             "description" : "Conflict",
             "content" : {
@@ -424,6 +494,16 @@
         "responses" : {
           "404" : {
             "description" : "Not Found",
+            "content" : {
+              "application/problem+json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ProblemDetail"
+                }
+              }
+            }
+          },
+          "403" : {
+            "description" : "Forbidden",
             "content" : {
               "application/problem+json" : {
                 "schema" : {
@@ -480,6 +560,16 @@
         "responses" : {
           "404" : {
             "description" : "Not Found",
+            "content" : {
+              "application/problem+json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ProblemDetail"
+                }
+              }
+            }
+          },
+          "403" : {
+            "description" : "Forbidden",
             "content" : {
               "application/problem+json" : {
                 "schema" : {
@@ -555,6 +645,16 @@
               }
             }
           },
+          "403" : {
+            "description" : "Forbidden",
+            "content" : {
+              "application/problem+json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ProblemDetail"
+                }
+              }
+            }
+          },
           "409" : {
             "description" : "Conflict",
             "content" : {
@@ -602,6 +702,16 @@
         "responses" : {
           "404" : {
             "description" : "Not Found",
+            "content" : {
+              "application/problem+json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ProblemDetail"
+                }
+              }
+            }
+          },
+          "403" : {
+            "description" : "Forbidden",
             "content" : {
               "application/problem+json" : {
                 "schema" : {
@@ -670,6 +780,16 @@
               }
             }
           },
+          "403" : {
+            "description" : "Forbidden",
+            "content" : {
+              "application/problem+json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ProblemDetail"
+                }
+              }
+            }
+          },
           "409" : {
             "description" : "Conflict",
             "content" : {
@@ -717,6 +837,16 @@
         "responses" : {
           "404" : {
             "description" : "Not Found",
+            "content" : {
+              "application/problem+json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ProblemDetail"
+                }
+              }
+            }
+          },
+          "403" : {
+            "description" : "Forbidden",
             "content" : {
               "application/problem+json" : {
                 "schema" : {
@@ -785,6 +915,16 @@
               }
             }
           },
+          "403" : {
+            "description" : "Forbidden",
+            "content" : {
+              "application/problem+json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ProblemDetail"
+                }
+              }
+            }
+          },
           "409" : {
             "description" : "Conflict",
             "content" : {
@@ -840,6 +980,16 @@
               }
             }
           },
+          "403" : {
+            "description" : "Forbidden",
+            "content" : {
+              "application/problem+json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ProblemDetail"
+                }
+              }
+            }
+          },
           "409" : {
             "description" : "Conflict",
             "content" : {
@@ -883,6 +1033,16 @@
         "responses" : {
           "404" : {
             "description" : "Not Found",
+            "content" : {
+              "application/problem+json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ProblemDetail"
+                }
+              }
+            }
+          },
+          "403" : {
+            "description" : "Forbidden",
             "content" : {
               "application/problem+json" : {
                 "schema" : {
@@ -949,6 +1109,16 @@
               }
             }
           },
+          "403" : {
+            "description" : "Forbidden",
+            "content" : {
+              "application/problem+json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ProblemDetail"
+                }
+              }
+            }
+          },
           "409" : {
             "description" : "Conflict",
             "content" : {
@@ -999,6 +1169,16 @@
         "responses" : {
           "404" : {
             "description" : "Not Found",
+            "content" : {
+              "application/problem+json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ProblemDetail"
+                }
+              }
+            }
+          },
+          "403" : {
+            "description" : "Forbidden",
             "content" : {
               "application/problem+json" : {
                 "schema" : {
@@ -1065,6 +1245,16 @@
               }
             }
           },
+          "403" : {
+            "description" : "Forbidden",
+            "content" : {
+              "application/problem+json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ProblemDetail"
+                }
+              }
+            }
+          },
           "409" : {
             "description" : "Conflict",
             "content" : {
@@ -1114,6 +1304,16 @@
         "responses" : {
           "404" : {
             "description" : "Not Found",
+            "content" : {
+              "application/problem+json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ProblemDetail"
+                }
+              }
+            }
+          },
+          "403" : {
+            "description" : "Forbidden",
             "content" : {
               "application/problem+json" : {
                 "schema" : {
@@ -1179,6 +1379,16 @@
               }
             }
           },
+          "403" : {
+            "description" : "Forbidden",
+            "content" : {
+              "application/problem+json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ProblemDetail"
+                }
+              }
+            }
+          },
           "409" : {
             "description" : "Conflict",
             "content" : {
@@ -1236,6 +1446,16 @@
               }
             }
           },
+          "403" : {
+            "description" : "Forbidden",
+            "content" : {
+              "application/problem+json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ProblemDetail"
+                }
+              }
+            }
+          },
           "409" : {
             "description" : "Conflict",
             "content" : {
@@ -1276,6 +1496,16 @@
         "responses" : {
           "404" : {
             "description" : "Not Found",
+            "content" : {
+              "application/problem+json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ProblemDetail"
+                }
+              }
+            }
+          },
+          "403" : {
+            "description" : "Forbidden",
             "content" : {
               "application/problem+json" : {
                 "schema" : {
@@ -1343,6 +1573,16 @@
               }
             }
           },
+          "403" : {
+            "description" : "Forbidden",
+            "content" : {
+              "application/problem+json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ProblemDetail"
+                }
+              }
+            }
+          },
           "409" : {
             "description" : "Conflict",
             "content" : {
@@ -1383,6 +1623,16 @@
         "responses" : {
           "404" : {
             "description" : "Not Found",
+            "content" : {
+              "application/problem+json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ProblemDetail"
+                }
+              }
+            }
+          },
+          "403" : {
+            "description" : "Forbidden",
             "content" : {
               "application/problem+json" : {
                 "schema" : {
@@ -1450,6 +1700,16 @@
               }
             }
           },
+          "403" : {
+            "description" : "Forbidden",
+            "content" : {
+              "application/problem+json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ProblemDetail"
+                }
+              }
+            }
+          },
           "409" : {
             "description" : "Conflict",
             "content" : {
@@ -1490,6 +1750,16 @@
         "responses" : {
           "404" : {
             "description" : "Not Found",
+            "content" : {
+              "application/problem+json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ProblemDetail"
+                }
+              }
+            }
+          },
+          "403" : {
+            "description" : "Forbidden",
             "content" : {
               "application/problem+json" : {
                 "schema" : {
@@ -1549,6 +1819,16 @@
         "responses" : {
           "404" : {
             "description" : "Not Found",
+            "content" : {
+              "application/problem+json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ProblemDetail"
+                }
+              }
+            }
+          },
+          "403" : {
+            "description" : "Forbidden",
             "content" : {
               "application/problem+json" : {
                 "schema" : {
@@ -1622,6 +1902,16 @@
               }
             }
           },
+          "403" : {
+            "description" : "Forbidden",
+            "content" : {
+              "application/problem+json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ProblemDetail"
+                }
+              }
+            }
+          },
           "409" : {
             "description" : "Conflict",
             "content" : {
@@ -1665,6 +1955,16 @@
         "responses" : {
           "404" : {
             "description" : "Not Found",
+            "content" : {
+              "application/problem+json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ProblemDetail"
+                }
+              }
+            }
+          },
+          "403" : {
+            "description" : "Forbidden",
             "content" : {
               "application/problem+json" : {
                 "schema" : {
@@ -1724,6 +2024,16 @@
               }
             }
           },
+          "403" : {
+            "description" : "Forbidden",
+            "content" : {
+              "application/problem+json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ProblemDetail"
+                }
+              }
+            }
+          },
           "409" : {
             "description" : "Conflict",
             "content" : {
@@ -1775,6 +2085,16 @@
               }
             }
           },
+          "403" : {
+            "description" : "Forbidden",
+            "content" : {
+              "application/problem+json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ProblemDetail"
+                }
+              }
+            }
+          },
           "409" : {
             "description" : "Conflict",
             "content" : {
@@ -1818,6 +2138,16 @@
         "responses" : {
           "404" : {
             "description" : "Not Found",
+            "content" : {
+              "application/problem+json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ProblemDetail"
+                }
+              }
+            }
+          },
+          "403" : {
+            "description" : "Forbidden",
             "content" : {
               "application/problem+json" : {
                 "schema" : {
@@ -1891,12 +2221,24 @@
             "items" : {
               "type" : "string",
               "format" : "uuid"
-            }
+            },
+            "maxItems" : 10,
+            "minItems" : 0
           }
         } ],
         "responses" : {
           "404" : {
             "description" : "Not Found",
+            "content" : {
+              "application/problem+json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ProblemDetail"
+                }
+              }
+            }
+          },
+          "403" : {
+            "description" : "Forbidden",
             "content" : {
               "application/problem+json" : {
                 "schema" : {
@@ -1966,6 +2308,16 @@
               }
             }
           },
+          "403" : {
+            "description" : "Forbidden",
+            "content" : {
+              "application/problem+json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ProblemDetail"
+                }
+              }
+            }
+          },
           "409" : {
             "description" : "Conflict",
             "content" : {
@@ -2014,6 +2366,16 @@
               }
             }
           },
+          "403" : {
+            "description" : "Forbidden",
+            "content" : {
+              "application/problem+json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ProblemDetail"
+                }
+              }
+            }
+          },
           "409" : {
             "description" : "Conflict",
             "content" : {
@@ -2054,6 +2416,16 @@
         "responses" : {
           "404" : {
             "description" : "Not Found",
+            "content" : {
+              "application/problem+json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ProblemDetail"
+                }
+              }
+            }
+          },
+          "403" : {
+            "description" : "Forbidden",
             "content" : {
               "application/problem+json" : {
                 "schema" : {
@@ -2138,6 +2510,16 @@
               }
             }
           },
+          "403" : {
+            "description" : "Forbidden",
+            "content" : {
+              "application/problem+json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ProblemDetail"
+                }
+              }
+            }
+          },
           "409" : {
             "description" : "Conflict",
             "content" : {
@@ -2190,6 +2572,16 @@
         "responses" : {
           "404" : {
             "description" : "Not Found",
+            "content" : {
+              "application/problem+json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ProblemDetail"
+                }
+              }
+            }
+          },
+          "403" : {
+            "description" : "Forbidden",
             "content" : {
               "application/problem+json" : {
                 "schema" : {
@@ -2263,7 +2655,9 @@
             "minLength" : 0
           },
           "bio" : {
-            "type" : [ "string", "null" ]
+            "type" : [ "string", "null" ],
+            "maxLength" : 2000,
+            "minLength" : 0
           }
         },
         "required" : [ "displayName" ]
@@ -2408,11 +2802,13 @@
           "priceCents" : {
             "type" : "integer",
             "format" : "int32",
+            "maximum" : 1000000,
             "minimum" : 0
           },
           "durationMinutes" : {
             "type" : "integer",
             "format" : "int32",
+            "maximum" : 600,
             "minimum" : 5
           },
           "active" : {
@@ -2427,16 +2823,19 @@
           "priceCents" : {
             "type" : "integer",
             "format" : "int32",
+            "maximum" : 1000000,
             "minimum" : 0
           },
           "costCents" : {
             "type" : "integer",
             "format" : "int32",
+            "maximum" : 1000000,
             "minimum" : 0
           },
           "quantityOnHand" : {
             "type" : "integer",
             "format" : "int32",
+            "maximum" : 100000,
             "minimum" : 0
           },
           "active" : {
@@ -2532,10 +2931,13 @@
         "properties" : {
           "en" : {
             "type" : "string",
-            "minLength" : 1
+            "maxLength" : 5000,
+            "minLength" : 0
           },
           "fr" : {
-            "type" : [ "string", "null" ]
+            "type" : [ "string", "null" ],
+            "maxLength" : 5000,
+            "minLength" : 0
           }
         },
         "required" : [ "en" ]
@@ -2700,7 +3102,9 @@
             "minLength" : 0
           },
           "bio" : {
-            "type" : [ "string", "null" ]
+            "type" : [ "string", "null" ],
+            "maxLength" : 2000,
+            "minLength" : 0
           },
           "active" : {
             "type" : [ "boolean", "null" ]
@@ -2760,6 +3164,7 @@
           "quantity" : {
             "type" : "integer",
             "format" : "int32",
+            "maximum" : 10,
             "minimum" : 1
           }
         },
@@ -2778,13 +3183,16 @@
               "type" : "string",
               "format" : "uuid"
             },
-            "minItems" : 1
+            "maxItems" : 10,
+            "minItems" : 0
           },
           "products" : {
             "type" : [ "array", "null" ],
             "items" : {
               "$ref" : "#/components/schemas/ProductSelection"
-            }
+            },
+            "maxItems" : 10,
+            "minItems" : 0
           }
         },
         "required" : [ "employeeId", "serviceIds" ]
@@ -2911,13 +3319,16 @@
               "type" : "string",
               "format" : "uuid"
             },
-            "minItems" : 1
+            "maxItems" : 10,
+            "minItems" : 0
           },
           "products" : {
             "type" : [ "array", "null" ],
             "items" : {
               "$ref" : "#/components/schemas/ProductSelection"
-            }
+            },
+            "maxItems" : 10,
+            "minItems" : 0
           },
           "notes" : {
             "type" : [ "string", "null" ],
@@ -3001,7 +3412,9 @@
             "minLength" : 0
           },
           "bio" : {
-            "type" : [ "string", "null" ]
+            "type" : [ "string", "null" ],
+            "maxLength" : 2000,
+            "minLength" : 0
           }
         },
         "required" : [ "displayName", "id" ]

@@ -1,0 +1,35 @@
+# Production overrides (SPRING_PROFILES_ACTIVE=prod). Every secret and host is read from the environment with
+# no default, so a missing variable stops startup instead of quietly falling back to a dev value from
+# application.yaml. The variables are documented in .env.prod.example.
+spring:
+  datasource:
+    url: ${NIO_DB_URL}
+    username: ${NIO_DB_USER}
+    password: ${NIO_DB_PASSWORD}
+  security:
+    oauth2:
+      resourceserver:
+        jwt:
+          # what Keycloak writes into tokens (its public URL) ...
+          issuer-uri: ${NIO_AUTH_URL}/realms/nio
+          # ... and where the backend fetches signing keys (over the private network)
+          jwk-set-uri: http://keycloak:8080/realms/nio/protocol/openid-connect/certs
+
+# the frontend builds from the committed frontend/openapi.json; nothing here needs the live spec
+springdoc:
+  api-docs:
+    enabled: false
+  swagger-ui:
+    enabled: false
+
+salon:
+  media:
+    endpoint: ${NIO_S3_ENDPOINT}
+    public-endpoint: ${NIO_S3_PUBLIC_ENDPOINT}
+    region: ${NIO_S3_REGION}
+    bucket: ${NIO_S3_BUCKET}
+    access-key: ${NIO_S3_ACCESS_KEY}
+    secret-key: ${NIO_S3_SECRET_KEY}
+    # the bucket, its CORS rule and its permissions are set up with the provider; see docs/operations.md
+    create-bucket: false
+    allowed-origins: []

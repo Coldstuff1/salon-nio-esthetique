@@ -23,14 +23,17 @@ import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExcep
 import ca.nio.backend.services.ConflictException;
 import ca.nio.backend.services.DomainException;
 import ca.nio.backend.services.ErrorCode;
+import ca.nio.backend.services.ForbiddenException;
 import ca.nio.backend.services.InvalidRequestException;
 import ca.nio.backend.services.NotFoundException;
+import lombok.extern.slf4j.Slf4j;
 
 /**
  * Every error is a {@link ProblemDetail} with a {@code code} property (an {@link ErrorCode} such as
  * {@code slot-taken}) for clients to translate, plus {@code params} to fill into the message and, for bean
  * validation failures, the offending {@code fields}.
  */
+@Slf4j
 @RestControllerAdvice
 public class ApiExceptionHandler extends ResponseEntityExceptionHandler {
 
@@ -42,6 +45,12 @@ public class ApiExceptionHandler extends ResponseEntityExceptionHandler {
     @ResponseStatus(HttpStatus.NOT_FOUND)
     ProblemDetail notFound(NotFoundException e) {
         return problem(HttpStatus.NOT_FOUND, e);
+    }
+
+    @ExceptionHandler(ForbiddenException.class)
+    @ResponseStatus(HttpStatus.FORBIDDEN)
+    ProblemDetail forbidden(ForbiddenException e) {
+        return problem(HttpStatus.FORBIDDEN, e);
     }
 
     @ExceptionHandler(ConflictException.class)
@@ -56,11 +65,15 @@ public class ApiExceptionHandler extends ResponseEntityExceptionHandler {
         return problem(HttpStatus.BAD_REQUEST, e);
     }
 
-    /** Broken invariants in model constructors, e.g. a time window that ends before it starts. */
+    /**
+     * Broken invariants in model constructors, e.g. a time window that ends before it starts. Libraries throw
+     * this too, so the message is only logged: it can describe internals.
+     */
     @ExceptionHandler(IllegalArgumentException.class)
     @ResponseStatus(HttpStatus.BAD_REQUEST)
     ProblemDetail badRequest(IllegalArgumentException e) {
-        return problem(HttpStatus.BAD_REQUEST, e.getMessage(), ErrorCode.INVALID_REQUEST, Map.of());
+        log.debug("Rejected request: {}", e.getMessage());
+        return problem(HttpStatus.BAD_REQUEST, "Invalid request", ErrorCode.INVALID_REQUEST, Map.of());
     }
 
     @ExceptionHandler(DataIntegrityViolationException.class)

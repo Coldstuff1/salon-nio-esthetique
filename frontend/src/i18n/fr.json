@@ -200,7 +200,12 @@
       "media-not-found": "Ce fichier est introuvable.",
       "data-conflict": "Cette modification entre en conflit avec des données existantes.",
       "concurrent-update": "Les données ont changé entre-temps. Rechargez la page et réessayez.",
-      "sku-taken": "Un autre produit utilise déjà ce SKU."
+      "sku-taken": "Un autre produit utilise déjà ce SKU.",
+      "too-many-bookings": "Vous avez déjà {max} rendez-vous à venir. Annulez-en un, ou attendez qu'il soit passé, pour en réserver un autre.",
+      "too-far-ahead": "Les réservations ouvrent {days} jours à l'avance. Choisissez une date plus proche.",
+      "too-many-uploads": "Trop de téléversements en attente. Réessayez plus tard.",
+      "email-not-verified": "Confirmez d'abord votre courriel à l'aide du lien que nous vous avons envoyé.",
+      "employee-inactive": "Votre compte employé a été désactivé. Communiquez avec l'administration du salon."
     }
   },
   "services": {

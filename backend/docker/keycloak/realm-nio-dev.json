@@ -1,0 +1,267 @@
+{
+  "realm": "nio",
+  "enabled": true,
+  "registrationAllowed": true,
+  "loginWithEmailAllowed": true,
+  "duplicateEmailsAllowed": false,
+  "verifyEmail": true,
+  "resetPasswordAllowed": true,
+  "editUsernameAllowed": false,
+  "rememberMe": true,
+  "sslRequired": "external",
+  "passwordPolicy": "length(12) and maxLength(128) and notUsername and notEmail",
+  "bruteForceProtected": true,
+  "permanentLockout": false,
+  "failureFactor": 5,
+  "waitIncrementSeconds": 60,
+  "maxFailureWaitSeconds": 900,
+  "quickLoginCheckMilliSeconds": 1000,
+  "minimumQuickLoginWaitSeconds": 60,
+  "maxDeltaTimeSeconds": 43200,
+  "ssoSessionIdleTimeoutRememberMe": 604800,
+  "ssoSessionMaxLifespanRememberMe": 2592000,
+  "eventsEnabled": true,
+  "eventsExpiration": 7776000,
+  "adminEventsEnabled": true,
+  "adminEventsDetailsEnabled": false,
+  "loginTheme": "nio",
+  "internationalizationEnabled": true,
+  "supportedLocales": [
+    "fr",
+    "en"
+  ],
+  "defaultLocale": "fr",
+  "browserSecurityHeaders": {
+    "contentSecurityPolicyReportOnly": "",
+    "xContentTypeOptions": "nosniff",
+    "referrerPolicy": "no-referrer",
+    "xRobotsTag": "none",
+    "xFrameOptions": "SAMEORIGIN",
+    "contentSecurityPolicy": "frame-src 'self' https://www.google.com/recaptcha/; frame-ancestors 'self'; object-src 'none'; base-uri 'self';",
+    "strictTransportSecurity": "max-age=31536000; includeSubDomains"
+  },
+  "smtpServer": {
+    "host": "mailpit",
+    "port": "1025",
+    "from": "no-reply@nio.localhost",
+    "fromDisplayName": "Salon Nio Esthétique (dev)",
+    "auth": "false",
+    "starttls": "false",
+    "ssl": "false"
+  },
+  "roles": {
+    "realm": [
+      {
+        "name": "client",
+        "description": "Salon customer"
+      },
+      {
+        "name": "employee",
+        "description": "Salon staff",
+        "composite": true,
+        "composites": {
+          "realm": [
+            "otp-required"
+          ]
+        }
+      },
+      {
+        "name": "admin",
+        "description": "Administrator",
+        "composite": true,
+        "composites": {
+          "realm": [
+            "otp-required"
+          ]
+        }
+      },
+      {
+        "name": "otp-required",
+        "description": "Signs in with a one-time code as well as a password; part of the employee and admin roles"
+      },
+      {
+        "name": "offline_access",
+        "description": "${role_offline-access}"
+      },
+      {
+        "name": "uma_authorization",
+        "description": "${role_uma_authorization}"
+      },
+      {
+        "name": "default-roles-nio",
+        "description": "${role_default-roles}",
+        "composite": true,
+        "composites": {
+          "realm": [
+            "client"
+          ],
+          "client": {
+            "account": [
+              "view-profile",
+              "manage-account"
+            ]
+          }
+        }
+      }
+    ]
+  },
+  "defaultRole": {
+    "name": "default-roles-nio",
+    "composite": true
+  },
+  "clients": [
+    {
+      "clientId": "nio-frontend",
+      "name": "Nio Esthétique frontend",
+      "enabled": true,
+      "publicClient": true,
+      "protocol": "openid-connect",
+      "standardFlowEnabled": true,
+      "implicitFlowEnabled": false,
+      "directAccessGrantsEnabled": false,
+      "serviceAccountsEnabled": false,
+      "rootUrl": "http://localhost:5173",
+      "baseUrl": "/",
+      "redirectUris": [
+        "http://localhost:5173/*"
+      ],
+      "webOrigins": [
+        "http://localhost:5173"
+      ],
+      "attributes": {
+        "pkce.code.challenge.method": "S256",
+        "post.logout.redirect.uris": "http://localhost:5173/*"
+      },
+      "protocolMappers": [
+        {
+          "name": "nio-backend audience",
+          "protocol": "openid-connect",
+          "protocolMapper": "oidc-audience-mapper",
+          "consentRequired": false,
+          "config": {
+            "included.custom.audience": "nio-backend",
+            "access.token.claim": "true",
+            "id.token.claim": "false",
+            "introspection.token.claim": "true"
+          }
+        }
+      ],
+      "defaultClientScopes": [
+        "web-origins",
+        "acr",
+        "profile",
+        "roles",
+        "basic",
+        "email"
+      ],
+      "optionalClientScopes": [
+        "address",
+        "phone",
+        "organization",
+        "microprofile-jwt"
+      ]
+    },
+    {
+      "clientId": "admin-cli",
+      "name": "${client_admin-cli}",
+      "enabled": false,
+      "publicClient": true,
+      "protocol": "openid-connect",
+      "standardFlowEnabled": false,
+      "directAccessGrantsEnabled": false
+    },
+    {
+      "clientId": "nio-swagger",
+      "name": "Nio Esthétique API docs (Swagger UI)",
+      "enabled": true,
+      "publicClient": true,
+      "protocol": "openid-connect",
+      "standardFlowEnabled": true,
+      "implicitFlowEnabled": false,
+      "directAccessGrantsEnabled": false,
+      "serviceAccountsEnabled": false,
+      "redirectUris": [
+        "http://localhost:8080/swagger-ui/oauth2-redirect.html"
+      ],
+      "webOrigins": [
+        "http://localhost:8080"
+      ],
+      "attributes": {
+        "pkce.code.challenge.method": "S256"
+      },
+      "protocolMappers": [
+        {
+          "name": "nio-backend audience",
+          "protocol": "openid-connect",
+          "protocolMapper": "oidc-audience-mapper",
+          "consentRequired": false,
+          "config": {
+            "included.custom.audience": "nio-backend",
+            "access.token.claim": "true",
+            "id.token.claim": "false",
+            "introspection.token.claim": "true"
+          }
+        }
+      ]
+    }
+  ],
+  "users": [
+    {
+      "username": "client1",
+      "email": "client1@example.com",
+      "firstName": "Client",
+      "lastName": "One",
+      "emailVerified": true,
+      "enabled": true,
+      "credentials": [
+        {
+          "type": "password",
+          "value": "nio-dev-password",
+          "temporary": false
+        }
+      ],
+      "realmRoles": [
+        "default-roles-nio",
+        "client"
+      ]
+    },
+    {
+      "username": "employee1",
+      "email": "employee1@example.com",
+      "firstName": "Employee",
+      "lastName": "One",
+      "emailVerified": true,
+      "enabled": true,
+      "credentials": [
+        {
+          "type": "password",
+          "value": "nio-dev-password",
+          "temporary": false
+        }
+      ],
+      "realmRoles": [
+        "default-roles-nio",
+        "employee"
+      ]
+    },
+    {
+      "username": "admin1",
+      "email": "admin1@example.com",
+      "firstName": "Admin",
+      "lastName": "One",
+      "emailVerified": true,
+      "enabled": true,
+      "credentials": [
+        {
+          "type": "password",
+          "value": "nio-dev-password",
+          "temporary": false
+        }
+      ],
+      "realmRoles": [
+        "default-roles-nio",
+        "admin"
+      ]
+    }
+  ]
+}

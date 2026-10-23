@@ -24,7 +24,7 @@ import lombok.RequiredArgsConstructor;
  */
 @RestController
 @RequestMapping("/api/media")
-@PreAuthorize("isAuthenticated()")
+@PreAuthorize("hasAnyRole('EMPLOYEE', 'ADMIN')")
 @RequiredArgsConstructor
 public class MediaController {
 

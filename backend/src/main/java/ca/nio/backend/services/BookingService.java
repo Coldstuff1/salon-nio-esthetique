@@ -28,11 +28,15 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public class BookingService {
 
+    /** Longest period a schedule or booking list can cover in one request. */
+    static final Duration MAX_RANGE = Duration.ofDays(366);
+
     private final BookingRepository bookings;
     private final EmployeeRepository employees;
     private final PriceCalculator priceCalculator;
     private final AvailabilityService availability;
     private final ApplicationEventPublisher events;
+    private final SalonProperties salon;
 
     @Transactional(readOnly = true)
     public Quote quote(UUID employeeId, List<UUID> serviceIds, List<ProductSelection> products) {
@@ -43,18 +47,31 @@ public class BookingService {
     public List<Instant> freeSlots(UUID employeeId, LocalDate date, List<UUID> serviceIds) {
         Employee employee = activeEmployee(employeeId);
         Quote quote = priceCalculator.quote(employee, serviceIds, List.of());
-        return availability.freeSlots(employee, date, quote.totalDurationMinutes());
+        Instant horizon = Instant.now().plus(salon.bookingHorizon());
+        return availability.freeSlots(employee, date, quote.totalDurationMinutes()).stream()
+                .filter(slot -> !slot.isAfter(horizon))
+                .toList();
     }
 
     /**
      * Books the slot and holds product stock. The {@code booking_no_overlap} constraint is the final guard
-     * against two concurrent reservations of the same time.
+     * against two concurrent reservations of the same time. Clients can only hold a few upcoming bookings, within
+     * the booking horizon; two simultaneous requests can overshoot that cap by one, which is fine.
      */
     @Transactional
     public Booking reserve(UUID customerId, ReserveCommand command) {
         Employee employee = activeEmployee(command.employeeId());
         if (command.startsAt() == null || !command.startsAt().isAfter(Instant.now())) {
             throw new InvalidRequestException(ErrorCode.START_IN_PAST, "Start time must be in the future");
+        }
+        if (command.startsAt().isAfter(Instant.now().plus(salon.bookingHorizon()))) {
+            throw new InvalidRequestException(ErrorCode.TOO_FAR_AHEAD, "Bookings open "
+                    + salon.bookingHorizon().toDays() + " days ahead", Map.of("days", salon.bookingHorizon().toDays()));
+        }
+        if (bookings.countByCustomerIdAndStatusAndStartsAtAfter(customerId, BookingStatus.RESERVED, Instant.now())
+                >= salon.maxUpcomingBookings()) {
+            throw new ConflictException(ErrorCode.TOO_MANY_BOOKINGS, "Clients can hold at most "
+                    + salon.maxUpcomingBookings() + " upcoming bookings", Map.of("max", salon.maxUpcomingBookings()));
         }
         Quote quote = priceCalculator.quote(employee, command.serviceIds(), command.products());
         Instant startsAt = command.startsAt();
@@ -85,7 +102,7 @@ public class BookingService {
 
     /**
      * Cancels a reserved booking and returns its products to stock. Customers can cancel their own bookings
-     * before they start; the assigned employee and admins can cancel any time.
+     * before they start; the assigned employee (while still active) and admins can cancel any time.
      */
     @Transactional
     public Booking cancel(UUID bookingId, UUID actorId, boolean admin) {
@@ -96,6 +113,9 @@ public class BookingService {
                 && !booking.getEmployeeId().equals(actorId);
         if (byCustomer && !booking.getStartsAt().isAfter(Instant.now())) {
             throw new ConflictException(ErrorCode.CANCEL_AFTER_START, "Bookings can't be cancelled after they start");
+        }
+        if (!admin && !byCustomer && employees.findById(actorId).filter(Employee::isActive).isEmpty()) {
+            throw new ForbiddenException(ErrorCode.EMPLOYEE_INACTIVE, "Employee " + actorId + " is deactivated");
         }
         transition(booking, BookingStatus.CANCELLED);
         booking.getProducts().forEach(line ->
@@ -128,9 +148,7 @@ public class BookingService {
 
     @Transactional(readOnly = true)
     public List<Booking> schedule(UUID employeeId, Instant from, Instant to) {
-        if (!from.isBefore(to)) {
-            throw new InvalidRequestException(ErrorCode.INVALID_RANGE, "'from' must be before 'to'");
-        }
+        requireRange(from, to);
         return bookings.findByEmployeeIdAndStartsAtBeforeAndEndsAtAfterOrderByStartsAt(employeeId, to, from);
     }
 
@@ -140,9 +158,7 @@ public class BookingService {
         if (employeeId != null) {
             return schedule(employeeId, from, to);
         }
-        if (!from.isBefore(to)) {
-            throw new InvalidRequestException(ErrorCode.INVALID_RANGE, "'from' must be before 'to'");
-        }
+        requireRange(from, to);
         return bookings.findByStartsAtBeforeAndEndsAtAfterOrderByStartsAt(to, from);
     }
 
@@ -150,6 +166,13 @@ public class BookingService {
         return employees.findById(employeeId)
                 .filter(Employee::isActive)
                 .orElseThrow(() -> new NotFoundException(ErrorCode.EMPLOYEE_NOT_FOUND, "Employee " + employeeId + " not found"));
+    }
+
+    private static void requireRange(Instant from, Instant to) {
+        if (!from.isBefore(to) || Duration.between(from, to).compareTo(MAX_RANGE) > 0) {
+            throw new InvalidRequestException(ErrorCode.INVALID_RANGE,
+                    "'from' must be before 'to' and at most " + MAX_RANGE.toDays() + " days apart");
+        }
     }
 
     private static void transition(Booking booking, BookingStatus next) {

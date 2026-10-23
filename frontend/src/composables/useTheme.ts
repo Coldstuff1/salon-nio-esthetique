@@ -2,7 +2,7 @@ import { computed, ref } from 'vue'
 
 export type ThemePreference = 'light' | 'dark' | 'system'
 
-// same key as the pre-paint script in index.html
+// same key as the pre-paint script, public/theme-init.js
 const STORAGE_KEY = 'nio.theme'
 const systemDark = matchMedia('(prefers-color-scheme: dark)')
 
