@@ -19,7 +19,9 @@ import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
 import ca.nio.backend.model.Employee;
+import ca.nio.backend.model.LocalizedText;
 import ca.nio.backend.model.Product;
+import ca.nio.backend.model.ProductOffering;
 import ca.nio.backend.model.ServiceType;
 import ca.nio.backend.repositories.EmployeeRepository;
 import ca.nio.backend.repositories.ProductRepository;
@@ -58,15 +60,16 @@ public class CatalogAdminController {
     @PostMapping("/service-types")
     @ResponseStatus(HttpStatus.CREATED)
     public ServiceType createServiceType(@Valid @RequestBody ServiceTypeRequest request) {
-        return serviceTypes.save(new ServiceType(request.name(), request.description(), request.category()));
+        return serviceTypes.save(new ServiceType(request.name().text(), text(request.description()),
+                text(request.category())));
     }
 
     @PutMapping("/service-types/{id}")
     public ServiceType updateServiceType(@PathVariable UUID id, @Valid @RequestBody ServiceTypeRequest request) {
         ServiceType type = serviceType(id);
-        type.setName(request.name());
-        type.setDescription(request.description());
-        type.setCategory(request.category());
+        type.setName(request.name().text());
+        type.setDescription(text(request.description()));
+        type.setCategory(text(request.category()));
         type.setActive(request.active() == null || request.active());
         return serviceTypes.save(type);
     }
@@ -79,26 +82,28 @@ public class CatalogAdminController {
         serviceTypes.save(type);
     }
 
+    /** Every product, including inactive ones, with each employee's price, cost and stock for it. */
     @GetMapping("/products")
-    public List<Product> products() {
-        return products.findAll();
+    public List<AdminProduct> products() {
+        List<Employee> staff = employees.findAll();
+        return products.findAll().stream().map(product -> AdminProduct.of(product, staff)).toList();
     }
 
     @PostMapping("/products")
     @ResponseStatus(HttpStatus.CREATED)
-    public Product createProduct(@Valid @RequestBody ProductRequest request) {
-        return products.save(new Product(request.name(), request.description(), request.sku(), request.costCents()));
+    public AdminProduct createProduct(@Valid @RequestBody ProductRequest request) {
+        return AdminProduct.of(products.save(new Product(request.name().text(), text(request.description()),
+                request.sku())), List.of());
     }
 
     @PutMapping("/products/{id}")
-    public Product updateProduct(@PathVariable UUID id, @Valid @RequestBody ProductRequest request) {
+    public AdminProduct updateProduct(@PathVariable UUID id, @Valid @RequestBody ProductRequest request) {
         Product product = product(id);
-        product.setName(request.name());
-        product.setDescription(request.description());
+        product.setName(request.name().text());
+        product.setDescription(text(request.description()));
         product.setSku(request.sku());
-        product.setCostCents(request.costCents());
         product.setActive(request.active() == null || request.active());
-        return products.save(product);
+        return AdminProduct.of(products.save(product), employees.findAll());
     }
 
     @DeleteMapping("/products/{id}")
@@ -164,13 +169,67 @@ public class CatalogAdminController {
         return products.findById(id).orElseThrow(() -> new NotFoundException(ErrorCode.PRODUCT_NOT_FOUND, "Product " + id + " not found"));
     }
 
-    public record ServiceTypeRequest(@NotBlank @Size(max = 120) String name, @Nullable String description,
-                                     @Size(max = 60) @Nullable String category, @Nullable Boolean active) {
+    private static @Nullable LocalizedText text(@Nullable LocalizedRequest request) {
+        return request == null ? null : request.text();
     }
 
-    public record ProductRequest(@NotBlank @Size(max = 120) String name, @Nullable String description,
-                                 @NotBlank @Size(max = 60) String sku, @Min(0) int costCents,
-                                 @Nullable Boolean active) {
+    /** Catalog text as an admin enters it; English is required whenever the field is given at all. */
+    interface LocalizedRequest {
+
+        String en();
+
+        @Nullable String fr();
+
+        default LocalizedText text() {
+            return LocalizedText.of(en(), fr());
+        }
+
+    }
+
+    public record LocalizedName(@NotBlank @Size(max = 120) String en, @Size(max = 120) @Nullable String fr)
+            implements LocalizedRequest {
+    }
+
+    public record LocalizedCategory(@NotBlank @Size(max = 60) String en, @Size(max = 60) @Nullable String fr)
+            implements LocalizedRequest {
+    }
+
+    public record LocalizedDescription(@NotBlank String en, @Nullable String fr) implements LocalizedRequest {
+    }
+
+    public record ServiceTypeRequest(@NotNull @Valid LocalizedName name,
+                                     @Nullable @Valid LocalizedDescription description,
+                                     @Nullable @Valid LocalizedCategory category, @Nullable Boolean active) {
+    }
+
+    public record ProductRequest(@NotNull @Valid LocalizedName name,
+                                 @Nullable @Valid LocalizedDescription description, @NotBlank @Size(max = 60) String sku, @Nullable Boolean active) {
+    }
+
+    public record AdminProduct(UUID id, LocalizedText name, @Nullable LocalizedText description, String sku,
+                               boolean active, List<AdminProductOffering> offerings) {
+
+        static AdminProduct of(Product product, List<Employee> staff) {
+            return new AdminProduct(product.getId(), product.getName(), product.getDescription(), product.getSku(),
+                    product.isActive(), staff.stream()
+                            .flatMap(e -> e.productOffering(product.getId())
+                                    .map(o -> AdminProductOffering.of(e, o))
+                                    .stream())
+                            .sorted(Comparator.comparing(AdminProductOffering::employeeName))
+                            .toList());
+        }
+
+    }
+
+    /** One employee's terms for a product, inactive ones included so the admin sees the whole picture. */
+    public record AdminProductOffering(UUID employeeId, String employeeName, boolean employeeActive, int priceCents,
+                                       int costCents, int quantityOnHand, boolean active) {
+
+        static AdminProductOffering of(Employee employee, ProductOffering offering) {
+            return new AdminProductOffering(employee.getId(), employee.getDisplayName(), employee.isActive(),
+                    offering.priceCents(), offering.costCents(), offering.quantityOnHand(), offering.active());
+        }
+
     }
 
     public record EmployeeRequest(@NotNull UUID id, @NotBlank @Size(max = 120) String displayName, @Nullable String bio) {

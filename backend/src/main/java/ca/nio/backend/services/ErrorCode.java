@@ -38,6 +38,7 @@ public enum ErrorCode {
 
     // admin
     EMPLOYEE_EXISTS,
+    SKU_TAKEN,
 
     // missing things
     BOOKING_NOT_FOUND,

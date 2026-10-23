@@ -5,6 +5,7 @@ import java.util.UUID;
 import org.jspecify.annotations.Nullable;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.annotation.Version;
+import org.springframework.data.relational.core.mapping.Embedded;
 
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -21,16 +22,19 @@ public class ServiceType {
 
     @Id
     private UUID id;
-    private String name;
+    @Embedded.Nullable(prefix = "name_")
+    private LocalizedText name;
     @Nullable
-    private String description;
+    @Embedded.Nullable(prefix = "description_")
+    private LocalizedText description;
     @Nullable
-    private String category;
+    @Embedded.Nullable(prefix = "category_")
+    private LocalizedText category;
     private boolean active = true;
     @Version
     private Integer version;
 
-    public ServiceType(String name, String description, String category) {
+    public ServiceType(LocalizedText name, @Nullable LocalizedText description, @Nullable LocalizedText category) {
         this.id = UUID.randomUUID();
         this.name = name;
         this.description = description;

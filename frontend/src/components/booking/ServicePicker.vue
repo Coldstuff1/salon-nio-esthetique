@@ -4,7 +4,7 @@ import { useI18n } from 'vue-i18n'
 import type { Schemas } from '@/api/http'
 import BaseCheckbox from '@/components/ui/BaseCheckbox.vue'
 import { useLocale } from '@/i18n'
-import { groupByCategory } from '@/utils/catalog'
+import { byName, groupByCategory } from '@/utils/catalog'
 import { formatDuration, formatPrice } from '@/utils/format'
 
 /** Step 2: the employee's treatments (one or more, done back to back) and products to pick up on site. */
@@ -19,9 +19,12 @@ const emit = defineEmits<{
 }>()
 
 const { t } = useI18n()
-const { locale } = useLocale()
+const { locale, localize } = useLocale()
 
-const categories = computed(() => groupByCategory(props.offerings.services))
+const categories = computed(() =>
+  groupByCategory(byName(props.offerings.services, localize), (s) => localize(s.category)),
+)
+const products = computed(() => byName(props.offerings.products, localize))
 
 function toggleService(id: string, on: boolean) {
   emit('update:serviceIds', on ? [...props.serviceIds, id] : props.serviceIds.filter((s) => s !== id))
@@ -47,11 +50,13 @@ function setQuantity(productId: string, value: number) {
       >
         <div class="flex flex-col gap-1">
           <BaseCheckbox
-            :label="service.name"
+            :label="localize(service.name)!"
             :model-value="serviceIds.includes(service.serviceTypeId)"
             @update:model-value="toggleService(service.serviceTypeId, !!$event)"
           />
-          <p v-if="service.description" class="pl-7 text-sm text-ink-muted">{{ service.description }}</p>
+          <p v-if="service.description" class="pl-7 text-sm text-ink-muted">
+            {{ localize(service.description) }}
+          </p>
         </div>
         <div class="shrink-0 text-right">
           <p class="font-medium tabular-nums">{{ formatPrice(service.priceCents, locale) }}</p>
@@ -64,12 +69,12 @@ function setQuantity(productId: string, value: number) {
       <legend class="label-caps mb-1 text-accent">{{ t('booking.addProducts') }}</legend>
       <p class="mb-2 text-sm text-ink-muted">{{ t('booking.productsHint') }}</p>
       <div
-        v-for="product in offerings.products"
+        v-for="product in products"
         :key="product.productId"
         class="flex items-center justify-between gap-4 border border-line-soft bg-surface px-4 py-3.5"
       >
         <div class="flex flex-col gap-0.5">
-          <span>{{ product.name }}</span>
+          <span>{{ localize(product.name) }}</span>
           <span class="text-sm text-ink-muted tabular-nums">
             {{ formatPrice(product.priceCents, locale) }}
             <template v-if="product.inStock === 0"> · {{ t('products.outOfStock') }}</template>
@@ -79,7 +84,7 @@ function setQuantity(productId: string, value: number) {
           v-if="product.inStock > 0"
           class="flex shrink-0 items-center border border-line-soft"
           role="group"
-          :aria-label="t('booking.quantityOf', { name: product.name })"
+          :aria-label="t('booking.quantityOf', { name: localize(product.name) })"
         >
           <button
             type="button"

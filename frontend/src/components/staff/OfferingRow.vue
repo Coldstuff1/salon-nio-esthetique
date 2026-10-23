@@ -7,7 +7,7 @@ import BaseInput from '@/components/ui/BaseInput.vue'
 
 /**
  * One catalog item the employee may offer, with their own price and one more number: a treatment's duration or
- * a product's stock. Saved on its own.
+ * a product's stock. Products also take what a unit cost them (`costLabel`). Saved on its own.
  */
 defineProps<{
   name: string
@@ -15,7 +15,9 @@ defineProps<{
   amountLabel: string
   amountMin: number
   amountStep?: number
+  costLabel?: string
   priceError?: string
+  costError?: string
   amountError?: string
   error?: string
   dirty: boolean
@@ -23,6 +25,7 @@ defineProps<{
 }>()
 const offered = defineModel<boolean>('offered', { required: true })
 const price = defineModel<string>('price', { required: true })
+const cost = defineModel<string>('cost', { default: '' })
 const amount = defineModel<string>('amount', { required: true })
 defineEmits<{ save: [] }>()
 
@@ -31,8 +34,11 @@ const { t } = useI18n()
 
 <template>
   <form
-    class="grid gap-4 border bg-surface px-5 py-4 transition-colors md:grid-cols-[1fr_8rem_8rem_auto] md:items-start"
-    :class="offered ? 'border-accent' : 'border-line-soft'"
+    class="grid gap-4 border bg-surface px-5 py-4 transition-colors md:items-start"
+    :class="[
+      offered ? 'border-accent' : 'border-line-soft',
+      costLabel ? 'md:grid-cols-[1fr_8rem_8rem_8rem_auto]' : 'md:grid-cols-[1fr_8rem_8rem_auto]',
+    ]"
     @submit.prevent="$emit('save')"
   >
     <div class="flex flex-col gap-1 md:pt-7">
@@ -44,6 +50,14 @@ const { t } = useI18n()
       inputmode="decimal"
       :label="t('staff.offerings.price')"
       :error="priceError"
+      :disabled="!offered"
+    />
+    <BaseInput
+      v-if="costLabel"
+      v-model="cost"
+      inputmode="decimal"
+      :label="costLabel"
+      :error="costError"
       :disabled="!offered"
     />
     <BaseInput
@@ -61,11 +75,13 @@ const { t } = useI18n()
         type="submit"
         size="sm"
         :loading="saving"
-        :disabled="!dirty || !!priceError || !!amountError"
+        :disabled="!dirty || !!priceError || !!costError || !!amountError"
       >
         {{ t('common.save') }}
       </BaseButton>
     </div>
-    <BaseAlert v-if="error" tone="danger" class="md:col-span-4">{{ error }}</BaseAlert>
+    <BaseAlert v-if="error" tone="danger" :class="costLabel ? 'md:col-span-5' : 'md:col-span-4'">{{
+      error
+    }}</BaseAlert>
   </form>
 </template>

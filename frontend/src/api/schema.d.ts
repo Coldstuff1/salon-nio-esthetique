@@ -519,6 +519,8 @@ export interface components {
             /** Format: int32 */
             priceCents: number;
             /** Format: int32 */
+            costCents: number;
+            /** Format: int32 */
             quantityOnHand: number;
             active: boolean;
         };
@@ -564,6 +566,8 @@ export interface components {
             /** Format: int32 */
             priceCents: number;
             /** Format: int32 */
+            costCents: number;
+            /** Format: int32 */
             quantityOnHand: number;
             active?: boolean | null;
         };
@@ -590,41 +594,65 @@ export interface components {
             email?: string | null;
             phone?: string | null;
         };
+        LocalizedCategory: {
+            en: string;
+            fr?: string | null;
+        };
+        LocalizedDescription: {
+            en: string;
+            fr?: string | null;
+        };
+        LocalizedName: {
+            en: string;
+            fr?: string | null;
+        };
         ServiceTypeRequest: {
-            name: string;
-            description?: string | null;
-            category?: string | null;
+            name: components["schemas"]["LocalizedName"];
+            description?: components["schemas"]["LocalizedDescription"];
+            category?: components["schemas"]["LocalizedCategory"];
             active?: boolean | null;
+        };
+        LocalizedText: {
+            en: string;
+            fr?: string | null;
         };
         ServiceType: {
             /** Format: uuid */
             id: string;
-            name: string;
-            description?: string | null;
-            category?: string | null;
+            name: components["schemas"]["LocalizedText"];
+            description?: components["schemas"]["LocalizedText"];
+            category?: components["schemas"]["LocalizedText"];
             active: boolean;
             /** Format: int32 */
             version: number;
         };
         ProductRequest: {
-            name: string;
-            description?: string | null;
+            name: components["schemas"]["LocalizedName"];
+            description?: components["schemas"]["LocalizedDescription"];
             sku: string;
-            /** Format: int32 */
-            costCents: number;
             active?: boolean | null;
         };
-        Product: {
+        AdminProduct: {
             /** Format: uuid */
             id: string;
-            name: string;
-            description?: string | null;
+            name: components["schemas"]["LocalizedText"];
+            description?: components["schemas"]["LocalizedText"];
             sku: string;
+            active: boolean;
+            offerings: components["schemas"]["AdminProductOffering"][];
+        };
+        AdminProductOffering: {
+            /** Format: uuid */
+            employeeId: string;
+            employeeName: string;
+            employeeActive: boolean;
+            /** Format: int32 */
+            priceCents: number;
             /** Format: int32 */
             costCents: number;
-            active: boolean;
             /** Format: int32 */
-            version: number;
+            quantityOnHand: number;
+            active: boolean;
         };
         EmployeeUpdateRequest: {
             displayName: string;
@@ -662,7 +690,7 @@ export interface components {
         BookingProductLine: {
             /** Format: uuid */
             productId: string;
-            nameSnapshot: string;
+            nameSnapshot: components["schemas"]["LocalizedText"];
             /** Format: int32 */
             unitPriceCents: number;
             /** Format: int32 */
@@ -671,7 +699,7 @@ export interface components {
         BookingServiceLine: {
             /** Format: uuid */
             serviceTypeId: string;
-            nameSnapshot: string;
+            nameSnapshot: components["schemas"]["LocalizedText"];
             /** Format: int32 */
             priceCents: number;
             /** Format: int32 */
@@ -741,9 +769,9 @@ export interface components {
         ServiceSummary: {
             /** Format: uuid */
             serviceTypeId: string;
-            name: string;
-            description?: string | null;
-            category?: string | null;
+            name: components["schemas"]["LocalizedText"];
+            description?: components["schemas"]["LocalizedText"];
+            category?: components["schemas"]["LocalizedText"];
             /** Format: int32 */
             minPriceCents?: number | null;
             /** Format: int32 */
@@ -757,8 +785,8 @@ export interface components {
         ProductSummary: {
             /** Format: uuid */
             productId: string;
-            name: string;
-            description?: string | null;
+            name: components["schemas"]["LocalizedText"];
+            description?: components["schemas"]["LocalizedText"];
             /** Format: int32 */
             minPriceCents?: number | null;
             /** Format: int32 */
@@ -782,8 +810,8 @@ export interface components {
         ProductView: {
             /** Format: uuid */
             productId: string;
-            name: string;
-            description?: string | null;
+            name: components["schemas"]["LocalizedText"];
+            description?: components["schemas"]["LocalizedText"];
             /** Format: int32 */
             priceCents: number;
             /** Format: int32 */
@@ -792,9 +820,9 @@ export interface components {
         ServiceView: {
             /** Format: uuid */
             serviceTypeId: string;
-            name: string;
-            description?: string | null;
-            category?: string | null;
+            name: components["schemas"]["LocalizedText"];
+            description?: components["schemas"]["LocalizedText"];
+            category?: components["schemas"]["LocalizedText"];
             /** Format: int32 */
             priceCents: number;
             /** Format: int32 */
@@ -1386,7 +1414,7 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
-                    "*/*": components["schemas"]["Product"];
+                    "*/*": components["schemas"]["AdminProduct"];
                 };
             };
             /** @description Bad Request */
@@ -2029,7 +2057,7 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
-                    "*/*": components["schemas"]["Product"][];
+                    "*/*": components["schemas"]["AdminProduct"][];
                 };
             };
             /** @description Bad Request */
@@ -2080,7 +2108,7 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
-                    "*/*": components["schemas"]["Product"];
+                    "*/*": components["schemas"]["AdminProduct"];
                 };
             };
             /** @description Bad Request */

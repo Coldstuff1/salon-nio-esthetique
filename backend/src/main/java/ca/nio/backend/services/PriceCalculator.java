@@ -72,8 +72,8 @@ public class PriceCalculator {
                             "Product " + selection.productId() + " is not available"));
             if (selection.quantity() > offering.quantityOnHand()) {
                 throw new ConflictException(ErrorCode.OUT_OF_STOCK, "Only " + offering.quantityOnHand() + " of "
-                        + product.getName() + " left in stock",
-                        Map.of("product", product.getName(), "available", offering.quantityOnHand()));
+                        + product.getName().en() + " left in stock",
+                        Map.of("product", product.getName().en(), "available", offering.quantityOnHand()));
             }
             productLines.add(new BookingProductLine(product.getId(), product.getName(), offering.priceCents(),
                     selection.quantity()));

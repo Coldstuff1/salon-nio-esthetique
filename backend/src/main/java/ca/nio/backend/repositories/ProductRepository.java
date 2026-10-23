@@ -9,6 +9,6 @@ import ca.nio.backend.model.Product;
 
 public interface ProductRepository extends ListCrudRepository<Product, UUID> {
 
-    List<Product> findByActiveTrueOrderByName();
+    List<Product> findByActiveTrueOrderByNameEn();
 
 }

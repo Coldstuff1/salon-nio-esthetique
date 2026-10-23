@@ -70,9 +70,10 @@ export function formatWeekday(isoDay: number, locale: Locale): string {
   )
 }
 
-/** Cents → what a price field shows: 6000 → "60", 6050 → "60.50". */
-export function centsToInput(cents: number): string {
-  return cents % 100 === 0 ? String(cents / 100) : (cents / 100).toFixed(2)
+/** Cents → what a price field shows: 6000 → "60", 6050 → "60,50" / "60.50". `parsePrice` reads both back. */
+export function centsToInput(cents: number, locale: Locale): string {
+  const text = cents % 100 === 0 ? String(cents / 100) : (cents / 100).toFixed(2)
+  return locale === 'fr' ? text.replace('.', ',') : text
 }
 
 /** What someone typed in a price field → cents; accepts "60", "60.5", "60,50", "60 $". Undefined if not a price. */

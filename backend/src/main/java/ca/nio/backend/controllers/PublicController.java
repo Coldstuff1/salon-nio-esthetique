@@ -22,6 +22,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import ca.nio.backend.model.Employee;
+import ca.nio.backend.model.LocalizedText;
 import ca.nio.backend.model.Product;
 import ca.nio.backend.model.ProductOffering;
 import ca.nio.backend.model.ServiceOffering;
@@ -56,7 +57,7 @@ public class PublicController {
 
     @GetMapping("/service-types")
     public List<ServiceType> serviceTypes() {
-        return serviceTypes.findByActiveTrueOrderByName();
+        return serviceTypes.findByActiveTrueOrderByNameEn();
     }
 
     /**
@@ -66,7 +67,7 @@ public class PublicController {
     @GetMapping("/services")
     public List<ServiceSummary> services() {
         List<Employee> staff = employees.findByActiveTrueOrderByDisplayName();
-        return serviceTypes.findByActiveTrueOrderByName().stream()
+        return serviceTypes.findByActiveTrueOrderByNameEn().stream()
                 .map(type -> ServiceSummary.of(type, staff.stream()
                         .flatMap(e -> e.serviceOffering(type.getId())
                                 .filter(ServiceOffering::active)
@@ -84,7 +85,7 @@ public class PublicController {
     @GetMapping("/products")
     public List<ProductSummary> products() {
         List<Employee> staff = employees.findByActiveTrueOrderByDisplayName();
-        return products.findByActiveTrueOrderByName().stream()
+        return products.findByActiveTrueOrderByNameEn().stream()
                 .map(product -> ProductSummary.of(product, staff.stream()
                         .flatMap(e -> e.productOffering(product.getId())
                                 .filter(ProductOffering::active)
@@ -116,13 +117,13 @@ public class PublicController {
                 .filter(ServiceOffering::active)
                 .filter(o -> typesById.containsKey(o.serviceTypeId()) && typesById.get(o.serviceTypeId()).isActive())
                 .map(o -> ServiceView.of(typesById.get(o.serviceTypeId()), o))
-                .sorted(Comparator.comparing(ServiceView::name))
+                .sorted(Comparator.comparing((ServiceView view) -> view.name().en()))
                 .toList();
         List<ProductView> productViews = employee.getProductOfferings().stream()
                 .filter(ProductOffering::active)
                 .filter(o -> productsById.containsKey(o.productId()) && productsById.get(o.productId()).isActive())
                 .map(o -> ProductView.of(productsById.get(o.productId()), o))
-                .sorted(Comparator.comparing(ProductView::name))
+                .sorted(Comparator.comparing((ProductView view) -> view.name().en()))
                 .toList();
         return new EmployeeOfferings(summary(employee), services, productViews);
     }
@@ -158,8 +159,8 @@ public class PublicController {
 
     }
 
-    public record ServiceView(UUID serviceTypeId, String name, @Nullable String description,
-                              @Nullable String category,
+    public record ServiceView(UUID serviceTypeId, LocalizedText name, @Nullable LocalizedText description,
+                              @Nullable LocalizedText category,
                               int priceCents, int durationMinutes) {
 
         static ServiceView of(ServiceType type, ServiceOffering offering) {
@@ -169,8 +170,8 @@ public class PublicController {
 
     }
 
-    public record ServiceSummary(UUID serviceTypeId, String name, @Nullable String description,
-                                 @Nullable String category,
+    public record ServiceSummary(UUID serviceTypeId, LocalizedText name, @Nullable LocalizedText description,
+                                 @Nullable LocalizedText category,
                                  @Nullable Integer minPriceCents, @Nullable Integer maxPriceCents,
                                  @Nullable Integer minDurationMinutes, @Nullable Integer maxDurationMinutes,
                                  List<UUID> employeeIds) {
@@ -189,7 +190,7 @@ public class PublicController {
 
     }
 
-    public record ProductSummary(UUID productId, String name, @Nullable String description,
+    public record ProductSummary(UUID productId, LocalizedText name, @Nullable LocalizedText description,
                                  @Nullable Integer minPriceCents, @Nullable Integer maxPriceCents,
                                  boolean inStock, List<UUID> employeeIds) {
 
@@ -205,8 +206,8 @@ public class PublicController {
 
     }
 
-    public record ProductView(UUID productId, String name, @Nullable String description, int priceCents,
-                              int inStock) {
+    public record ProductView(UUID productId, LocalizedText name, @Nullable LocalizedText description,
+                              int priceCents, int inStock) {
 
         static ProductView of(Product product, ProductOffering offering) {
             return new ProductView(product.getId(), product.getName(), product.getDescription(),

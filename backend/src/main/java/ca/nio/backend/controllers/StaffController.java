@@ -118,8 +118,8 @@ public class StaffController {
     public StaffProfile putProductOffering(@AuthenticationPrincipal Jwt jwt, @PathVariable UUID productId,
                                            @Valid @RequestBody ProductOfferingRequest request) {
         UUID id = currentUser.employee(jwt).getId();
-        return profile(staffService.putProductOffering(id, new ProductOffering(productId,
-                request.priceCents(), request.quantityOnHand(), request.active() == null || request.active())));
+        return profile(staffService.putProductOffering(id, new ProductOffering(productId, request.priceCents(),
+                request.costCents(), request.quantityOnHand(), request.active() == null || request.active())));
     }
 
     @GetMapping("/schedule")
@@ -150,7 +150,7 @@ public class StaffController {
                                          @Nullable Boolean active) {
     }
 
-    public record ProductOfferingRequest(@Min(0) int priceCents, @Min(0) int quantityOnHand,
+    public record ProductOfferingRequest(@Min(0) int priceCents, @Min(0) int costCents, @Min(0) int quantityOnHand,
                                          @Nullable Boolean active) {
     }
 

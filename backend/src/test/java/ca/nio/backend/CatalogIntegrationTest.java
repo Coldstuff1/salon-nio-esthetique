@@ -23,6 +23,7 @@ import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.ResultActions;
 import org.springframework.test.web.servlet.request.MockHttpServletRequestBuilder;
 
+import ca.nio.backend.model.LocalizedText;
 import ca.nio.backend.model.Product;
 import ca.nio.backend.model.ServiceType;
 import ca.nio.backend.repositories.ProductRepository;
@@ -48,8 +49,8 @@ class CatalogIntegrationTest {
 
     @Test
     void summarisesPricesAcrossEmployeesWhoOfferTheService() throws Exception {
-        ServiceType waxing = serviceTypes.save(new ServiceType("Waxing " + UUID.randomUUID(), null, "wax"));
-        ServiceType unoffered = serviceTypes.save(new ServiceType("Lashes " + UUID.randomUUID(), null, "eyes"));
+        ServiceType waxing = serviceTypes.save(new ServiceType(text("Waxing " + UUID.randomUUID()), null, text("wax")));
+        ServiceType unoffered = serviceTypes.save(new ServiceType(text("Lashes " + UUID.randomUUID()), null, text("eyes")));
         UUID cheap = UUID.randomUUID();
         UUID pricey = UUID.randomUUID();
         UUID inactive = UUID.randomUUID();
@@ -73,12 +74,12 @@ class CatalogIntegrationTest {
     }
 
     @Test
-    void summarisesProductPricesWithoutRevealingCost() throws Exception {
-        Product serum = products.save(new Product("Serum " + UUID.randomUUID(), null, "SE-" + UUID.randomUUID(), 900));
+    void summarisesProductPricesAndKeepsEachEmployeesCostForAdmins() throws Exception {
+        Product serum = products.save(new Product(text("Serum " + UUID.randomUUID()), null, "SE-" + UUID.randomUUID()));
         UUID soldOut = UUID.randomUUID();
         UUID stocked = UUID.randomUUID();
-        sell(soldOut, serum, 3000, 0);
-        sell(stocked, serum, 3500, 4);
+        sell(soldOut, serum, 3000, 1200, 0);
+        sell(stocked, serum, 3500, 1400, 4);
 
         String path = "$[?(@.productId == '" + serum.getId() + "')]";
         mockMvc.perform(get("/api/public/products"))
@@ -87,8 +88,43 @@ class CatalogIntegrationTest {
                 .andExpect(jsonPath(path + ".maxPriceCents").value(3500))
                 .andExpect(jsonPath(path + ".inStock").value(true))
                 .andExpect(jsonPath(path + ".employeeIds.length()").value(2))
-                .andExpect(jsonPath("$[*].costCents").isEmpty())
+                .andExpect(jsonPath("$..costCents").isEmpty())
                 .andExpect(jsonPath("$[*].sku").isEmpty());
+
+        mockMvc.perform(get("/api/admin/products").with(admin))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath(path.replace("productId", "id") + ".offerings.length()").value(2))
+                .andExpect(jsonPath(path.replace("productId", "id") + ".offerings[?(@.employeeId == '" + stocked
+                        + "')].costCents").value(1400));
+    }
+
+    @Test
+    void refusesADuplicateSku() throws Exception {
+        String sku = "DUP-" + UUID.randomUUID();
+        send(post("/api/admin/products"), admin, Map.of("name", Map.of("en", "Toner"), "sku", sku))
+                .andExpect(status().isCreated());
+
+        send(post("/api/admin/products"), admin, Map.of("name", Map.of("en", "Other toner"), "sku", sku))
+                .andExpect(status().isConflict())
+                .andExpect(jsonPath("$.code").value("sku-taken"));
+    }
+
+    @Test
+    void storesCatalogTextInBothLanguagesWithFrenchOptional() throws Exception {
+        String sku = "BI-" + UUID.randomUUID();
+        send(post("/api/admin/products"), admin, Map.of(
+                "name", Map.of("en", " Cleanser ", "fr", "Nettoyant"),
+                "description", Map.of("en", "Gentle", "fr", " "),
+                "sku", sku))
+                .andExpect(status().isCreated())
+                .andExpect(jsonPath("$.name.en").value("Cleanser"))
+                .andExpect(jsonPath("$.name.fr").value("Nettoyant"))
+                .andExpect(jsonPath("$.description.en").value("Gentle"))
+                .andExpect(jsonPath("$.description.fr").value((Object) null));
+
+        send(post("/api/admin/service-types"), admin, Map.of("name", Map.of("en", " ", "fr", "Massage")))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.fields[0]").value("name.en"));
     }
 
     @Test
@@ -155,9 +191,10 @@ class CatalogIntegrationTest {
                 .andExpect(status().isOk());
     }
 
-    private void sell(UUID employeeId, Product product, int priceCents, int quantityOnHand) throws Exception {
+    private void sell(UUID employeeId, Product product, int priceCents, int costCents, int quantityOnHand)
+            throws Exception {
         send(put("/api/staff/me/product-offerings/" + product.getId()), keycloakJwt(employeeId, "employee"),
-                Map.of("priceCents", priceCents, "quantityOnHand", quantityOnHand))
+                Map.of("priceCents", priceCents, "costCents", costCents, "quantityOnHand", quantityOnHand))
                 .andExpect(status().isOk());
     }
 
@@ -177,6 +214,10 @@ class CatalogIntegrationTest {
 
     private static String json(Object body) {
         return tools.jackson.databind.json.JsonMapper.builder().build().writeValueAsString(body);
+    }
+
+    private static LocalizedText text(String en) {
+        return new LocalizedText(en, null);
     }
 
 }

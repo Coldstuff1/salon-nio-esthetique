@@ -139,7 +139,6 @@
     "allTeam": "Toute l'équipe"
   },
   "pages": {
-    "comingSoon": "Cette page arrive bientôt.",
     "employee": "Membre de l'équipe",
     "myBookings": "Mes rendez-vous",
     "myBooking": "Rendez-vous",
@@ -192,7 +191,7 @@
       "file-type": "Ce type de fichier n'est pas accepté.",
       "file-not-uploaded": "Le fichier n'a pas fini d'être envoyé. Réessayez.",
       "file-mismatch": "Le fichier reçu ne correspond pas à celui choisi. Réessayez.",
-      "employee-exists": "Cet employé existe déjà.",
+      "employee-exists": "Ce membre de l'équipe existe déjà.",
       "booking-not-found": "Ce rendez-vous est introuvable.",
       "employee-not-found": "Cette esthéticienne est introuvable.",
       "service-not-found": "Ce soin est introuvable.",
@@ -200,7 +199,8 @@
       "time-off-not-found": "Ce congé est introuvable.",
       "media-not-found": "Ce fichier est introuvable.",
       "data-conflict": "Cette modification entre en conflit avec des données existantes.",
-      "concurrent-update": "Les données ont changé entre-temps. Rechargez la page et réessayez."
+      "concurrent-update": "Les données ont changé entre-temps. Rechargez la page et réessayez.",
+      "sku-taken": "Un autre produit utilise déjà ce SKU."
     }
   },
   "services": {
@@ -318,13 +318,79 @@
     },
     "offerings": {
       "servicesIntro": "Cochez les soins que vous offrez et fixez votre prix et la durée à réserver. Les changements s'appliquent aux nouvelles réservations seulement.",
-      "productsIntro": "Cochez les produits que vous vendez, avec votre prix et la quantité en main. Le stock baisse quand un rendez-vous en réserve et remonte s'il est annulé.",
+      "productsIntro": "Cochez les produits que vous vendez, avec votre prix, ce qu'une unité vous a coûté et la quantité en main. Le coût n'est jamais montré aux clients. Le stock baisse quand un rendez-vous en réserve et remonte s'il est annulé.",
       "price": "Prix ($)",
       "duration": "Durée (min)",
       "stock": "En stock",
-      "priceInvalid": "Entrez un prix, ex. 60 ou 60,50.",
+      "priceInvalid": "Entrez un montant, ex. 60 ou 60,50.",
       "durationInvalid": "Au moins 5 minutes.",
-      "stockInvalid": "Un nombre entier, 0 ou plus."
+      "stockInvalid": "Un nombre entier, 0 ou plus.",
+      "cost": "Coût ($)"
+    }
+  },
+  "admin": {
+    "status": "Statut",
+    "actions": "Actions",
+    "active": "Actif",
+    "inactive": "Inactif",
+    "activeLabel": "Visible et réservable",
+    "edit": "Modifier",
+    "deactivate": "Désactiver",
+    "reactivate": "Réactiver",
+    "description": "Description",
+    "nameInvalid": "Entrez un nom de 120 caractères au plus.",
+    "inEnglish": "{label} (anglais)",
+    "inFrench": "{label} (français)",
+    "frenchHint": "Facultatif. Laissé vide, l'anglais s'affiche à la place.",
+    "englishRequired": "Entrez aussi l'anglais; il s'affiche partout où le français manque.",
+    "bookings": {
+      "allEmployees": "Toute l'équipe",
+      "employee": "Esthéticienne",
+      "client": "Client·e",
+      "thisWeek": "Cette semaine",
+      "week": "Semaine du {from} au {to}",
+      "upcoming": "À venir",
+      "completed": "Terminés",
+      "noShows": "Absences",
+      "cancelled": "Annulés",
+      "empty": "Aucun rendez-vous cette semaine."
+    },
+    "services": {
+      "intro": "Le catalogue des soins du salon. Chaque esthéticienne choisit ensuite ceux qu'elle offre, à son prix. Un soin désactivé disparaît du site mais reste sur les anciens rendez-vous.",
+      "add": "Nouveau soin",
+      "edit": "Modifier le soin",
+      "empty": "Aucun soin pour l'instant.",
+      "name": "Soin",
+      "category": "Catégorie",
+      "categoryHint": "Regroupe les soins sur le site, ex. « Soins du visage ».",
+      "categoryInvalid": "60 caractères au plus.",
+      "offeredBy": "Offert par",
+      "employees": "personne | 1 esthéticienne | {n} esthéticiennes",
+      "descriptionHint": "Affichée sur la page des soins et lors de la réservation."
+    },
+    "products": {
+      "intro": "Les produits vendus au salon. Chaque esthéticienne achète son propre stock : elle y inscrit son coût, son prix de vente et sa quantité. Le coût n'est jamais affiché aux clients. Un produit désactivé n'est plus offert mais reste sur les anciens rendez-vous.",
+      "add": "Nouveau produit",
+      "edit": "Modifier le produit",
+      "name": "Produit",
+      "sku": "SKU",
+      "skuRequired": "Entrez un SKU.",
+      "notSold": "Non vendu",
+      "descriptionHint": "Affichée sur la page des produits.",
+      "soldBy": "Vendu par",
+      "terms": "coût {cost} → prix {price} · {stock} en stock"
+    },
+    "employees": {
+      "intro": "Les comptes se créent dans Keycloak, où chaque membre de l'équipe doit aussi avoir le rôle « employee ». Ajoutez-le ensuite ici avec l'identifiant de son compte. Un membre désactivé disparaît du site, mais ses rendez-vous passés restent.",
+      "add": "Ajouter un membre",
+      "edit": "Modifier le membre",
+      "empty": "Aucun membre de l'équipe pour l'instant.",
+      "keycloakId": "Identifiant Keycloak",
+      "keycloakIdHint": "Dans la console Keycloak : Users → le compte → champ « ID ».",
+      "keycloakIdInvalid": "Un identifiant ressemble à 3b87d8ce-c13d-4f6b-906a-0bc0720995f1.",
+      "bioHint": "Le membre pourra la modifier lui-même dans son espace.",
+      "activeLabel": "Visible et réservable",
+      "publicPage": "Page publique"
     }
   }
 }

@@ -1,8 +1,11 @@
 <script setup lang="ts">
 import { computed } from 'vue'
 
-/** An employee's photo in the brand's matted frame, or their initials when they haven't added one. */
-const props = defineProps<{ name: string; photoUrl?: string | null }>()
+/**
+ * An employee's photo in the brand's matted frame, or their initials when they haven't added one.
+ * `compact` is the thumbnail for lists.
+ */
+const props = defineProps<{ name: string; photoUrl?: string | null; compact?: boolean }>()
 
 const initials = computed(() =>
   props.name
@@ -15,7 +18,7 @@ const initials = computed(() =>
 </script>
 
 <template>
-  <div class="border border-line bg-surface p-2.5 sm:p-3">
+  <div class="border border-line bg-surface" :class="compact ? 'p-1' : 'p-2.5 sm:p-3'">
     <img
       v-if="photoUrl"
       :src="photoUrl"
@@ -25,7 +28,8 @@ const initials = computed(() =>
     />
     <div
       v-else
-      class="flex aspect-[4/5] w-full items-center justify-center bg-surface-soft font-display text-6xl tracking-[0.08em] text-blush"
+      class="flex aspect-[4/5] w-full items-center justify-center bg-surface-soft font-display tracking-[0.08em] text-blush"
+      :class="compact ? 'text-xl' : 'text-6xl'"
       aria-hidden="true"
     >
       {{ initials }}

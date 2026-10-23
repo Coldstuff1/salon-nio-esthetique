@@ -9,14 +9,16 @@ import BaseCard from '@/components/ui/BaseCard.vue'
 import RequestState from '@/components/ui/RequestState.vue'
 import { useRequest } from '@/composables/useRequest'
 import { useLocale } from '@/i18n'
-import { groupByCategory } from '@/utils/catalog'
+import { byName, groupByCategory } from '@/utils/catalog'
 import { formatDurationRange, formatPriceRange } from '@/utils/format'
 
 const { t } = useI18n()
-const { locale } = useLocale()
+const { locale, localize } = useLocale()
 
 const { data: services, loading, error, reload } = useRequest(() => api.GET('/api/public/services'))
-const categories = computed(() => groupByCategory(services.value ?? []))
+const categories = computed(() =>
+  groupByCategory(byName(services.value ?? [], localize), (s) => localize(s.category)),
+)
 </script>
 
 <template>
@@ -47,9 +49,11 @@ const categories = computed(() => groupByCategory(services.value ?? []))
                 :key="service.serviceTypeId"
                 class="flex flex-col gap-4"
               >
-                <h3 class="display-caps text-2xl">{{ service.name }}</h3>
+                <h3 class="display-caps text-2xl">
+                  {{ localize(service.name) }}
+                </h3>
                 <p v-if="service.description" class="flex-1 text-ink-muted">
-                  {{ service.description }}
+                  {{ localize(service.description) }}
                 </p>
                 <p v-else class="flex-1" />
                 <template v-if="service.minPriceCents != null && service.maxPriceCents != null">

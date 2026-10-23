@@ -66,12 +66,17 @@ public class ApiExceptionHandler extends ResponseEntityExceptionHandler {
     @ExceptionHandler(DataIntegrityViolationException.class)
     @ResponseStatus(HttpStatus.CONFLICT)
     ProblemDetail integrity(DataIntegrityViolationException e) {
+        String message = e.getMessage() == null ? "" : e.getMessage();
         // the overlap constraint is the last guard against two reservations racing for one slot
-        boolean overlap = e.getMessage() != null && e.getMessage().contains("booking_no_overlap");
-        return overlap
-                ? problem(HttpStatus.CONFLICT, "That time slot is already booked", ErrorCode.SLOT_TAKEN, Map.of())
-                : problem(HttpStatus.CONFLICT, "Request conflicts with existing data", ErrorCode.DATA_CONFLICT,
-                        Map.of());
+        if (message.contains("booking_no_overlap")) {
+            return problem(HttpStatus.CONFLICT, "That time slot is already booked", ErrorCode.SLOT_TAKEN, Map.of());
+        }
+        if (message.contains("product_sku_key")) {
+            return problem(HttpStatus.CONFLICT, "Another product already uses that SKU", ErrorCode.SKU_TAKEN,
+                    Map.of());
+        }
+        return problem(HttpStatus.CONFLICT, "Request conflicts with existing data", ErrorCode.DATA_CONFLICT,
+                Map.of());
     }
 
     @ExceptionHandler(OptimisticLockingFailureException.class)

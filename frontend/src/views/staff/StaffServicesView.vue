@@ -7,14 +7,18 @@ import OfferingRow from '@/components/staff/OfferingRow.vue'
 import RequestState from '@/components/ui/RequestState.vue'
 import { useOfferingRows } from '@/composables/useOfferingRows'
 import { useRequest } from '@/composables/useRequest'
-import { groupByCategory } from '@/utils/catalog'
+import { useLocale } from '@/i18n'
+import { byName, groupByCategory } from '@/utils/catalog'
 
 /** Which of the salon's treatments the employee does, at what price and in how long. */
 const { t } = useI18n()
+const { localize } = useLocale()
 
 const catalog = useRequest(() => api.GET('/api/public/service-types'))
 const staff = useRequest(() => api.GET('/api/staff/me'))
-const categories = computed(() => groupByCategory(catalog.data.value ?? []))
+const categories = computed(() =>
+  groupByCategory(byName(catalog.data.value ?? [], localize), (s) => localize(s.category)),
+)
 
 const offerings = useOfferingRows({
   profile: staff.data,
@@ -57,8 +61,8 @@ const offerings = useOfferingRows({
               v-model:offered="offerings.row(service.id).offered"
               v-model:price="offerings.row(service.id).price"
               v-model:amount="offerings.row(service.id).amount"
-              :name="service.name"
-              :description="service.description"
+              :name="localize(service.name)!"
+              :description="localize(service.description)"
               :amount-label="t('staff.offerings.duration')"
               :amount-min="5"
               :amount-step="5"

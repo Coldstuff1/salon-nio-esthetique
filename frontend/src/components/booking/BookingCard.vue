@@ -15,7 +15,7 @@ withDefaults(defineProps<{ booking: Schemas['BookingView']; perspective?: 'clien
 })
 
 const { t } = useI18n()
-const { locale } = useLocale()
+const { locale, localize } = useLocale()
 </script>
 
 <template>
@@ -48,11 +48,11 @@ const { locale } = useLocale()
 
     <ul class="flex flex-col gap-1.5 border-t border-line-soft pt-4 text-sm">
       <li v-for="line in booking.services" :key="line.serviceTypeId" class="flex justify-between gap-4">
-        <span>{{ line.nameSnapshot }}</span>
+        <span>{{ localize(line.nameSnapshot) }}</span>
         <span class="tabular-nums">{{ formatPrice(line.priceCents, locale) }}</span>
       </li>
       <li v-for="line in booking.products" :key="line.productId" class="flex justify-between gap-4">
-        <span>{{ line.nameSnapshot }} × {{ line.quantity }}</span>
+        <span>{{ localize(line.nameSnapshot) }} × {{ line.quantity }}</span>
         <span class="tabular-nums">{{ formatPrice(line.unitPriceCents * line.quantity, locale) }}</span>
       </li>
       <li class="mt-1 flex justify-between gap-4 font-medium">

@@ -1,5 +1,6 @@
 import { createI18n, useI18n } from 'vue-i18n'
 import { computed } from 'vue'
+import type { Schemas } from '@/api/http'
 import fr from './fr.json'
 import en from './en.json'
 
@@ -27,11 +28,21 @@ export const i18n = createI18n({
 
 document.documentElement.lang = i18n.global.locale.value
 
-/** Current locale plus a setter that persists it and keeps `<html lang>` in sync. */
+/** Catalog text from the backend: English always, French when an admin has entered it. */
+export type LocalizedText = Schemas['LocalizedText']
+
+/**
+ * Current locale, a setter that persists it and keeps `<html lang>` in sync, and `localize` to pick the
+ * current locale's side of catalog text (French falls back to English; absent text stays `null`).
+ */
 export function useLocale() {
   const { locale } = useI18n()
   return {
     locale: computed(() => locale.value as Locale),
+    localize(text?: LocalizedText | null): string | null {
+      if (!text) return null
+      return (locale.value === 'fr' && text.fr?.trim()) || text.en
+    },
     setLocale(value: Locale) {
       locale.value = value
       document.documentElement.lang = value

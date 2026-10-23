@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { computed } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { api } from '@/api/http'
 import ScriptTitle from '@/components/brand/ScriptTitle.vue'
@@ -8,12 +9,14 @@ import BaseCard from '@/components/ui/BaseCard.vue'
 import RequestState from '@/components/ui/RequestState.vue'
 import { useRequest } from '@/composables/useRequest'
 import { useLocale } from '@/i18n'
+import { byName } from '@/utils/catalog'
 import { formatPriceRange } from '@/utils/format'
 
 const { t } = useI18n()
-const { locale } = useLocale()
+const { locale, localize } = useLocale()
 
-const { data: products, loading, error, reload } = useRequest(() => api.GET('/api/public/products'))
+const { data, loading, error, reload } = useRequest(() => api.GET('/api/public/products'))
+const products = computed(() => data.value && byName(data.value, localize))
 </script>
 
 <template>
@@ -35,8 +38,10 @@ const { data: products, loading, error, reload } = useRequest(() => api.GET('/ap
       >
         <div class="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
           <BaseCard v-for="product in products" :key="product.productId" class="flex flex-col gap-4">
-            <h2 class="display-caps text-2xl">{{ product.name }}</h2>
-            <p class="flex-1 text-ink-muted">{{ product.description }}</p>
+            <h2 class="display-caps text-2xl">{{ localize(product.name) }}</h2>
+            <p class="flex-1 text-ink-muted">
+              {{ localize(product.description) }}
+            </p>
             <div class="flex items-center justify-between gap-4 border-t border-line-soft pt-4">
               <template v-if="product.minPriceCents != null && product.maxPriceCents != null">
                 <span class="font-medium tabular-nums">

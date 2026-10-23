@@ -29,7 +29,9 @@ public record BookingView(UUID id, UUID customerId, String customerName, @Nullab
                 customer.getEmail(), customer.getPhone(), booking.getEmployeeId(), employee.getDisplayName(),
                 booking.getStartsAt(), booking.getEndsAt(), booking.getStatus(), booking.getSubtotalCents(),
                 booking.getNotes(), List.copyOf(booking.getServices()),
-                booking.getProducts().stream().sorted(Comparator.comparing(BookingProductLine::nameSnapshot)).toList());
+                booking.getProducts().stream()
+                        .sorted(Comparator.comparing((BookingProductLine line) -> line.nameSnapshot().en()))
+                        .toList());
     }
 
 }

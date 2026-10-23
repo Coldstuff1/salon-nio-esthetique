@@ -3,7 +3,7 @@ import { computed } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { api } from '@/api/http'
 import { useLocale } from '@/i18n'
-import { groupByCategory } from '@/utils/catalog'
+import { byName, groupByCategory } from '@/utils/catalog'
 import { formatPriceRange } from '@/utils/format'
 import BrandLogo from '@/components/brand/BrandLogo.vue'
 import MarqueeTicker from '@/components/brand/MarqueeTicker.vue'
@@ -18,7 +18,7 @@ import BaseCard from '@/components/ui/BaseCard.vue'
 import { useRequest } from '@/composables/useRequest'
 
 const { t } = useI18n()
-const { locale } = useLocale()
+const { locale, localize } = useLocale()
 
 // the treatment families the salon presents itself with; the live list and prices are below and on /services
 const highlights = ['facial', 'waxing', 'brows'] as const
@@ -28,7 +28,10 @@ const { data: employees } = useRequest(() => api.GET('/api/public/employees'))
 
 // only what can actually be booked makes the price list
 const priceGroups = computed(() =>
-  groupByCategory((services.value ?? []).filter((s) => s.minPriceCents != null && s.maxPriceCents != null)),
+  groupByCategory(
+    byName(services.value ?? [], localize).filter((s) => s.minPriceCents != null && s.maxPriceCents != null),
+    (s) => localize(s.category),
+  ),
 )
 const teaser = computed(() => (employees.value ?? []).slice(0, 3))
 
@@ -89,7 +92,7 @@ function scrollToPrices() {
             <PriceRow
               v-for="service in group.items"
               :key="service.serviceTypeId"
-              :name="service.name"
+              :name="localize(service.name)!"
               :price="formatPriceRange(service.minPriceCents!, service.maxPriceCents!, locale)"
             />
           </PriceSection>

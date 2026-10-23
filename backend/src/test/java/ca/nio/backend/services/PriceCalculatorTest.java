@@ -13,6 +13,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import ca.nio.backend.model.Employee;
+import ca.nio.backend.model.LocalizedText;
 import ca.nio.backend.model.Product;
 import ca.nio.backend.model.ProductOffering;
 import ca.nio.backend.model.ServiceOffering;
@@ -26,9 +27,9 @@ class PriceCalculatorTest {
     ProductRepository products = mock(ProductRepository.class);
     PriceCalculator calculator = new PriceCalculator(serviceTypes, products);
 
-    ServiceType facial = new ServiceType("Facial", null, "face");
-    ServiceType manicure = new ServiceType("Manicure", null, "hands");
-    Product cream = new Product("Cream", null, "CR-1", 1500);
+    ServiceType facial = new ServiceType(text("Facial"), null, text("face"));
+    ServiceType manicure = new ServiceType(text("Manicure"), null, text("hands"));
+    Product cream = new Product(text("Cream"), null, "CR-1");
     Employee employee = new Employee(UUID.randomUUID(), "Nio");
 
     @BeforeEach
@@ -38,7 +39,7 @@ class PriceCalculatorTest {
         when(products.findById(cream.getId())).thenReturn(Optional.of(cream));
         employee.putServiceOffering(new ServiceOffering(facial.getId(), 8000, 60, true));
         employee.putServiceOffering(new ServiceOffering(manicure.getId(), 4500, 30, true));
-        employee.putProductOffering(new ProductOffering(cream.getId(), 2500, 3, true));
+        employee.putProductOffering(new ProductOffering(cream.getId(), 2500, 1500, 3, true));
     }
 
     @Test
@@ -48,7 +49,7 @@ class PriceCalculatorTest {
 
         assertThat(quote.subtotalCents()).isEqualTo(8000 + 4500 + 2 * 2500);
         assertThat(quote.totalDurationMinutes()).isEqualTo(90);
-        assertThat(quote.services()).extracting("nameSnapshot").containsExactly("Facial", "Manicure");
+        assertThat(quote.services()).extracting("nameSnapshot").containsExactly(text("Facial"), text("Manicure"));
         assertThat(quote.products()).singleElement().satisfies(line -> {
             assertThat(line.unitPriceCents()).isEqualTo(2500);
             assertThat(line.quantity()).isEqualTo(2);
@@ -80,6 +81,10 @@ class PriceCalculatorTest {
     void requiresAtLeastOneService() {
         assertThatThrownBy(() -> calculator.quote(employee, List.of(), List.of()))
                 .isInstanceOf(InvalidRequestException.class);
+    }
+
+    private static LocalizedText text(String en) {
+        return new LocalizedText(en, null);
     }
 
 }

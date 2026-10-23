@@ -69,8 +69,8 @@ public class BookingService {
         }
         for (BookingProductLine line : quote.products()) {
             if (employees.reserveStock(employee.getId(), line.productId(), line.quantity()) == 0) {
-                throw new ConflictException(ErrorCode.OUT_OF_STOCK, "Not enough stock for " + line.nameSnapshot(),
-                        Map.of("product", line.nameSnapshot()));
+                throw new ConflictException(ErrorCode.OUT_OF_STOCK, "Not enough stock for " + line.nameSnapshot().en(),
+                        Map.of("product", line.nameSnapshot().en()));
             }
         }
         if (!quote.products().isEmpty()) {

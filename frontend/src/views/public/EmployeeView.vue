@@ -13,13 +13,13 @@ import BaseButton from '@/components/ui/BaseButton.vue'
 import RequestState from '@/components/ui/RequestState.vue'
 import { usePageTitle } from '@/composables/usePageTitle'
 import { useRequest } from '@/composables/useRequest'
-import { useLocale } from '@/i18n'
+import { type LocalizedText, useLocale } from '@/i18n'
 import NotFoundView from '@/views/NotFoundView.vue'
-import { groupByCategory } from '@/utils/catalog'
+import { byName, groupByCategory } from '@/utils/catalog'
 import { formatDuration, formatPrice } from '@/utils/format'
 
 const { t } = useI18n()
-const { locale } = useLocale()
+const { locale, localize } = useLocale()
 const route = useRoute()
 
 const employeeId = computed(() => String(route.params.employeeId))
@@ -35,11 +35,15 @@ watch(employeeId, reload)
 const notFound = computed(() => status.value === 404 || status.value === 400)
 usePageTitle(() => (notFound.value ? t('errors.notFoundTitle') : data.value?.employee.displayName))
 
-const categories = computed(() => groupByCategory(data.value?.services ?? []))
+const categories = computed(() =>
+  groupByCategory(byName(data.value?.services ?? [], localize), (s) => localize(s.category)),
+)
+const products = computed(() => byName(data.value?.products ?? [], localize))
 
-function serviceNote(service: { durationMinutes: number; description?: string | null }) {
+function serviceNote(service: { durationMinutes: number; description?: LocalizedText | null }) {
   const duration = formatDuration(service.durationMinutes, locale.value)
-  return service.description ? `${duration} · ${service.description}` : duration
+  const description = localize(service.description)
+  return description ? `${duration} · ${description}` : duration
 }
 </script>
 
@@ -84,18 +88,20 @@ function serviceNote(service: { durationMinutes: number; description?: string | 
           <PriceRow
             v-for="service in group.items"
             :key="service.serviceTypeId"
-            :name="service.name"
+            :name="localize(service.name)!"
             :price="formatPrice(service.priceCents, locale)"
             :note="serviceNote(service)"
           />
         </PriceSection>
         <PriceSection v-if="data.products.length" :title="t('nav.products')">
           <PriceRow
-            v-for="product in data.products"
+            v-for="product in products"
             :key="product.productId"
-            :name="product.name"
+            :name="localize(product.name)!"
             :price="formatPrice(product.priceCents, locale)"
-            :note="product.inStock > 0 ? (product.description ?? undefined) : t('products.outOfStock')"
+            :note="
+              product.inStock > 0 ? (localize(product.description) ?? undefined) : t('products.outOfStock')
+            "
           />
         </PriceSection>
       </PriceList>

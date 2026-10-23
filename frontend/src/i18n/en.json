@@ -139,7 +139,6 @@
     "allTeam": "The whole team"
   },
   "pages": {
-    "comingSoon": "This page is coming soon.",
     "employee": "Team member",
     "myBookings": "My appointments",
     "myBooking": "Appointment",
@@ -192,7 +191,7 @@
       "file-type": "This file type isn't accepted.",
       "file-not-uploaded": "The file didn't finish uploading. Please try again.",
       "file-mismatch": "The file received doesn't match the one chosen. Please try again.",
-      "employee-exists": "This employee already exists.",
+      "employee-exists": "This team member already exists.",
       "booking-not-found": "This appointment couldn't be found.",
       "employee-not-found": "This aesthetician couldn't be found.",
       "service-not-found": "This treatment couldn't be found.",
@@ -200,7 +199,8 @@
       "time-off-not-found": "This time off couldn't be found.",
       "media-not-found": "This file couldn't be found.",
       "data-conflict": "This change conflicts with existing data.",
-      "concurrent-update": "The data changed in the meantime. Reload the page and try again."
+      "concurrent-update": "The data changed in the meantime. Reload the page and try again.",
+      "sku-taken": "Another product already uses this SKU."
     }
   },
   "services": {
@@ -318,13 +318,79 @@
     },
     "offerings": {
       "servicesIntro": "Tick the treatments you offer and set your price and how long to book. Changes apply to new bookings only.",
-      "productsIntro": "Tick the products you sell, with your price and how many you have on hand. Stock goes down when an appointment reserves some and back up if it's cancelled.",
+      "productsIntro": "Tick the products you sell, with your price, what a unit cost you and how many you have on hand. Costs are never shown to clients. Stock goes down when an appointment reserves some and back up if it's cancelled.",
       "price": "Price ($)",
       "duration": "Duration (min)",
       "stock": "In stock",
-      "priceInvalid": "Enter a price, e.g. 60 or 60.50.",
+      "priceInvalid": "Enter an amount, e.g. 60 or 60.50.",
       "durationInvalid": "At least 5 minutes.",
-      "stockInvalid": "A whole number, 0 or more."
+      "stockInvalid": "A whole number, 0 or more.",
+      "cost": "Cost ($)"
+    }
+  },
+  "admin": {
+    "status": "Status",
+    "actions": "Actions",
+    "active": "Active",
+    "inactive": "Inactive",
+    "activeLabel": "Visible and bookable",
+    "edit": "Edit",
+    "deactivate": "Deactivate",
+    "reactivate": "Reactivate",
+    "description": "Description",
+    "nameInvalid": "Enter a name of at most 120 characters.",
+    "inEnglish": "{label} (English)",
+    "inFrench": "{label} (French)",
+    "frenchHint": "Optional. Left blank, the English shows instead.",
+    "englishRequired": "Also enter the English; it shows wherever the French is missing.",
+    "bookings": {
+      "allEmployees": "Whole team",
+      "employee": "Aesthetician",
+      "client": "Client",
+      "thisWeek": "This week",
+      "week": "Week of {from} to {to}",
+      "upcoming": "Upcoming",
+      "completed": "Completed",
+      "noShows": "No-shows",
+      "cancelled": "Cancelled",
+      "empty": "No appointments this week."
+    },
+    "services": {
+      "intro": "The salon's treatment catalog. Each aesthetician then chooses which ones they offer, at their own price. A deactivated treatment disappears from the site but stays on past appointments.",
+      "add": "New treatment",
+      "edit": "Edit treatment",
+      "empty": "No treatments yet.",
+      "name": "Treatment",
+      "category": "Category",
+      "categoryHint": "Groups treatments on the site, e.g. \"Facials\".",
+      "categoryInvalid": "At most 60 characters.",
+      "offeredBy": "Offered by",
+      "employees": "nobody | 1 aesthetician | {n} aestheticians",
+      "descriptionHint": "Shown on the treatments page and while booking."
+    },
+    "products": {
+      "intro": "Products sold at the salon. Each aesthetician buys their own stock and records their cost, selling price and quantity. Costs are never shown to clients. A deactivated product is no longer offered but stays on past appointments.",
+      "add": "New product",
+      "edit": "Edit product",
+      "name": "Product",
+      "sku": "SKU",
+      "skuRequired": "Enter a SKU.",
+      "notSold": "Not sold",
+      "descriptionHint": "Shown on the products page.",
+      "soldBy": "Sold by",
+      "terms": "cost {cost} → price {price} · {stock} in stock"
+    },
+    "employees": {
+      "intro": "Accounts are created in Keycloak, where each team member also needs the \"employee\" role. Then add them here with their account's ID. A deactivated member disappears from the site, but their past appointments stay.",
+      "add": "Add team member",
+      "edit": "Edit team member",
+      "empty": "No team members yet.",
+      "keycloakId": "Keycloak ID",
+      "keycloakIdHint": "In the Keycloak console: Users → the account → \"ID\" field.",
+      "keycloakIdInvalid": "An ID looks like 3b87d8ce-c13d-4f6b-906a-0bc0720995f1.",
+      "bioHint": "They can edit it themselves in their space.",
+      "activeLabel": "Visible and bookable",
+      "publicPage": "Public page"
     }
   }
 }

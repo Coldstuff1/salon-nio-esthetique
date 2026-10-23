@@ -22,9 +22,6 @@ export interface AreaLink {
   label: string
 }
 
-// pages land in later steps; until then each planned route shows its title
-const placeholder = () => import('@/views/PlaceholderView.vue')
-
 export const router = createRouter({
   history: createWebHistory(),
   routes: [
@@ -172,25 +169,25 @@ export const router = createRouter({
         {
           path: 'bookings',
           name: 'admin-bookings',
-          component: placeholder,
+          component: () => import('@/views/admin/AdminBookingsView.vue'),
           meta: { title: 'pages.adminBookings' },
         },
         {
           path: 'services',
           name: 'admin-services',
-          component: placeholder,
+          component: () => import('@/views/admin/AdminServicesView.vue'),
           meta: { title: 'pages.adminServices' },
         },
         {
           path: 'products',
           name: 'admin-products',
-          component: placeholder,
+          component: () => import('@/views/admin/AdminProductsView.vue'),
           meta: { title: 'pages.adminProducts' },
         },
         {
           path: 'employees',
           name: 'admin-employees',
-          component: placeholder,
+          component: () => import('@/views/admin/AdminEmployeesView.vue'),
           meta: { title: 'pages.adminEmployees' },
         },
       ],

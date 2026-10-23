@@ -30,6 +30,7 @@ import org.springframework.security.test.web.servlet.request.SecurityMockMvcRequ
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.ResultActions;
 
+import ca.nio.backend.model.LocalizedText;
 import ca.nio.backend.model.Product;
 import ca.nio.backend.model.ServiceType;
 import ca.nio.backend.repositories.EmployeeRepository;
@@ -64,8 +65,9 @@ class BookingFlowIntegrationTest {
 
     @BeforeEach
     void setUpEmployee() throws Exception {
-        facial = serviceTypes.save(new ServiceType("Facial", null, "face"));
-        cream = products.save(new Product("Cream", null, "CR-" + UUID.randomUUID(), 1500));
+        facial = serviceTypes.save(new ServiceType(new LocalizedText("Facial", "Soin du visage"), null,
+                new LocalizedText("Face", "Visage")));
+        cream = products.save(new Product(new LocalizedText("Cream", null), null, "CR-" + UUID.randomUUID()));
 
         send(put("/api/staff/me/availability"), employee(), List.of(
                 Map.of("dayOfWeek", 1, "startTime", "09:00", "endTime", "12:00")))
@@ -74,7 +76,7 @@ class BookingFlowIntegrationTest {
                 Map.of("priceCents", 8000, "durationMinutes", 60))
                 .andExpect(status().isOk());
         send(put("/api/staff/me/product-offerings/" + cream.getId()), employee(),
-                Map.of("priceCents", 2500, "quantityOnHand", 3))
+                Map.of("priceCents", 2500, "costCents", 1500, "quantityOnHand", 3))
                 .andExpect(status().isOk());
     }
 
@@ -95,7 +97,8 @@ class BookingFlowIntegrationTest {
                 .andExpect(status().isCreated())
                 .andExpect(jsonPath("$.subtotalCents").value(13000))
                 .andExpect(jsonPath("$.endsAt").value(at(11, 0).toString()))
-                .andExpect(jsonPath("$.services[0].nameSnapshot").value("Facial"))
+                .andExpect(jsonPath("$.services[0].nameSnapshot.en").value("Facial"))
+                .andExpect(jsonPath("$.services[0].nameSnapshot.fr").value("Soin du visage"))
                 .andExpect(jsonPath("$.employeeName").value("employee-" + employeeId))
                 .andExpect(jsonPath("$.customerName").value("client-" + customerId));
 

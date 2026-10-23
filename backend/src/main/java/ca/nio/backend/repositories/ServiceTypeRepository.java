@@ -9,6 +9,6 @@ import ca.nio.backend.model.ServiceType;
 
 public interface ServiceTypeRepository extends ListCrudRepository<ServiceType, UUID> {
 
-    List<ServiceType> findByActiveTrueOrderByName();
+    List<ServiceType> findByActiveTrueOrderByNameEn();
 
 }
