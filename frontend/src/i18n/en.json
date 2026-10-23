@@ -9,12 +9,16 @@
     "services": "Treatments",
     "prices": "Prices",
     "booking": "Book",
-    "menu": "Menu"
+    "menu": "Menu",
+    "team": "Team",
+    "products": "Products",
+    "account": "My account",
+    "staff": "My space",
+    "admin": "Admin"
   },
   "auth": {
     "login": "Log in",
-    "logout": "Log out",
-    "whoAmI": "Who am I?"
+    "logout": "Log out"
   },
   "theme": {
     "label": "Theme",
@@ -60,7 +64,8 @@
     "close": "Close",
     "save": "Save",
     "cancel": "Cancel",
-    "required": "Required"
+    "required": "Required",
+    "retry": "Try again"
   },
   "welcome": {
     "eyebrow": "Aesthetic care",
@@ -71,7 +76,6 @@
     "seePrices": "See prices",
     "servicesTitle": "Our treatments",
     "servicesScript": "for you",
-    "from": "From {price}",
     "facial": {
       "title": "Facials",
       "text": "Cleansing, exfoliation and a mask suited to your skin, with a sculpting or dermaplaning option."
@@ -86,6 +90,80 @@
     },
     "pricesTitle": "Price list",
     "closingScript": "Treat yourself",
-    "closingText": "Book your next treatment in a few clicks."
+    "closingText": "Book your next treatment in a few clicks.",
+    "allServices": "All treatments",
+    "allTeam": "The whole team"
+  },
+  "pages": {
+    "comingSoon": "This page is coming soon.",
+    "employee": "Team member",
+    "myBookings": "My appointments",
+    "myBooking": "Appointment",
+    "myProfile": "My profile",
+    "staffSchedule": "Schedule",
+    "staffProfile": "Profile",
+    "staffHours": "Working hours",
+    "staffTimeOff": "Time off",
+    "staffServices": "My treatments",
+    "staffProducts": "My products",
+    "adminBookings": "Appointments",
+    "adminServices": "Treatments",
+    "adminProducts": "Products",
+    "adminEmployees": "Employees"
+  },
+  "errors": {
+    "notFoundTitle": "Page not found",
+    "notFoundScript": "oops",
+    "notFoundText": "This page doesn't exist or has moved.",
+    "forbiddenTitle": "Access denied",
+    "forbiddenText": "The account {username} can't open this page.",
+    "backHome": "Back to home",
+    "switchAccount": "Switch account",
+    "invalid": "Some of the information isn't valid.",
+    "notAllowed": "You aren't allowed to do that.",
+    "missing": "This item couldn't be found.",
+    "conflict": "The data changed in the meantime. Please try again.",
+    "generic": "Something went wrong. Please try again.",
+    "network": "Can't reach the server. Check your connection."
+  },
+  "services": {
+    "title": "Treatments",
+    "script": "and prices",
+    "intro": "Prices and durations vary by aesthetician: pick a treatment to see availability.",
+    "empty": "No treatments are offered right now.",
+    "otherCategory": "Other treatments",
+    "book": "Book this treatment",
+    "notOffered": "Coming soon"
+  },
+  "team": {
+    "title": "Our team",
+    "script": "here for you",
+    "intro": "Meet the people who will take care of you.",
+    "empty": "The team will be introduced here soon.",
+    "viewProfile": "View profile",
+    "member": "Our team",
+    "bookWith": "Book with {name}",
+    "noOfferings": "No treatments are open for booking yet."
+  },
+  "products": {
+    "title": "Products",
+    "script": "for home",
+    "intro": "The products we use in the salon, to add to your appointment and pick up on site.",
+    "empty": "No products are offered right now.",
+    "inStock": "In stock",
+    "outOfStock": "Out of stock",
+    "notOffered": "Coming soon"
+  },
+  "media": {
+    "photoTitle": "Profile photo",
+    "addPhoto": "Add a photo",
+    "changePhoto": "Change photo",
+    "removePhoto": "Remove",
+    "photoHint": "JPEG, PNG or WebP, {max} MB max.",
+    "photoSaved": "Photo saved.",
+    "photoRemoved": "Photo removed.",
+    "uploadFailed": "The file couldn't be sent. Please try again.",
+    "unsupportedType": "Pick a JPEG, PNG or WebP image.",
+    "tooLarge": "The image is larger than {max} MB."
   }
 }

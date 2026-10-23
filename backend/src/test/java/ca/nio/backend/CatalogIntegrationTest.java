@@ -23,12 +23,14 @@ import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.ResultActions;
 import org.springframework.test.web.servlet.request.MockHttpServletRequestBuilder;
 
+import ca.nio.backend.model.Product;
 import ca.nio.backend.model.ServiceType;
+import ca.nio.backend.repositories.ProductRepository;
 import ca.nio.backend.repositories.ServiceTypeRepository;
 import ca.nio.backend.security.KeycloakJwtAuthenticationConverter;
 
 /**
- * Over HTTP against a real Postgres: the public service summary, admin employee management, client profiles.
+ * Over HTTP against a real Postgres: the public service and product summaries, admin employee management, client profiles.
  */
 @Import(TestcontainersConfiguration.class)
 @SpringBootTest
@@ -39,6 +41,8 @@ class CatalogIntegrationTest {
     MockMvc mockMvc;
     @Autowired
     ServiceTypeRepository serviceTypes;
+    @Autowired
+    ProductRepository products;
 
     JwtRequestPostProcessor admin = keycloakJwt(UUID.randomUUID(), "admin");
 
@@ -66,6 +70,25 @@ class CatalogIntegrationTest {
                         .value((Object) null))
                 .andExpect(jsonPath("$[?(@.serviceTypeId == '" + unoffered.getId() + "')].employeeIds.length()")
                         .value(0));
+    }
+
+    @Test
+    void summarisesProductPricesWithoutRevealingCost() throws Exception {
+        Product serum = products.save(new Product("Serum " + UUID.randomUUID(), null, "SE-" + UUID.randomUUID(), 900));
+        UUID soldOut = UUID.randomUUID();
+        UUID stocked = UUID.randomUUID();
+        sell(soldOut, serum, 3000, 0);
+        sell(stocked, serum, 3500, 4);
+
+        String path = "$[?(@.productId == '" + serum.getId() + "')]";
+        mockMvc.perform(get("/api/public/products"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath(path + ".minPriceCents").value(3000))
+                .andExpect(jsonPath(path + ".maxPriceCents").value(3500))
+                .andExpect(jsonPath(path + ".inStock").value(true))
+                .andExpect(jsonPath(path + ".employeeIds.length()").value(2))
+                .andExpect(jsonPath("$[*].costCents").isEmpty())
+                .andExpect(jsonPath("$[*].sku").isEmpty());
     }
 
     @Test
@@ -113,6 +136,12 @@ class CatalogIntegrationTest {
     private void offer(UUID employeeId, ServiceType type, int priceCents, int durationMinutes) throws Exception {
         send(put("/api/staff/me/service-offerings/" + type.getId()), keycloakJwt(employeeId, "employee"),
                 Map.of("priceCents", priceCents, "durationMinutes", durationMinutes))
+                .andExpect(status().isOk());
+    }
+
+    private void sell(UUID employeeId, Product product, int priceCents, int quantityOnHand) throws Exception {
+        send(put("/api/staff/me/product-offerings/" + product.getId()), keycloakJwt(employeeId, "employee"),
+                Map.of("priceCents", priceCents, "quantityOnHand", quantityOnHand))
                 .andExpect(status().isOk());
     }
 

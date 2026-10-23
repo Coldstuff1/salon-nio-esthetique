@@ -1,0 +1,611 @@
+/* Salon Nio Esthétique login theme. Tokens and type mirror frontend/src/assets/main.css; keep them in sync. */
+
+@font-face {
+  font-family: 'Jost';
+  font-weight: 400;
+  font-display: swap;
+  src: url('../fonts/jost-latin-400-normal.woff2') format('woff2');
+}
+@font-face {
+  font-family: 'Jost';
+  font-weight: 500;
+  font-display: swap;
+  src: url('../fonts/jost-latin-500-normal.woff2') format('woff2');
+}
+@font-face {
+  font-family: 'Jost';
+  font-weight: 600;
+  font-display: swap;
+  src: url('../fonts/jost-latin-600-normal.woff2') format('woff2');
+}
+@font-face {
+  font-family: 'Cormorant Garamond';
+  font-weight: 500;
+  font-display: swap;
+  src: url('../fonts/cormorant-garamond-latin-500-normal.woff2') format('woff2');
+}
+@font-face {
+  font-family: 'Cormorant Garamond';
+  font-weight: 600;
+  font-display: swap;
+  src: url('../fonts/cormorant-garamond-latin-600-normal.woff2') format('woff2');
+}
+@font-face {
+  font-family: 'Allura';
+  font-weight: 400;
+  font-display: swap;
+  src: url('../fonts/allura-latin-400-normal.woff2') format('woff2');
+}
+
+:root {
+  --c-paper: #fbf4f0;
+  --c-surface: #ffffff;
+  --c-surface-soft: #f5ebe6;
+  --c-ink: #2b2d27;
+  --c-ink-muted: #6b645f;
+  --c-line: rgb(43 45 39 / 0.8);
+  --c-line-soft: #e6d8d2;
+  --c-accent: #8a3557;
+  --c-accent-hover: #742a48;
+  --c-accent-ink: #ffffff;
+  --c-blush: #e9b8c0;
+  --c-danger: #a3412f;
+  --c-success: #5e7a5a;
+
+  --font-display: 'Cormorant Garamond', Georgia, 'Times New Roman', serif;
+  --font-script: 'Allura', 'Snell Roundhand', cursive;
+  --font-sans: 'Jost', system-ui, -apple-system, 'Segoe UI', sans-serif;
+  color-scheme: light;
+}
+
+/* Dark tokens apply when the site said "dark" (data-theme, set by the script in template.ftl),
+   or when it gave no explicit choice and the OS is dark. */
+[data-theme='dark'] {
+  --c-paper: #1e191b;
+  --c-surface: #2a2326;
+  --c-surface-soft: #332a2e;
+  --c-ink: #f3e9e4;
+  --c-ink-muted: #b9aba5;
+  --c-line: rgb(243 233 228 / 0.6);
+  --c-line-soft: #3d3337;
+  --c-accent: #d99ab0;
+  --c-accent-hover: #e6b3c5;
+  --c-accent-ink: #1e191b;
+  --c-blush: #7a4558;
+  --c-danger: #e08a76;
+  --c-success: #9dbb96;
+  color-scheme: dark;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme='light']) {
+    --c-paper: #1e191b;
+    --c-surface: #2a2326;
+    --c-surface-soft: #332a2e;
+    --c-ink: #f3e9e4;
+    --c-ink-muted: #b9aba5;
+    --c-line: rgb(243 233 228 / 0.6);
+    --c-line-soft: #3d3337;
+    --c-accent: #d99ab0;
+    --c-accent-hover: #e6b3c5;
+    --c-accent-ink: #1e191b;
+    --c-blush: #7a4558;
+    --c-danger: #e08a76;
+    --c-success: #9dbb96;
+    color-scheme: dark;
+  }
+}
+
+body {
+  transition:
+    background-color 200ms,
+    color 200ms;
+}
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html,
+body {
+  margin: 0;
+}
+
+body {
+  min-height: 100vh;
+  background: var(--c-paper);
+  color: var(--c-ink);
+  font-family: var(--font-sans);
+  font-size: 1rem;
+  line-height: 1.65;
+  -webkit-font-smoothing: antialiased;
+}
+
+h1,
+h2,
+h3 {
+  margin: 0;
+  font-family: var(--font-display);
+  font-weight: 500;
+  color: var(--c-ink);
+}
+
+p {
+  margin: 0;
+}
+
+a {
+  color: var(--c-accent);
+}
+
+:focus-visible {
+  outline: 2px solid var(--c-accent);
+  outline-offset: 2px;
+}
+
+::selection {
+  background: var(--c-blush);
+  color: var(--c-ink);
+}
+
+.label-caps {
+  font-family: var(--font-sans);
+  font-size: 0.8125rem;
+  line-height: 1.4;
+  font-weight: 500;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.link,
+#kc-content a:not(.nio-btn) {
+  color: var(--c-accent);
+  text-decoration: underline;
+  text-decoration-color: var(--c-blush);
+  text-decoration-thickness: 1px;
+  text-underline-offset: 4px;
+  transition: color 150ms, text-decoration-color 150ms;
+}
+.link:hover,
+#kc-content a:not(.nio-btn):hover {
+  color: var(--c-accent-hover);
+  text-decoration-color: var(--c-accent);
+}
+
+.nio-font-display {
+  font-family: var(--font-display);
+}
+.nio-font-sans {
+  font-family: var(--font-sans);
+}
+.nio-font-script {
+  font-family: var(--font-script);
+}
+
+/* ---- layout ---- */
+
+.nio-page {
+  display: flex;
+  min-height: 100vh;
+  flex-direction: column;
+  align-items: center;
+  padding: 1rem 1rem 2.5rem;
+}
+
+.nio-topbar {
+  display: flex;
+  width: 100%;
+  max-width: 28rem;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  margin-bottom: 1.5rem;
+}
+
+.nio-back {
+  color: var(--c-ink-muted);
+  text-decoration: none;
+  transition: color 150ms;
+}
+.nio-back:hover {
+  color: var(--c-accent);
+}
+
+.nio-locales {
+  display: flex;
+  gap: 0.25rem;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+.nio-locales a {
+  display: inline-block;
+  padding: 0.25rem 0.5rem;
+  border: 1px solid transparent;
+  color: var(--c-ink-muted);
+  text-decoration: none;
+}
+.nio-locales a:hover {
+  color: var(--c-accent);
+}
+.nio-locales a.is-current {
+  border-color: var(--c-line-soft);
+  color: var(--c-ink);
+}
+
+.nio-card {
+  width: 100%;
+  max-width: 28rem;
+  padding: 2rem 1.25rem;
+  border: 1px solid var(--c-line-soft);
+  background: var(--c-surface);
+}
+
+@media (min-width: 30rem) {
+  .nio-page {
+    justify-content: center;
+    padding-top: 2.5rem;
+  }
+  .nio-card {
+    padding: 2.5rem 2.5rem 2rem;
+  }
+}
+
+.nio-card-header {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1rem;
+  margin-bottom: 1.5rem;
+  text-align: center;
+}
+
+.nio-badge {
+  width: 5.5rem;
+  height: auto;
+  color: var(--c-ink);
+}
+.nio-badge-fill {
+  fill: var(--c-surface-soft);
+}
+.nio-badge-blush {
+  fill: var(--c-blush);
+}
+.nio-badge-stroke {
+  stroke: var(--c-blush);
+}
+
+.nio-title {
+  font-size: 2.25rem;
+  line-height: 1.1;
+}
+
+.nio-lead {
+  margin: -0.75rem 0 1.5rem;
+  color: var(--c-ink-muted);
+  text-align: center;
+}
+
+.nio-attempted {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  justify-content: center;
+  gap: 0.5rem 0.75rem;
+}
+#kc-attempted-username {
+  font-family: var(--font-display);
+  font-size: 1.5rem;
+  font-weight: 600;
+}
+
+.nio-required-note,
+.nio-helper,
+.nio-small {
+  font-size: 0.875rem;
+  color: var(--c-ink-muted);
+}
+.required {
+  color: var(--c-danger);
+}
+
+.nio-signature {
+  margin-top: 1.5rem;
+  font-size: 2rem;
+  line-height: 1;
+  color: var(--c-accent);
+}
+
+/* ---- form ---- */
+
+#kc-content form {
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+}
+
+.nio-group {
+  display: flex;
+  flex-direction: column;
+  gap: 0.375rem;
+}
+
+.nio-label-row,
+.nio-label-wrapper {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 0.25rem 1rem;
+  flex-wrap: wrap;
+}
+.nio-label-wrapper {
+  justify-content: flex-start;
+  gap: 0.25rem;
+}
+
+.nio-label {
+  font-family: var(--font-sans);
+  font-size: 0.8125rem;
+  line-height: 1.4;
+  font-weight: 500;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--c-ink);
+}
+
+.nio-input {
+  width: 100%;
+  min-width: 0;
+  padding: 0.625rem 0.875rem;
+  border: 1px solid var(--c-line-soft);
+  border-radius: 0;
+  background: var(--c-surface);
+  color: var(--c-ink);
+  font: inherit;
+  transition: border-color 150ms, box-shadow 150ms;
+}
+.nio-input::placeholder {
+  color: var(--c-ink-muted);
+  opacity: 0.7;
+}
+.nio-input:hover {
+  border-color: var(--c-line);
+}
+.nio-input:focus,
+.nio-input:focus-visible {
+  outline: none;
+  border-color: var(--c-accent);
+  box-shadow: 0 0 0 2px var(--c-blush);
+}
+.nio-input[aria-invalid='true'] {
+  border-color: var(--c-danger);
+}
+.nio-input[readonly],
+.nio-input:disabled {
+  background: var(--c-surface-soft);
+  color: var(--c-ink-muted);
+}
+textarea.nio-input {
+  min-height: 6rem;
+  resize: vertical;
+}
+
+.nio-input-group {
+  position: relative;
+  display: flex;
+}
+.nio-input-group .nio-input {
+  padding-right: 3rem;
+}
+
+.nio-reveal {
+  position: absolute;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  display: inline-flex;
+  width: 2.75rem;
+  align-items: center;
+  justify-content: center;
+  border: 0;
+  background: transparent;
+  color: var(--c-ink-muted);
+  cursor: pointer;
+}
+.nio-reveal:hover {
+  color: var(--c-accent);
+}
+
+.nio-icon-eye,
+.nio-icon-eye-off {
+  display: inline-block;
+  width: 1.125rem;
+  height: 1.125rem;
+  background: currentColor;
+  -webkit-mask: var(--icon) center / contain no-repeat;
+  mask: var(--icon) center / contain no-repeat;
+}
+.nio-icon-eye {
+  --icon: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='1.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M2 12s3.6-7 10-7 10 7 10 7-3.6 7-10 7S2 12 2 12z'/%3E%3Ccircle cx='12' cy='12' r='3'/%3E%3C/svg%3E");
+}
+.nio-icon-eye-off {
+  --icon: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='1.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M10.7 5.1A10 10 0 0 1 12 5c6.4 0 10 7 10 7a17 17 0 0 1-2.2 3.1M6.6 6.6C3.9 8.3 2 12 2 12s3.6 7 10 7a9.7 9.7 0 0 0 5.4-1.6'/%3E%3Cpath d='M9.9 9.9a3 3 0 0 0 4.2 4.2'/%3E%3Cpath d='M2 2l20 20'/%3E%3C/svg%3E");
+}
+
+.nio-field-error {
+  font-size: 0.875rem;
+  color: var(--c-danger);
+}
+
+.nio-choice {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.625rem;
+  cursor: pointer;
+}
+.nio-check,
+#kc-content input[type='checkbox'],
+#kc-content input[type='radio'] {
+  width: 1rem;
+  height: 1rem;
+  margin: 0;
+  accent-color: var(--c-accent);
+}
+.nio-choice-disabled {
+  color: var(--c-ink-muted);
+}
+
+/* base pages put their options ("« back to login") before the submit button; show the button first */
+.nio-settings {
+  gap: 1rem;
+}
+.nio-settings > .nio-buttons {
+  order: -1;
+}
+.nio-options,
+.nio-options-wrapper {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem 1rem;
+  font-size: 0.875rem;
+}
+
+.nio-buttons {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  margin-top: 0.25rem;
+}
+
+/* ---- buttons (mirror BaseButton.vue) ---- */
+
+.nio-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  padding: 0.75rem 1.5rem;
+  border: 1px solid transparent;
+  border-radius: 0;
+  font-family: var(--font-sans);
+  font-size: 0.8125rem;
+  line-height: 1.4;
+  font-weight: 500;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  text-decoration: none;
+  cursor: pointer;
+  transition: background-color 150ms, border-color 150ms, color 150ms;
+}
+.nio-btn:disabled,
+.nio-btn-disabled {
+  cursor: not-allowed;
+  opacity: 0.5;
+}
+.nio-btn-primary {
+  background: var(--c-accent);
+  border-color: var(--c-accent);
+  color: var(--c-accent-ink);
+}
+.nio-btn-primary:hover:not(:disabled) {
+  background: var(--c-accent-hover);
+  border-color: var(--c-accent-hover);
+}
+.nio-btn-outline {
+  background: transparent;
+  border-color: var(--c-line);
+  color: var(--c-ink);
+}
+.nio-btn-outline:hover:not(:disabled) {
+  background: var(--c-surface-soft);
+}
+.nio-btn-block {
+  width: 100%;
+}
+
+/* ---- alerts ---- */
+
+.nio-alert {
+  margin-bottom: 1.25rem;
+  padding: 0.75rem 1rem;
+  border: 1px solid var(--c-line-soft);
+  border-left-width: 3px;
+  background: var(--c-surface-soft);
+  font-size: 0.9375rem;
+}
+.nio-alert-error {
+  border-left-color: var(--c-danger);
+}
+.nio-alert-warning {
+  border-left-color: var(--c-blush);
+}
+.nio-alert-success {
+  border-left-color: var(--c-success);
+}
+.nio-alert-info {
+  border-left-color: var(--c-accent);
+}
+
+/* ---- footer of the card ---- */
+
+.nio-info {
+  margin-top: 1.75rem;
+  padding-top: 1.25rem;
+  border-top: 1px solid var(--c-line-soft);
+  text-align: center;
+  color: var(--c-ink-muted);
+}
+#kc-registration {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 0.25rem 0.5rem;
+}
+
+.nio-divider {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  margin: 1.5rem 0 1rem;
+  color: var(--c-ink-muted);
+  font-size: 0.875rem;
+}
+.nio-divider::before,
+.nio-divider::after {
+  content: '';
+  flex: 1;
+  border-top: 1px solid var(--c-line-soft);
+}
+
+.nio-social-list,
+.nio-auth-list,
+.nio-otp-list,
+.nio-recovery-codes {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+/* info.ftl / error.ftl paragraphs */
+#kc-info-message,
+#kc-error-message {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  text-align: center;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    transition-duration: 0.01ms !important;
+  }
+}

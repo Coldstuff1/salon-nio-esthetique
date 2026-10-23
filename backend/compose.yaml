@@ -33,6 +33,7 @@ services:
       - '8180:8080'
     volumes:
       - './docker/keycloak/realm-nio.json:/opt/keycloak/data/import/realm-nio.json:ro'
+      - './docker/keycloak/themes/nio:/opt/keycloak/themes/nio:ro'
     depends_on:
       postgres:
         condition: service_healthy

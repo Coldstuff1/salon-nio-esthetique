@@ -1,5 +1,6 @@
-import Keycloak from 'keycloak-js'
+import Keycloak, { type KeycloakLoginOptions } from 'keycloak-js'
 import { computed, readonly, ref } from 'vue'
+import { useTheme } from '@/composables/useTheme'
 
 export const keycloak = new Keycloak({
   url: import.meta.env.VITE_KEYCLOAK_URL,
@@ -37,6 +38,16 @@ export async function initAuth() {
   syncState()
 }
 
+/**
+ * keycloak.login(), but the login page is told the site's theme choice (light/dark/system):
+ * it lives on another origin, so it can't read the site's localStorage. See the nio login theme's template.ftl.
+ */
+export async function login(options?: KeycloakLoginOptions) {
+  const url = new URL(await keycloak.createLoginUrl(options))
+  url.searchParams.set('nio_theme', useTheme().preference.value)
+  location.assign(url)
+}
+
 export function useAuth() {
   return {
     authenticated: readonly(authenticated),
@@ -44,8 +55,12 @@ export function useAuth() {
     roles: readonly(roles),
     isAdmin: computed(() => roles.value.includes('admin')),
     hasRole: (role: string) => roles.value.includes(role),
-    // open Keycloak's login page in the site's current language
-    login: () => keycloak.login({ locale: document.documentElement.lang }),
+    // open Keycloak's login page in the site's current language, coming back to `path` (default: here)
+    login: (path?: string) =>
+      login({
+        locale: document.documentElement.lang,
+        redirectUri: path ? new URL(path, location.origin).href : undefined,
+      }),
     logout: () => keycloak.logout({ redirectUri: location.origin }),
   }
 }

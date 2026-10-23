@@ -754,6 +754,18 @@ export interface components {
             maxDurationMinutes?: number | null;
             employeeIds: string[];
         };
+        ProductSummary: {
+            /** Format: uuid */
+            productId: string;
+            name: string;
+            description?: string | null;
+            /** Format: int32 */
+            minPriceCents?: number | null;
+            /** Format: int32 */
+            maxPriceCents?: number | null;
+            inStock: boolean;
+            employeeIds: string[];
+        };
         EmployeeSummary: {
             /** Format: uuid */
             id: string;
@@ -2357,7 +2369,7 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
-                    "*/*": components["schemas"]["Product"][];
+                    "*/*": components["schemas"]["ProductSummary"][];
                 };
             };
             /** @description Bad Request */

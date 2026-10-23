@@ -76,9 +76,22 @@ public class PublicController {
                 .toList();
     }
 
+    /**
+     * Each active product with its price range across the active employees selling it, and whether any of them
+     * has it in stock. The salon's cost and SKU stay internal.
+     */
     @GetMapping("/products")
-    public List<Product> products() {
-        return products.findByActiveTrueOrderByName();
+    public List<ProductSummary> products() {
+        List<Employee> staff = employees.findByActiveTrueOrderByDisplayName();
+        return products.findByActiveTrueOrderByName().stream()
+                .map(product -> ProductSummary.of(product, staff.stream()
+                        .flatMap(e -> e.productOffering(product.getId())
+                                .filter(ProductOffering::active)
+                                .map(o -> Map.entry(e.getId(), o))
+                                .stream())
+                        .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue, (a, b) -> a,
+                                LinkedHashMap::new))))
+                .toList();
     }
 
     @GetMapping("/employees")
@@ -170,6 +183,22 @@ public class PublicController {
             return new ServiceSummary(type.getId(), type.getName(), type.getDescription(), type.getCategory(),
                     offered ? prices.getMin() : null, offered ? prices.getMax() : null,
                     offered ? durations.getMin() : null, offered ? durations.getMax() : null,
+                    List.copyOf(offeringsByEmployee.keySet()));
+        }
+
+    }
+
+    public record ProductSummary(UUID productId, String name, @Nullable String description,
+                                 @Nullable Integer minPriceCents, @Nullable Integer maxPriceCents,
+                                 boolean inStock, List<UUID> employeeIds) {
+
+        static ProductSummary of(Product product, Map<UUID, ProductOffering> offeringsByEmployee) {
+            boolean offered = !offeringsByEmployee.isEmpty();
+            IntSummaryStatistics prices = offeringsByEmployee.values().stream()
+                    .mapToInt(ProductOffering::priceCents).summaryStatistics();
+            return new ProductSummary(product.getId(), product.getName(), product.getDescription(),
+                    offered ? prices.getMin() : null, offered ? prices.getMax() : null,
+                    offeringsByEmployee.values().stream().anyMatch(o -> o.quantityOnHand() > 0),
                     List.copyOf(offeringsByEmployee.keySet()));
         }
 

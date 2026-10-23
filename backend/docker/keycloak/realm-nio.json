@@ -4,6 +4,12 @@
   "registrationAllowed": true,
   "loginWithEmailAllowed": true,
   "sslRequired": "external",
+  "resetPasswordAllowed": true,
+  "rememberMe": true,
+  "loginTheme": "nio",
+  "internationalizationEnabled": true,
+  "supportedLocales": ["fr", "en"],
+  "defaultLocale": "fr",
   "roles": {
     "realm": [
       {

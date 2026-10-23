@@ -26,3 +26,18 @@ export function formatDate(iso: string, locale: Locale): string {
 export function formatTime(iso: string, locale: Locale): string {
   return new Intl.DateTimeFormat(intlLocale[locale], { timeStyle: 'short' }).format(new Date(iso))
 }
+
+/** 45 → "45 min", 90 → "1 h 30" / "1 h 30 min", 60 → "1 h". */
+export function formatDuration(minutes: number, locale: Locale): string {
+  const hours = Math.floor(minutes / 60)
+  const rest = minutes % 60
+  if (hours === 0) return `${rest} min`
+  if (rest === 0) return `${hours} h`
+  return locale === 'fr' ? `${hours} h ${String(rest).padStart(2, '0')}` : `${hours} h ${rest} min`
+}
+
+/** "30 – 45 min" style range; a single duration when both ends match. */
+export function formatDurationRange(minMinutes: number, maxMinutes: number, locale: Locale): string {
+  if (minMinutes === maxMinutes) return formatDuration(minMinutes, locale)
+  return `${formatDuration(minMinutes, locale)} – ${formatDuration(maxMinutes, locale)}`
+}

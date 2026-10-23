@@ -1,5 +1,5 @@
 import createClient, { type Middleware } from 'openapi-fetch'
-import { keycloak } from '@/auth/keycloak'
+import { keycloak, login } from '@/auth/keycloak'
 import type { components, paths } from './schema'
 
 /** Request/response shapes from the backend's OpenAPI spec, e.g. `Schemas['BookingView']`. */
@@ -15,7 +15,7 @@ const auth: Middleware = {
   },
   async onResponse({ response }) {
     if (response.status === 401) {
-      await keycloak.login()
+      await login()
     }
     return response
   },

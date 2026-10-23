@@ -9,12 +9,16 @@
     "services": "Soins",
     "prices": "Prix",
     "booking": "Réserver",
-    "menu": "Menu"
+    "menu": "Menu",
+    "team": "Équipe",
+    "products": "Produits",
+    "account": "Mon compte",
+    "staff": "Mon espace",
+    "admin": "Administration"
   },
   "auth": {
     "login": "Connexion",
-    "logout": "Déconnexion",
-    "whoAmI": "Qui suis-je ?"
+    "logout": "Déconnexion"
   },
   "theme": {
     "label": "Thème",
@@ -60,7 +64,8 @@
     "close": "Fermer",
     "save": "Enregistrer",
     "cancel": "Annuler",
-    "required": "Champ requis"
+    "required": "Champ requis",
+    "retry": "Réessayer"
   },
   "welcome": {
     "eyebrow": "Soins esthétiques",
@@ -71,7 +76,6 @@
     "seePrices": "Voir les prix",
     "servicesTitle": "Nos soins",
     "servicesScript": "pour vous",
-    "from": "À partir de {price}",
     "facial": {
       "title": "Soins du visage",
       "text": "Nettoyage, exfoliation et masque adaptés à votre peau, avec option sculptante ou dermaplaning."
@@ -86,6 +90,80 @@
     },
     "pricesTitle": "Liste de prix",
     "closingScript": "Prenez soin de vous",
-    "closingText": "Réservez votre prochain soin en quelques clics."
+    "closingText": "Réservez votre prochain soin en quelques clics.",
+    "allServices": "Tous nos soins",
+    "allTeam": "Toute l'équipe"
+  },
+  "pages": {
+    "comingSoon": "Cette page arrive bientôt.",
+    "employee": "Membre de l'équipe",
+    "myBookings": "Mes rendez-vous",
+    "myBooking": "Rendez-vous",
+    "myProfile": "Mon profil",
+    "staffSchedule": "Horaire",
+    "staffProfile": "Profil",
+    "staffHours": "Heures de travail",
+    "staffTimeOff": "Congés",
+    "staffServices": "Mes soins",
+    "staffProducts": "Mes produits",
+    "adminBookings": "Rendez-vous",
+    "adminServices": "Soins",
+    "adminProducts": "Produits",
+    "adminEmployees": "Employés"
+  },
+  "errors": {
+    "notFoundTitle": "Page introuvable",
+    "notFoundScript": "oups",
+    "notFoundText": "Cette page n'existe pas ou a été déplacée.",
+    "forbiddenTitle": "Accès refusé",
+    "forbiddenText": "Le compte {username} n'a pas accès à cette page.",
+    "backHome": "Retour à l'accueil",
+    "switchAccount": "Changer de compte",
+    "invalid": "Certaines informations ne sont pas valides.",
+    "notAllowed": "Vous n'avez pas accès à cette action.",
+    "missing": "Cet élément est introuvable.",
+    "conflict": "Les données ont changé entre-temps. Veuillez réessayer.",
+    "generic": "Une erreur est survenue. Veuillez réessayer.",
+    "network": "Impossible de joindre le serveur. Vérifiez votre connexion."
+  },
+  "services": {
+    "title": "Nos soins",
+    "script": "et prix",
+    "intro": "Les prix et durées varient selon l'esthéticienne : choisissez un soin pour voir les disponibilités.",
+    "empty": "Aucun soin n'est offert pour le moment.",
+    "otherCategory": "Autres soins",
+    "book": "Réserver ce soin",
+    "notOffered": "Bientôt offert"
+  },
+  "team": {
+    "title": "Notre équipe",
+    "script": "à votre écoute",
+    "intro": "Rencontrez les personnes qui prendront soin de vous.",
+    "empty": "L'équipe sera présentée ici bientôt.",
+    "viewProfile": "Voir le profil",
+    "member": "Notre équipe",
+    "bookWith": "Réserver avec {name}",
+    "noOfferings": "Aucun soin n'est encore offert à la réservation."
+  },
+  "products": {
+    "title": "Produits",
+    "script": "pour la maison",
+    "intro": "Les produits que nous utilisons au salon, à ajouter à votre rendez-vous et récupérer sur place.",
+    "empty": "Aucun produit n'est offert pour le moment.",
+    "inStock": "En stock",
+    "outOfStock": "Rupture de stock",
+    "notOffered": "Bientôt disponible"
+  },
+  "media": {
+    "photoTitle": "Photo de profil",
+    "addPhoto": "Ajouter une photo",
+    "changePhoto": "Changer la photo",
+    "removePhoto": "Retirer",
+    "photoHint": "JPEG, PNG ou WebP, {max} Mo max.",
+    "photoSaved": "Photo enregistrée.",
+    "photoRemoved": "Photo retirée.",
+    "uploadFailed": "L'envoi du fichier a échoué. Veuillez réessayer.",
+    "unsupportedType": "Choisissez une image JPEG, PNG ou WebP.",
+    "tooLarge": "L'image dépasse {max} Mo."
   }
 }

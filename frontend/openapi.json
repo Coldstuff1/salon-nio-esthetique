@@ -1802,7 +1802,7 @@
                 "schema" : {
                   "type" : "array",
                   "items" : {
-                    "$ref" : "#/components/schemas/Product"
+                    "$ref" : "#/components/schemas/ProductSummary"
                   }
                 }
               }
@@ -2963,6 +2963,40 @@
           }
         },
         "required" : [ "employeeIds", "name", "serviceTypeId" ]
+      },
+      "ProductSummary" : {
+        "type" : "object",
+        "properties" : {
+          "productId" : {
+            "type" : "string",
+            "format" : "uuid"
+          },
+          "name" : {
+            "type" : "string"
+          },
+          "description" : {
+            "type" : [ "string", "null" ]
+          },
+          "minPriceCents" : {
+            "type" : [ "integer", "null" ],
+            "format" : "int32"
+          },
+          "maxPriceCents" : {
+            "type" : [ "integer", "null" ],
+            "format" : "int32"
+          },
+          "inStock" : {
+            "type" : "boolean"
+          },
+          "employeeIds" : {
+            "type" : "array",
+            "items" : {
+              "type" : "string",
+              "format" : "uuid"
+            }
+          }
+        },
+        "required" : [ "employeeIds", "inStock", "name", "productId" ]
       },
       "EmployeeSummary" : {
         "type" : "object",
