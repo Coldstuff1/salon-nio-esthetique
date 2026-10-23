@@ -13,7 +13,7 @@ ENV VITE_KEYCLOAK_URL=$VITE_KEYCLOAK_URL \
 RUN npm run build
 
 # runs as an unprivileged user and listens on 8080
-FROM nginxinc/nginx-unprivileged:1.30.6-alpine
+FROM nginxinc/nginx-unprivileged:1.31.7-alpine
 COPY nginx/ /etc/nginx/templates/
 COPY --from=build /app/dist /usr/share/nginx/html
 # where the CSP lets the page reach; override for production
