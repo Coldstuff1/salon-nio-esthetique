@@ -32,10 +32,14 @@ one-time code (TOTP) on every sign-in for employees and admins (the `otp-require
 
 1. **Server**: a small Linux VPS in a Canadian region, with Docker Engine and the Compose plugin. Allow only
    22, 80 and 443 in the firewall. Docker bypasses `ufw` for published ports, which is why nothing else is
-   published. SSH with keys only, no root login; enable unattended security upgrades.
+   published. SSH with keys only, no root login; enable unattended security upgrades. 4 GB of RAM is enough:
+   each service has a `mem_limit` in `compose.prod.yaml` (about 2.5 GB in all) and the JVMs size their heaps
+   from it. Add a 2 GB swap file for the image builds.
 2. **DNS**: `A`/`AAAA` records for `<domain>` and `auth.<domain>` pointing at the server.
 3. **Email**: an account with a transactional email provider; add its SPF and DKIM records and a DMARC
-   policy for the domain.
+   policy for the domain. With Amazon SES (region `ca-central-1`): verify the domain with Easy DKIM, set a
+   custom MAIL FROM subdomain, create SMTP credentials in the SES console and request production access (it
+   can take a day). The SMTP host is `email-smtp.ca-central-1.amazonaws.com`, port 587.
 4. **reCAPTCHA**: register the site (v2, "I'm not a robot" checkbox) for `auth.<domain>`.
 5. **Media bucket** (example for AWS S3, region `ca-central-1`):
    - create a bucket with *Block all public access* on and default encryption;
@@ -54,10 +58,16 @@ one-time code (TOTP) on every sign-in for employees and admins (the `otp-require
 6. **Backup bucket**: a second bucket and a second IAM user (`s3:ListBucket` on the bucket,
    `s3:GetObject`/`PutObject`/`DeleteObject` on its objects). Don't reuse the app's key.
 7. **Configure**: clone the repository on the server, `cp .env.prod.example .env.prod`, fill in every value,
-   `chmod 600 .env.prod`. Store `RESTIC_PASSWORD` somewhere offline too; without it the backups can't be read.
-8. **Start**: `docker compose -f compose.prod.yaml --env-file .env.prod up -d --build`, then
-   `docker compose -f compose.prod.yaml --env-file .env.prod ps` until everything is healthy. Caddy fetches the
-   certificates on the first request.
+   `chmod 600 .env.prod`. Keep a copy of the whole file in a password manager: without `RESTIC_PASSWORD` the
+   backups can't be read, and the dump restores the database roles with their passwords, so a rebuilt server
+   needs the same values.
+8. **Start**: build the images one at a time, so a small server doesn't run three builds at once, then start:
+   ```sh
+   source deploy/lib.sh   # from the repository root
+   stack build keycloak && stack build backend && stack build frontend
+   stack up -d
+   ```
+   then `stack ps` until everything is healthy. Caddy fetches the certificates on the first request.
 9. **Replace the bootstrap admin** (see *Keycloak admin console* below): sign in with `KC_BOOTSTRAP_ADMIN_*`,
    create your own user in the `master` realm, give it the `admin` role, sign in as it and set up a one-time
    code (*Signing in* in the account menu), then delete the bootstrap user. The bootstrap variables are only
@@ -128,9 +138,10 @@ git pull
 docker compose -f compose.prod.yaml --env-file .env.prod up -d --build
 ```
 
-Flyway migrates the database on backend start. Dependabot proposes dependency and image updates weekly; CI
-(`.github/workflows/ci.yml`) runs the tests, `npm audit` and a Trivy scan of each image. Accepted scan findings
-are listed in `.trivyignore.yaml`, each with an expiry date.
+On a 4 GB server, build one service at a time as in *First deployment*, and run `docker builder prune` now and
+then to free disk space. Flyway migrates the database on backend start. Dependabot proposes dependency and
+image updates weekly; CI (`.github/workflows/ci.yml`) runs the tests, `npm audit` and a Trivy scan of each
+image. Accepted scan findings are listed in `.trivyignore.yaml`, each with an expiry date.
 
 ## Rotating secrets
 
@@ -154,6 +165,9 @@ are listed in `.trivyignore.yaml`, each with an expiry date.
   `https://auth.<domain>/realms/nio/.well-known/openid-configuration`.
 - Logs: `docker compose -f compose.prod.yaml --env-file .env.prod logs --since 24h <service>`. Every change made
   through the API is logged by the backend as `POST /api/... -> 201 by <user id> (<username>)`.
+- Memory: `docker stats --no-stream` shows each service against its limit. A service that hits its limit is
+  restarted (`docker inspect <container> --format '{{.State.OOMKilled}}'`); raise its `mem_limit` if that
+  happens.
 - Keycloak keeps sign-in and admin events for 90 days: *Events* in the admin console. Repeated `LOGIN_ERROR`
   for one account means someone is guessing its password (the lockout is already slowing them down).
 
