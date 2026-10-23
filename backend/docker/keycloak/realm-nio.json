@@ -475,7 +475,7 @@
       "config": {
         "action": "register",
         "recaptcha.v3": "false",
-        "secret.key": "**********",
+        "secret.key": "${NIO_RECAPTCHA_SECRET_KEY}",
         "useRecaptchaNet": "false",
         "site.key": "${NIO_RECAPTCHA_SITE_KEY}"
       }
