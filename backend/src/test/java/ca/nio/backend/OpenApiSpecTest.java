@@ -42,6 +42,9 @@ class OpenApiSpecTest {
         JsonNode spec = mapper.readTree(body);
         assertThat(spec.at("/paths/~1api~1bookings/post").isMissingNode()).isFalse();
         assertThat(spec.at("/components/securitySchemes/bearer-jwt").isMissingNode()).isFalse();
+        // error responses stay documented; the frontend types failed calls from them
+        assertThat(spec.at("/components/schemas/ProblemDetail").isMissingNode()).isFalse();
+        assertThat(spec.at("/paths/~1api~1bookings/post/responses/409").isMissingNode()).isFalse();
         assertThat(spec.at("/components/securitySchemes/keycloak/flows/authorizationCode/authorizationUrl").asString())
                 .isEqualTo("http://localhost:8180/realms/nio/protocol/openid-connect/auth");
 

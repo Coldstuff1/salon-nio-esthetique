@@ -1,4 +1,4 @@
-import { createRouter, createWebHistory, type RouteLocationRaw } from 'vue-router'
+import { createRouter, createWebHistory } from 'vue-router'
 import { useAuth } from '@/auth/keycloak'
 import AreaLayout from '@/layouts/AreaLayout.vue'
 import HomeView from '@/views/public/HomeView.vue'
@@ -11,12 +11,14 @@ declare module 'vue-router' {
     title?: string
     /** realm role needed to open the page; children inherit it */
     role?: Role
+    /** route name of the `AreaLayout` tab to highlight, for pages under a tab (e.g. one booking) */
+    tab?: string
   }
 }
 
 /** A link in an area's sub-navigation (`AreaLayout`). */
 export interface AreaLink {
-  to: RouteLocationRaw
+  to: { name: string }
   label: string
 }
 
@@ -59,7 +61,7 @@ export const router = createRouter({
     {
       path: '/book',
       name: 'booking',
-      component: placeholder,
+      component: () => import('@/views/public/BookView.vue'),
       meta: { title: 'nav.booking' },
     },
 
@@ -79,19 +81,19 @@ export const router = createRouter({
         {
           path: 'bookings',
           name: 'my-bookings',
-          component: placeholder,
+          component: () => import('@/views/account/MyBookingsView.vue'),
           meta: { title: 'pages.myBookings' },
         },
         {
           path: 'bookings/:bookingId',
           name: 'my-booking',
-          component: placeholder,
-          meta: { title: 'pages.myBooking' },
+          component: () => import('@/views/account/MyBookingView.vue'),
+          meta: { title: 'pages.myBooking', tab: 'my-bookings' },
         },
         {
           path: 'profile',
           name: 'my-profile',
-          component: placeholder,
+          component: () => import('@/views/account/MyProfileView.vue'),
           meta: { title: 'pages.myProfile' },
         },
       ],
@@ -116,7 +118,7 @@ export const router = createRouter({
         {
           path: '',
           name: 'staff-schedule',
-          component: placeholder,
+          component: () => import('@/views/staff/StaffScheduleView.vue'),
           meta: { title: 'pages.staffSchedule' },
         },
         {
@@ -128,25 +130,25 @@ export const router = createRouter({
         {
           path: 'hours',
           name: 'staff-hours',
-          component: placeholder,
+          component: () => import('@/views/staff/StaffHoursView.vue'),
           meta: { title: 'pages.staffHours' },
         },
         {
           path: 'time-off',
           name: 'staff-time-off',
-          component: placeholder,
+          component: () => import('@/views/staff/StaffTimeOffView.vue'),
           meta: { title: 'pages.staffTimeOff' },
         },
         {
           path: 'services',
           name: 'staff-services',
-          component: placeholder,
+          component: () => import('@/views/staff/StaffServicesView.vue'),
           meta: { title: 'pages.staffServices' },
         },
         {
           path: 'products',
           name: 'staff-products',
-          component: placeholder,
+          component: () => import('@/views/staff/StaffProductsView.vue'),
           meta: { title: 'pages.staffProducts' },
         },
       ],

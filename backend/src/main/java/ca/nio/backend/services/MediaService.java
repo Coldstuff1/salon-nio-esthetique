@@ -38,7 +38,8 @@ public class MediaService {
     public UploadTicket requestUpload(UUID ownerId, String contentType, long sizeBytes) {
         DataSize max = maxSize(contentType);
         if (sizeBytes <= 0 || sizeBytes > max.toBytes()) {
-            throw new InvalidRequestException("File must be between 1 byte and " + max.toMegabytes() + " MB");
+            throw new InvalidRequestException(ErrorCode.FILE_SIZE,
+                    "File must be between 1 byte and " + max.toMegabytes() + " MB", Map.of("maxMegabytes", max.toMegabytes()));
         }
         Media pending = media.save(new Media(ownerId, contentType, sizeBytes));
         return new UploadTicket(pending.getId(), storage.presignPut(pending.objectKey(), contentType, sizeBytes),
@@ -53,16 +54,18 @@ public class MediaService {
     public Media claim(UUID mediaId, UUID ownerId) {
         Media item = media.findById(mediaId)
                 .filter(m -> m.getOwnerId().equals(ownerId))
-                .orElseThrow(() -> new NotFoundException("Media " + mediaId + " not found"));
+                .orElseThrow(() -> new NotFoundException(ErrorCode.MEDIA_NOT_FOUND, "Media " + mediaId + " not found"));
         if (item.getStatus() == MediaStatus.READY) {
             return item;
         }
         var head = storage.head(item.objectKey())
-                .orElseThrow(() -> new InvalidRequestException("Media " + mediaId + " has not been uploaded"));
+                .orElseThrow(() -> new InvalidRequestException(ErrorCode.FILE_NOT_UPLOADED,
+                        "Media " + mediaId + " has not been uploaded"));
         if (head.contentLength() != item.getSizeBytes() || !item.getContentType().equals(head.contentType())) {
             storage.delete(item.objectKey());
             media.delete(item);
-            throw new InvalidRequestException("Uploaded file does not match the declared type and size");
+            throw new InvalidRequestException(ErrorCode.FILE_MISMATCH,
+                    "Uploaded file does not match the declared type and size");
         }
         item.setStatus(MediaStatus.READY);
         return media.save(item);
@@ -107,7 +110,7 @@ public class MediaService {
                 "video/mp4", properties.maxVideoSize(),
                 "video/webm", properties.maxVideoSize()).get(contentType);
         if (max == null) {
-            throw new InvalidRequestException("Unsupported media type " + contentType);
+            throw new InvalidRequestException(ErrorCode.FILE_TYPE, "Unsupported media type " + contentType);
         }
         return max;
     }

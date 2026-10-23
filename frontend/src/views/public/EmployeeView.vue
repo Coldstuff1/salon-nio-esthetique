@@ -62,7 +62,7 @@ function serviceNote(service: { durationMinutes: number; description?: string | 
             </p>
             <BaseButton
               v-if="data.services.length"
-              :to="{ name: 'booking', query: { employe: data.employee.id } }"
+              :to="{ name: 'booking', query: { employee: data.employee.id } }"
             >
               {{ t('team.bookWith', { name: data.employee.displayName }) }}
             </BaseButton>

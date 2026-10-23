@@ -54,7 +54,7 @@ public class StaffService {
     public void removeTimeOff(UUID employeeId, UUID timeOffId) {
         Employee employee = employee(employeeId);
         if (!employee.getTimeOff().removeIf(t -> t.id().equals(timeOffId))) {
-            throw new NotFoundException("Time off " + timeOffId + " not found");
+            throw new NotFoundException(ErrorCode.TIME_OFF_NOT_FOUND, "Time off " + timeOffId + " not found");
         }
         employees.save(employee);
     }
@@ -63,7 +63,8 @@ public class StaffService {
     public Employee putServiceOffering(UUID employeeId, ServiceOffering offering) {
         serviceTypes.findById(offering.serviceTypeId())
                 .filter(ServiceType::isActive)
-                .orElseThrow(() -> new NotFoundException("Service " + offering.serviceTypeId() + " not found"));
+                .orElseThrow(() -> new NotFoundException(ErrorCode.SERVICE_NOT_FOUND,
+                        "Service " + offering.serviceTypeId() + " not found"));
         Employee employee = employee(employeeId);
         employee.putServiceOffering(offering);
         return employees.save(employee);
@@ -73,7 +74,8 @@ public class StaffService {
     public Employee putProductOffering(UUID employeeId, ProductOffering offering) {
         products.findById(offering.productId())
                 .filter(Product::isActive)
-                .orElseThrow(() -> new NotFoundException("Product " + offering.productId() + " not found"));
+                .orElseThrow(() -> new NotFoundException(ErrorCode.PRODUCT_NOT_FOUND,
+                        "Product " + offering.productId() + " not found"));
         Employee employee = employee(employeeId);
         employee.putProductOffering(offering);
         return employees.save(employee);
@@ -101,7 +103,7 @@ public class StaffService {
 
     private Employee employee(UUID employeeId) {
         return employees.findById(employeeId)
-                .orElseThrow(() -> new NotFoundException("Employee " + employeeId + " not found"));
+                .orElseThrow(() -> new NotFoundException(ErrorCode.EMPLOYEE_NOT_FOUND, "Employee " + employeeId + " not found"));
     }
 
 }

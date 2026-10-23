@@ -123,7 +123,9 @@ class CatalogIntegrationTest {
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.phone").doesNotExist());
         send(put("/api/me/profile"), client, Map.of("displayName", "Marie", "phone", "not a phone"))
-                .andExpect(status().isBadRequest());
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.code").value("validation"))
+                .andExpect(jsonPath("$.fields[0]").value("phone"));
         send(put("/api/me/profile"), client, Map.of("displayName", "Marie", "phone", "+1 (514) 555-0100"))
                 .andExpect(status().isOk());
         mockMvc.perform(get("/api/me/profile").with(client))
@@ -131,6 +133,20 @@ class CatalogIntegrationTest {
                 .andExpect(jsonPath("$.phone").value("+1 (514) 555-0100"));
         mockMvc.perform(get("/api/me/profile").with(keycloakJwt(UUID.randomUUID(), "employee")))
                 .andExpect(status().isForbidden());
+    }
+
+    @Test
+    void errorsCarryACodeToTranslate() throws Exception {
+        mockMvc.perform(get("/api/public/employees/" + UUID.randomUUID() + "/offerings"))
+                .andExpect(status().isNotFound())
+                .andExpect(jsonPath("$.code").value("employee-not-found"));
+        mockMvc.perform(get("/api/public/employees/not-a-uuid/offerings"))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.code").value("invalid-request"));
+        send(put("/api/staff/me/availability"), keycloakJwt(UUID.randomUUID(), "employee"),
+                List.of(Map.of("dayOfWeek", 1, "startTime", "17:00", "endTime", "09:00")))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.code").value("invalid-request"));
     }
 
     private void offer(UUID employeeId, ServiceType type, int priceCents, int durationMinutes) throws Exception {

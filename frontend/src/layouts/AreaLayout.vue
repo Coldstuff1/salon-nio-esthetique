@@ -1,12 +1,15 @@
 <script setup lang="ts">
 import { useI18n } from 'vue-i18n'
-import { RouterLink, RouterView } from 'vue-router'
+import { computed } from 'vue'
+import { RouterLink, RouterView, useRoute } from 'vue-router'
 import type { AreaLink } from '@/router'
 
 /** Frame for a signed-in area (account, staff, admin): its title, a tab bar of its pages, then the page. */
 defineProps<{ title: string; links: AreaLink[] }>()
 
 const { t } = useI18n()
+const route = useRoute()
+const activeTab = computed(() => route.meta.tab ?? route.name)
 </script>
 
 <template>
@@ -19,8 +22,13 @@ const { t } = useI18n()
             v-for="link in links"
             :key="link.label"
             :to="link.to"
-            class="shrink-0 border-b-2 border-transparent pb-3 text-ink-muted transition-colors hover:text-ink"
-            exact-active-class="!border-accent !text-ink"
+            class="shrink-0 border-b-2 pb-3 transition-colors"
+            :class="
+              link.to.name === activeTab
+                ? 'border-accent text-ink'
+                : 'border-transparent text-ink-muted hover:text-ink'
+            "
+            :aria-current="link.to.name === activeTab ? 'page' : undefined"
           >
             {{ t(link.label) }}
           </RouterLink>

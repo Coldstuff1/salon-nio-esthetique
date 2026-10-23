@@ -3,6 +3,7 @@ package ca.nio.backend.services;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 
 import org.springframework.stereotype.Service;
@@ -31,24 +32,27 @@ public class PriceCalculator {
 
     public Quote quote(Employee employee, List<UUID> serviceIds, List<ProductSelection> productSelections) {
         if (serviceIds == null || serviceIds.isEmpty()) {
-            throw new InvalidRequestException("Select at least one service");
+            throw new InvalidRequestException(ErrorCode.NO_SERVICE_SELECTED, "Select at least one service");
         }
         if (new HashSet<>(serviceIds).size() != serviceIds.size()) {
-            throw new InvalidRequestException("A service can only be selected once");
+            throw new InvalidRequestException(ErrorCode.DUPLICATE_SERVICE, "A service can only be selected once");
         }
         List<ProductSelection> selections = productSelections == null ? List.of() : productSelections;
         if (selections.stream().map(ProductSelection::productId).distinct().count() != selections.size()) {
-            throw new InvalidRequestException("A product can only be listed once; use the quantity instead");
+            throw new InvalidRequestException(ErrorCode.DUPLICATE_PRODUCT,
+                    "A product can only be listed once; use the quantity instead");
         }
 
         List<BookingServiceLine> serviceLines = new ArrayList<>();
         for (UUID serviceId : serviceIds) {
             ServiceOffering offering = employee.serviceOffering(serviceId)
                     .filter(ServiceOffering::active)
-                    .orElseThrow(() -> new InvalidRequestException("Employee doesn't offer service " + serviceId));
+                    .orElseThrow(() -> new InvalidRequestException(ErrorCode.SERVICE_NOT_OFFERED,
+                            "Employee doesn't offer service " + serviceId));
             ServiceType type = serviceTypes.findById(serviceId)
                     .filter(ServiceType::isActive)
-                    .orElseThrow(() -> new InvalidRequestException("Service " + serviceId + " is not available"));
+                    .orElseThrow(() -> new InvalidRequestException(ErrorCode.SERVICE_UNAVAILABLE,
+                            "Service " + serviceId + " is not available"));
             serviceLines.add(new BookingServiceLine(serviceId, type.getName(), offering.priceCents(),
                     offering.durationMinutes()));
         }
@@ -56,19 +60,20 @@ public class PriceCalculator {
         List<BookingProductLine> productLines = new ArrayList<>();
         for (ProductSelection selection : selections) {
             if (selection.quantity() < 1) {
-                throw new InvalidRequestException("Quantity must be at least 1");
+                throw new InvalidRequestException(ErrorCode.INVALID_QUANTITY, "Quantity must be at least 1");
             }
             ProductOffering offering = employee.productOffering(selection.productId())
                     .filter(ProductOffering::active)
-                    .orElseThrow(() -> new InvalidRequestException(
+                    .orElseThrow(() -> new InvalidRequestException(ErrorCode.PRODUCT_NOT_OFFERED,
                             "Employee doesn't sell product " + selection.productId()));
             Product product = products.findById(selection.productId())
                     .filter(Product::isActive)
-                    .orElseThrow(() -> new InvalidRequestException(
+                    .orElseThrow(() -> new InvalidRequestException(ErrorCode.PRODUCT_UNAVAILABLE,
                             "Product " + selection.productId() + " is not available"));
             if (selection.quantity() > offering.quantityOnHand()) {
-                throw new ConflictException("Only " + offering.quantityOnHand() + " of " + product.getName()
-                        + " left in stock");
+                throw new ConflictException(ErrorCode.OUT_OF_STOCK, "Only " + offering.quantityOnHand() + " of "
+                        + product.getName() + " left in stock",
+                        Map.of("product", product.getName(), "available", offering.quantityOnHand()));
             }
             productLines.add(new BookingProductLine(product.getId(), product.getName(), offering.priceCents(),
                     selection.quantity()));

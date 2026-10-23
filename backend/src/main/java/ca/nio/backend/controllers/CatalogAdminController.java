@@ -25,6 +25,7 @@ import ca.nio.backend.repositories.EmployeeRepository;
 import ca.nio.backend.repositories.ProductRepository;
 import ca.nio.backend.repositories.ServiceTypeRepository;
 import ca.nio.backend.services.ConflictException;
+import ca.nio.backend.services.ErrorCode;
 import ca.nio.backend.services.MediaService;
 import ca.nio.backend.services.NotFoundException;
 import jakarta.validation.Valid;
@@ -122,7 +123,7 @@ public class CatalogAdminController {
     @ResponseStatus(HttpStatus.CREATED)
     public AdminEmployee createEmployee(@Valid @RequestBody EmployeeRequest request) {
         if (employees.existsById(request.id())) {
-            throw new ConflictException("Employee " + request.id() + " already exists");
+            throw new ConflictException(ErrorCode.EMPLOYEE_EXISTS, "Employee " + request.id() + " already exists");
         }
         Employee employee = new Employee(request.id(), request.displayName());
         employee.setBio(request.bio());
@@ -148,11 +149,11 @@ public class CatalogAdminController {
     }
 
     private ServiceType serviceType(UUID id) {
-        return serviceTypes.findById(id).orElseThrow(() -> new NotFoundException("Service " + id + " not found"));
+        return serviceTypes.findById(id).orElseThrow(() -> new NotFoundException(ErrorCode.SERVICE_NOT_FOUND, "Service " + id + " not found"));
     }
 
     private Employee employee(UUID id) {
-        return employees.findById(id).orElseThrow(() -> new NotFoundException("Employee " + id + " not found"));
+        return employees.findById(id).orElseThrow(() -> new NotFoundException(ErrorCode.EMPLOYEE_NOT_FOUND, "Employee " + id + " not found"));
     }
 
     private AdminEmployee adminEmployee(Employee employee) {
@@ -160,7 +161,7 @@ public class CatalogAdminController {
     }
 
     private Product product(UUID id) {
-        return products.findById(id).orElseThrow(() -> new NotFoundException("Product " + id + " not found"));
+        return products.findById(id).orElseThrow(() -> new NotFoundException(ErrorCode.PRODUCT_NOT_FOUND, "Product " + id + " not found"));
     }
 
     public record ServiceTypeRequest(@NotBlank @Size(max = 120) String name, @Nullable String description,

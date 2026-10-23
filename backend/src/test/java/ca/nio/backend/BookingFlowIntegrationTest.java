@@ -111,17 +111,24 @@ class BookingFlowIntegrationTest {
     void rejectsOverlappingBooking() throws Exception {
         book(at(9, 0), 0).andExpect(status().isCreated());
 
-        book(at(9, 30), 0).andExpect(status().isConflict());
+        book(at(9, 30), 0)
+                .andExpect(status().isConflict())
+                .andExpect(jsonPath("$.code").value("slot-taken"));
     }
 
     @Test
     void rejectsBookingOutsideWorkingHours() throws Exception {
-        book(at(11, 30), 0).andExpect(status().isConflict());
+        book(at(11, 30), 0)
+                .andExpect(status().isConflict())
+                .andExpect(jsonPath("$.code").value("outside-working-hours"));
     }
 
     @Test
     void rejectsMoreStockThanOnHandAndRestoresStockOnCancel() throws Exception {
-        book(at(9, 0), 4).andExpect(status().isConflict());
+        book(at(9, 0), 4)
+                .andExpect(status().isConflict())
+                .andExpect(jsonPath("$.code").value("out-of-stock"))
+                .andExpect(jsonPath("$.params.product").value("Cream"));
 
         String id = com.jayway.jsonpath.JsonPath.read(book(at(9, 0), 3)
                 .andExpect(status().isCreated())

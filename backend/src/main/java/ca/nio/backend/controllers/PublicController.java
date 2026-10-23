@@ -30,6 +30,7 @@ import ca.nio.backend.repositories.EmployeeRepository;
 import ca.nio.backend.repositories.ProductRepository;
 import ca.nio.backend.repositories.ServiceTypeRepository;
 import ca.nio.backend.services.BookingService;
+import ca.nio.backend.services.ErrorCode;
 import ca.nio.backend.services.MediaService;
 import ca.nio.backend.services.NotFoundException;
 import ca.nio.backend.services.ProductSelection;
@@ -103,7 +104,7 @@ public class PublicController {
     public EmployeeOfferings offerings(@PathVariable UUID id) {
         Employee employee = employees.findById(id)
                 .filter(Employee::isActive)
-                .orElseThrow(() -> new NotFoundException("Employee " + id + " not found"));
+                .orElseThrow(() -> new NotFoundException(ErrorCode.EMPLOYEE_NOT_FOUND, "Employee " + id + " not found"));
         Map<UUID, ServiceType> typesById = byId(serviceTypes.findAllById(
                 employee.getServiceOfferings().stream().map(ServiceOffering::serviceTypeId).toList()),
                 ServiceType::getId);

@@ -5,6 +5,7 @@ import java.time.Instant;
 import java.time.LocalDate;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 
 import org.jspecify.annotations.Nullable;
@@ -53,22 +54,23 @@ public class BookingService {
     public Booking reserve(UUID customerId, ReserveCommand command) {
         Employee employee = activeEmployee(command.employeeId());
         if (command.startsAt() == null || !command.startsAt().isAfter(Instant.now())) {
-            throw new InvalidRequestException("Start time must be in the future");
+            throw new InvalidRequestException(ErrorCode.START_IN_PAST, "Start time must be in the future");
         }
         Quote quote = priceCalculator.quote(employee, command.serviceIds(), command.products());
         Instant startsAt = command.startsAt();
         Instant endsAt = startsAt.plus(Duration.ofMinutes(quote.totalDurationMinutes()));
 
         if (!availability.isWithinWorkingHours(employee, startsAt, endsAt)) {
-            throw new ConflictException("Employee isn't working at that time");
+            throw new ConflictException(ErrorCode.OUTSIDE_WORKING_HOURS, "Employee isn't working at that time");
         }
         if (!bookings.findByEmployeeIdAndStatusAndStartsAtBeforeAndEndsAtAfter(
                 employee.getId(), BookingStatus.RESERVED, endsAt, startsAt).isEmpty()) {
-            throw new ConflictException("That time slot is already booked");
+            throw new ConflictException(ErrorCode.SLOT_TAKEN, "That time slot is already booked");
         }
         for (BookingProductLine line : quote.products()) {
             if (employees.reserveStock(employee.getId(), line.productId(), line.quantity()) == 0) {
-                throw new ConflictException("Not enough stock for " + line.nameSnapshot());
+                throw new ConflictException(ErrorCode.OUT_OF_STOCK, "Not enough stock for " + line.nameSnapshot(),
+                        Map.of("product", line.nameSnapshot()));
             }
         }
         if (!quote.products().isEmpty()) {
@@ -89,11 +91,11 @@ public class BookingService {
     public Booking cancel(UUID bookingId, UUID actorId, boolean admin) {
         Booking booking = bookings.findById(bookingId)
                 .filter(b -> admin || b.getEmployeeId().equals(actorId) || b.getCustomerId().equals(actorId))
-                .orElseThrow(() -> new NotFoundException("Booking " + bookingId + " not found"));
+                .orElseThrow(() -> new NotFoundException(ErrorCode.BOOKING_NOT_FOUND, "Booking " + bookingId + " not found"));
         boolean byCustomer = !admin && booking.getCustomerId().equals(actorId)
                 && !booking.getEmployeeId().equals(actorId);
         if (byCustomer && !booking.getStartsAt().isAfter(Instant.now())) {
-            throw new ConflictException("Bookings can't be cancelled after they start");
+            throw new ConflictException(ErrorCode.CANCEL_AFTER_START, "Bookings can't be cancelled after they start");
         }
         transition(booking, BookingStatus.CANCELLED);
         booking.getProducts().forEach(line ->
@@ -110,11 +112,11 @@ public class BookingService {
     @Transactional
     public Booking close(UUID bookingId, UUID employeeId, BookingStatus outcome) {
         if (outcome != BookingStatus.COMPLETED && outcome != BookingStatus.NO_SHOW) {
-            throw new InvalidRequestException("Outcome must be COMPLETED or NO_SHOW");
+            throw new InvalidRequestException(ErrorCode.INVALID_OUTCOME, "Outcome must be COMPLETED or NO_SHOW");
         }
         Booking booking = bookings.findById(bookingId)
                 .filter(b -> b.getEmployeeId().equals(employeeId))
-                .orElseThrow(() -> new NotFoundException("Booking " + bookingId + " not found"));
+                .orElseThrow(() -> new NotFoundException(ErrorCode.BOOKING_NOT_FOUND, "Booking " + bookingId + " not found"));
         transition(booking, outcome);
         return bookings.save(booking);
     }
@@ -127,7 +129,7 @@ public class BookingService {
     @Transactional(readOnly = true)
     public List<Booking> schedule(UUID employeeId, Instant from, Instant to) {
         if (!from.isBefore(to)) {
-            throw new InvalidRequestException("'from' must be before 'to'");
+            throw new InvalidRequestException(ErrorCode.INVALID_RANGE, "'from' must be before 'to'");
         }
         return bookings.findByEmployeeIdAndStartsAtBeforeAndEndsAtAfterOrderByStartsAt(employeeId, to, from);
     }
@@ -139,7 +141,7 @@ public class BookingService {
             return schedule(employeeId, from, to);
         }
         if (!from.isBefore(to)) {
-            throw new InvalidRequestException("'from' must be before 'to'");
+            throw new InvalidRequestException(ErrorCode.INVALID_RANGE, "'from' must be before 'to'");
         }
         return bookings.findByStartsAtBeforeAndEndsAtAfterOrderByStartsAt(to, from);
     }
@@ -147,14 +149,14 @@ public class BookingService {
     private Employee activeEmployee(UUID employeeId) {
         return employees.findById(employeeId)
                 .filter(Employee::isActive)
-                .orElseThrow(() -> new NotFoundException("Employee " + employeeId + " not found"));
+                .orElseThrow(() -> new NotFoundException(ErrorCode.EMPLOYEE_NOT_FOUND, "Employee " + employeeId + " not found"));
     }
 
     private static void transition(Booking booking, BookingStatus next) {
         try {
             booking.transitionTo(next);
         } catch (IllegalStateException e) {
-            throw new ConflictException(e.getMessage());
+            throw new ConflictException(ErrorCode.BOOKING_CLOSED, e.getMessage());
         }
     }
 
