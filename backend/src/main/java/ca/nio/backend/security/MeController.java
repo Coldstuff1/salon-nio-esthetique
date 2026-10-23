@@ -21,7 +21,7 @@ public class MeController {
 
     @GetMapping
     public Me me(@AuthenticationPrincipal Jwt jwt) {
-        List<String> roles = KeycloakJwtAuthenticationConverter.realmRoles(jwt);
+        List<String> roles = CurrentUserService.realmRoles(jwt);
         if (roles.contains("client")) {
             currentUser.customer(jwt);
         }

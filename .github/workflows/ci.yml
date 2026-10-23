@@ -72,9 +72,12 @@ jobs:
       IMAGE: ghcr.io/coldstuff1/nio-${{ matrix.name }}:${{ github.sha }}
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
-      # the frontend bakes the production Keycloak URL into its bundle; the other images ignore the argument
+      # the frontend bakes the production Keycloak URL and its version into its bundle; the other images ignore
+      # the arguments
       - name: Build
-        run: docker build --build-arg VITE_KEYCLOAK_URL="https://$NIO_AUTH_DOMAIN" -t "$IMAGE" ${{ matrix.context }}
+        run: |
+          docker build --build-arg VITE_KEYCLOAK_URL="https://$NIO_AUTH_DOMAIN" \
+              --build-arg VITE_APP_VERSION="${GITHUB_SHA::7}" -t "$IMAGE" ${{ matrix.context }}
       - name: Scan for fixable high and critical vulnerabilities
         uses: aquasecurity/trivy-action@ed142fd0673e97e23eac54620cfb913e5ce36c25 # v0.36.0
         with:

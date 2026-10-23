@@ -7,6 +7,7 @@ import BrandLogo from '@/components/brand/BrandLogo.vue'
 import BaseButton from '@/components/ui/BaseButton.vue'
 import { useNavLinks } from '@/router/nav'
 import LocaleSwitch from './LocaleSwitch.vue'
+import ReportBugDialog from './ReportBugDialog.vue'
 import ThemeToggle from './ThemeToggle.vue'
 
 const { authenticated, username, login, logout } = useAuth()
@@ -16,6 +17,12 @@ const links = useNavLinks()
 const menuOpen = ref(false)
 const route = useRoute()
 watch(() => route.fullPath, () => (menuOpen.value = false))
+
+const reportOpen = ref(false)
+function openReport() {
+  menuOpen.value = false
+  reportOpen.value = true
+}
 </script>
 
 <template>
@@ -39,6 +46,25 @@ watch(() => route.fullPath, () => (menuOpen.value = false))
         <div class="hidden items-center gap-3 sm:flex">
           <template v-if="authenticated">
             <span class="hidden text-sm text-ink-muted 2xl:inline">{{ username }}</span>
+            <BaseButton
+              variant="ghost"
+              size="sm"
+              :aria-label="t('bugReport.open')"
+              :title="t('bugReport.open')"
+              @click="openReport"
+            >
+              <svg viewBox="0 0 20 20" class="size-4" aria-hidden="true">
+                <path
+                  d="M5 17V3.5h9.5l-2 3.5 2 3.5H5"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="1.25"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                />
+              </svg>
+              <span class="hidden 2xl:inline">{{ t('bugReport.open') }}</span>
+            </BaseButton>
             <BaseButton variant="outline" size="sm" @click="logout">{{ t('auth.logout') }}</BaseButton>
           </template>
           <BaseButton v-else size="sm" variant="outline" @click="login()">{{ t('auth.login') }}</BaseButton>
@@ -74,6 +100,9 @@ watch(() => route.fullPath, () => (menuOpen.value = false))
           <BaseButton v-if="link.primary" :to="link.to" class="mt-3">{{ t(link.label) }}</BaseButton>
           <RouterLink v-else :to="link.to" class="nav-link py-3">{{ t(link.label) }}</RouterLink>
         </template>
+        <BaseButton v-if="authenticated" variant="ghost" class="mt-2 sm:hidden" @click="openReport">
+          {{ t('bugReport.open') }}
+        </BaseButton>
         <BaseButton v-if="authenticated" variant="outline" class="mt-2 sm:hidden" @click="logout">
           {{ t('auth.logout') }}
         </BaseButton>
@@ -82,6 +111,8 @@ watch(() => route.fullPath, () => (menuOpen.value = false))
         </BaseButton>
       </div>
     </nav>
+
+    <ReportBugDialog v-if="authenticated" v-model:open="reportOpen" />
   </header>
 </template>
 

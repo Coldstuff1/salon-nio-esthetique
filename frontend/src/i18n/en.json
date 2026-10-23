@@ -4,6 +4,34 @@
     "tagline": "Aesthetician services",
     "handle": "{'@'}salonnioesthetique"
   },
+  "bugReport": {
+    "open": "Report a problem",
+    "intro": "Something not working? Describe what happened and the team will look into it.",
+    "titleLabel": "In short",
+    "titleInvalid": "Enter a title of at most 120 characters.",
+    "description": "What happened",
+    "descriptionHint": "What you were doing, what you expected, and what happened instead.",
+    "descriptionInvalid": "Describe the problem in at most 5000 characters.",
+    "screenshot": "Screenshot",
+    "addScreenshot": "Attach a screenshot",
+    "removeScreenshot": "Remove screenshot",
+    "screenshotHint": "Optional. JPEG, PNG or WebP, up to {max} MB. You can also paste it here.",
+    "contextNote": "The page you're on and your browser are attached automatically.",
+    "send": "Send",
+    "sentTitle": "Thanks, it's sent.",
+    "sentText": "The team has your report and will look into it.",
+    "status": {
+      "NEW": "New",
+      "IN_PROGRESS": "In progress",
+      "RESOLVED": "Resolved",
+      "DISMISSED": "Dismissed"
+    },
+    "roles": {
+      "client": "Client",
+      "employee": "Aesthetician",
+      "admin": "Admin"
+    }
+  },
   "nav": {
     "home": "Home",
     "services": "Treatments",
@@ -152,7 +180,9 @@
     "adminBookings": "Appointments",
     "adminServices": "Treatments",
     "adminProducts": "Products",
-    "adminEmployees": "Employees"
+    "adminEmployees": "Employees",
+    "adminBugReports": "Bug reports",
+    "adminBugReport": "Bug report"
   },
   "errors": {
     "notFoundTitle": "Page not found",
@@ -205,7 +235,9 @@
       "too-far-ahead": "Bookings open {days} days ahead. Please choose an earlier date.",
       "too-many-uploads": "Too many uploads are waiting. Please try again later.",
       "email-not-verified": "Please confirm your email first, using the link we sent you.",
-      "employee-inactive": "Your staff account has been deactivated. Please contact the salon's administration."
+      "employee-inactive": "Your staff account has been deactivated. Please contact the salon's administration.",
+      "too-many-bug-reports": "You've sent a lot of reports today (max {max}). Please try again tomorrow.",
+      "bug-report-not-found": "This report could not be found."
     }
   },
   "services": {
@@ -396,6 +428,32 @@
       "bioHint": "They can edit it themselves in their space.",
       "activeLabel": "Visible and bookable",
       "publicPage": "Public page"
+    },
+    "bugReports": {
+      "intro": "Problems reported from the site, newest first.",
+      "newCount": "No new reports. | 1 new report. | {n} new reports.",
+      "filter": "Show",
+      "open": "Open",
+      "all": "All",
+      "withCount": "{label} ({n})",
+      "empty": "No reports here.",
+      "received": "Received",
+      "report": "Problem",
+      "reporter": "Reported by",
+      "screenshotAttached": "Screenshot attached",
+      "view": "View",
+      "back": "All reports",
+      "context": "Context",
+      "page": "Page",
+      "locale": "Language",
+      "viewport": "Screen",
+      "userAgent": "Browser",
+      "version": "Version",
+      "triage": "Follow-up",
+      "note": "Internal note",
+      "noteHint": "Only admins see this.",
+      "saved": "Report updated.",
+      "updatedAt": "Updated {date} at {time}."
     }
   }
 }

@@ -1,5 +1,7 @@
 package ca.nio.backend.controllers;
 
+import java.util.List;
+
 import org.springframework.http.HttpStatus;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -20,11 +22,12 @@ import lombok.RequiredArgsConstructor;
 
 /**
  * Step one of any upload: get a presigned URL to PUT the file to, then pass the returned media id to the
- * endpoint that uses it (e.g. {@code PUT /api/staff/me/photo}).
+ * endpoint that uses it (e.g. {@code PUT /api/staff/me/photo} or a bug report's screenshot). Clients may only
+ * upload images.
  */
 @RestController
 @RequestMapping("/api/media")
-@PreAuthorize("hasAnyRole('EMPLOYEE', 'ADMIN')")
+@PreAuthorize("hasAnyRole('CLIENT', 'EMPLOYEE', 'ADMIN')")
 @RequiredArgsConstructor
 public class MediaController {
 
@@ -33,7 +36,10 @@ public class MediaController {
     @PostMapping("/uploads")
     @ResponseStatus(HttpStatus.CREATED)
     public UploadTicket requestUpload(@AuthenticationPrincipal Jwt jwt, @Valid @RequestBody UploadRequest request) {
-        return mediaService.requestUpload(CurrentUserService.userId(jwt), request.contentType(), request.sizeBytes());
+        List<String> roles = CurrentUserService.appRoles(jwt);
+        boolean allowVideo = roles.contains("employee") || roles.contains("admin");
+        return mediaService.requestUpload(CurrentUserService.userId(jwt), request.contentType(), request.sizeBytes(),
+                allowVideo);
     }
 
     public record UploadRequest(@NotBlank String contentType, @Positive long sizeBytes) {

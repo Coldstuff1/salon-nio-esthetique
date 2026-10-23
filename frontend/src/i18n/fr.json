@@ -4,6 +4,34 @@
     "tagline": "Services d'esthéticienne",
     "handle": "{'@'}salonnioesthetique"
   },
+  "bugReport": {
+    "open": "Signaler un problème",
+    "intro": "Quelque chose ne fonctionne pas ? Décrivez ce qui s'est passé et l'équipe s'en occupera.",
+    "titleLabel": "En bref",
+    "titleInvalid": "Entrez un titre de 120 caractères au plus.",
+    "description": "Ce qui s'est passé",
+    "descriptionHint": "Ce que vous faisiez, ce à quoi vous vous attendiez et ce qui est arrivé.",
+    "descriptionInvalid": "Décrivez le problème en 5000 caractères au plus.",
+    "screenshot": "Capture d'écran",
+    "addScreenshot": "Joindre une capture",
+    "removeScreenshot": "Retirer la capture",
+    "screenshotHint": "Facultatif. JPEG, PNG ou WebP, {max} Mo max. Vous pouvez aussi la coller ici.",
+    "contextNote": "La page où vous êtes et votre navigateur sont joints automatiquement.",
+    "send": "Envoyer",
+    "sentTitle": "Merci, c'est envoyé.",
+    "sentText": "L'équipe a reçu votre signalement et s'en occupera.",
+    "status": {
+      "NEW": "Nouveau",
+      "IN_PROGRESS": "En cours",
+      "RESOLVED": "Résolu",
+      "DISMISSED": "Écarté"
+    },
+    "roles": {
+      "client": "Client·e",
+      "employee": "Esthéticienne",
+      "admin": "Admin"
+    }
+  },
   "nav": {
     "home": "Accueil",
     "services": "Soins",
@@ -152,7 +180,9 @@
     "adminBookings": "Rendez-vous",
     "adminServices": "Soins",
     "adminProducts": "Produits",
-    "adminEmployees": "Employés"
+    "adminEmployees": "Employés",
+    "adminBugReports": "Signalements",
+    "adminBugReport": "Signalement"
   },
   "errors": {
     "notFoundTitle": "Page introuvable",
@@ -205,7 +235,9 @@
       "too-far-ahead": "Les réservations ouvrent {days} jours à l'avance. Choisissez une date plus proche.",
       "too-many-uploads": "Trop de téléversements en attente. Réessayez plus tard.",
       "email-not-verified": "Confirmez d'abord votre courriel à l'aide du lien que nous vous avons envoyé.",
-      "employee-inactive": "Votre compte employé a été désactivé. Communiquez avec l'administration du salon."
+      "employee-inactive": "Votre compte employé a été désactivé. Communiquez avec l'administration du salon.",
+      "too-many-bug-reports": "Vous avez envoyé beaucoup de signalements aujourd'hui (max. {max}). Réessayez demain.",
+      "bug-report-not-found": "Ce signalement est introuvable."
     }
   },
   "services": {
@@ -396,6 +428,32 @@
       "bioHint": "Le membre pourra la modifier lui-même dans son espace.",
       "activeLabel": "Visible et réservable",
       "publicPage": "Page publique"
+    },
+    "bugReports": {
+      "intro": "Les problèmes signalés depuis le site, du plus récent au plus ancien.",
+      "newCount": "Aucun nouveau signalement. | 1 nouveau signalement. | {n} nouveaux signalements.",
+      "filter": "Afficher",
+      "open": "Ouverts",
+      "all": "Tous",
+      "withCount": "{label} ({n})",
+      "empty": "Aucun signalement ici.",
+      "received": "Reçu",
+      "report": "Problème",
+      "reporter": "Signalé par",
+      "screenshotAttached": "Capture jointe",
+      "view": "Voir",
+      "back": "Tous les signalements",
+      "context": "Contexte",
+      "page": "Page",
+      "locale": "Langue",
+      "viewport": "Écran",
+      "userAgent": "Navigateur",
+      "version": "Version",
+      "triage": "Suivi",
+      "note": "Note interne",
+      "noteHint": "Visible des admins seulement.",
+      "saved": "Signalement mis à jour.",
+      "updatedAt": "Mis à jour le {date} à {time}."
     }
   }
 }

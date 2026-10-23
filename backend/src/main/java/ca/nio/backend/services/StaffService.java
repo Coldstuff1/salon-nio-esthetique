@@ -93,7 +93,7 @@ public class StaffService {
             return employee;
         }
         if (mediaId != null) {
-            media.claim(mediaId, uploaderId);
+            media.claimImage(mediaId, uploaderId);
         }
         employee.setPhotoId(mediaId);
         Employee saved = employees.save(employee);

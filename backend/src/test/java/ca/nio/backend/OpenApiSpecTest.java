@@ -6,6 +6,8 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.Map;
+import java.util.TreeMap;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -16,6 +18,7 @@ import org.springframework.test.web.servlet.MockMvc;
 
 import tools.jackson.databind.JsonNode;
 import tools.jackson.databind.SerializationFeature;
+import tools.jackson.databind.node.ObjectNode;
 import tools.jackson.databind.json.JsonMapper;
 
 /**
@@ -47,6 +50,17 @@ class OpenApiSpecTest {
         assertThat(spec.at("/paths/~1api~1bookings/post/responses/409").isMissingNode()).isFalse();
         assertThat(spec.at("/components/securitySchemes/keycloak/flows/authorizationCode/authorizationUrl").asString())
                 .isEqualTo("http://localhost:8180/realms/nio/protocol/openid-connect/auth");
+
+        // springdoc lists the error responses in no fixed order; sort them so the file only changes with the API
+        for (JsonNode path : spec.get("paths")) {
+            for (JsonNode operation : path) {
+                if (operation.get("responses") instanceof ObjectNode responses) {
+                    Map<String, JsonNode> sorted = new TreeMap<>();
+                    responses.properties().forEach(response -> sorted.put(response.getKey(), response.getValue()));
+                    responses.removeAll().setAll(sorted);
+                }
+            }
+        }
 
         if (Files.isDirectory(FRONTEND)) {
             Files.writeString(FRONTEND.resolve("openapi.json"), mapper.writeValueAsString(spec) + "\n");

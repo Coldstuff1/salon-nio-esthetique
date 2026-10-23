@@ -39,6 +39,9 @@ public enum ErrorCode {
     FILE_MISMATCH,
     TOO_MANY_UPLOADS,
 
+    // bug reports
+    TOO_MANY_BUG_REPORTS,
+
     // accounts
     EMAIL_NOT_VERIFIED,
     EMPLOYEE_INACTIVE,
@@ -54,6 +57,7 @@ public enum ErrorCode {
     PRODUCT_NOT_FOUND,
     TIME_OFF_NOT_FOUND,
     MEDIA_NOT_FOUND,
+    BUG_REPORT_NOT_FOUND,
 
     // concurrency and storage
     DATA_CONFLICT,

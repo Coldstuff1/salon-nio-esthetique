@@ -47,6 +47,7 @@ import ca.nio.backend.services.MediaStorage;
 class MediaIntegrationTest {
 
     static final byte[] JPEG = {(byte) 0xFF, (byte) 0xD8, (byte) 0xFF, (byte) 0xE0, 1, 2, 3, 4};
+    static final byte[] MP4 = {0, 0, 0, 0x18, 'f', 't', 'y', 'p', 'i', 's', 'o', 'm', 0, 0, 2, 0};
 
     @Autowired
     MockMvc mockMvc;
@@ -173,9 +174,22 @@ class MediaIntegrationTest {
     }
 
     @Test
-    void clientsCannotUpload() throws Exception {
-        requestUpload(keycloakJwt(UUID.randomUUID(), "client"), "image/jpeg", JPEG.length)
-                .andExpect(status().isForbidden());
+    void clientsCanUploadImagesButNotVideos() throws Exception {
+        JwtRequestPostProcessor client = keycloakJwt(UUID.randomUUID(), "client");
+
+        requestUpload(client, "image/jpeg", JPEG.length).andExpect(status().isCreated());
+        requestUpload(client, "video/mp4", MP4.length)
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.code").value("file-type"));
+    }
+
+    @Test
+    void photoMustBeAnImage() throws Exception {
+        UUID mediaId = upload(employee(), "video/mp4", MP4);
+
+        send(put("/api/staff/me/photo"), employee(), Map.of("mediaId", mediaId))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.code").value("file-type"));
     }
 
     @Test

@@ -43,7 +43,6 @@ class AuthorizationMatrixTest {
     static final Set<Caller> CLIENT = EnumSet.of(Caller.CLIENT);
     static final Set<Caller> EMPLOYEE = EnumSet.of(Caller.EMPLOYEE);
     static final Set<Caller> ADMIN = EnumSet.of(Caller.ADMIN);
-    static final Set<Caller> STAFF = EnumSet.of(Caller.EMPLOYEE, Caller.ADMIN);
 
     static final String ID = UUID.randomUUID().toString();
 
@@ -90,7 +89,9 @@ class AuthorizationMatrixTest {
                 new Endpoint(HttpMethod.PUT, "/api/staff/me/product-offerings/" + ID, EMPLOYEE),
                 new Endpoint(HttpMethod.GET, "/api/staff/me/schedule", EMPLOYEE),
 
-                new Endpoint(HttpMethod.POST, "/api/media/uploads", STAFF),
+                new Endpoint(HttpMethod.POST, "/api/media/uploads", SIGNED_IN),
+
+                new Endpoint(HttpMethod.POST, "/api/bug-reports", SIGNED_IN),
 
                 new Endpoint(HttpMethod.GET, "/api/admin/bookings", ADMIN),
                 new Endpoint(HttpMethod.GET, "/api/admin/service-types", ADMIN),
@@ -105,6 +106,9 @@ class AuthorizationMatrixTest {
                 new Endpoint(HttpMethod.POST, "/api/admin/employees", ADMIN),
                 new Endpoint(HttpMethod.PUT, "/api/admin/employees/" + ID, ADMIN),
                 new Endpoint(HttpMethod.DELETE, "/api/admin/employees/" + ID, ADMIN),
+                new Endpoint(HttpMethod.GET, "/api/admin/bug-reports", ADMIN),
+                new Endpoint(HttpMethod.GET, "/api/admin/bug-reports/" + ID, ADMIN),
+                new Endpoint(HttpMethod.PUT, "/api/admin/bug-reports/" + ID, ADMIN),
 
                 // anything unmapped stays closed to anonymous callers
                 new Endpoint(HttpMethod.GET, "/api/unknown", SIGNED_IN));

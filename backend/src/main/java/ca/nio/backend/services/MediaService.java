@@ -50,9 +50,13 @@ public class MediaService {
         this.separately = template;
     }
 
+    /** Pass {@code allowVideo = false} for callers who may only send photos (clients). */
     @Transactional
-    public UploadTicket requestUpload(UUID ownerId, String contentType, long sizeBytes) {
+    public UploadTicket requestUpload(UUID ownerId, String contentType, long sizeBytes, boolean allowVideo) {
         DataSize max = maxSize(contentType);
+        if (!allowVideo && !isImage(contentType)) {
+            throw new InvalidRequestException(ErrorCode.FILE_TYPE, "Only images are accepted, not " + contentType);
+        }
         if (sizeBytes <= 0 || sizeBytes > max.toBytes()) {
             throw new InvalidRequestException(ErrorCode.FILE_SIZE,
                     "File must be between 1 byte and " + max.toMegabytes() + " MB", Map.of("maxMegabytes", max.toMegabytes()));
@@ -90,6 +94,18 @@ public class MediaService {
         }
         item.setStatus(MediaStatus.READY);
         return media.save(item);
+    }
+
+    /** {@link #claim}, but only for photos: profile pictures and screenshots must not be videos. */
+    @Transactional
+    public Media claimImage(UUID mediaId, UUID ownerId) {
+        Media item = media.findById(mediaId)
+                .filter(m -> m.getOwnerId().equals(ownerId))
+                .orElseThrow(() -> new NotFoundException(ErrorCode.MEDIA_NOT_FOUND, "Media " + mediaId + " not found"));
+        if (!isImage(item.getContentType())) {
+            throw new InvalidRequestException(ErrorCode.FILE_TYPE, "Media " + mediaId + " is not an image");
+        }
+        return claim(mediaId, ownerId);
     }
 
     @Transactional
@@ -134,6 +150,10 @@ public class MediaService {
             throw new InvalidRequestException(ErrorCode.FILE_TYPE, "Unsupported media type " + contentType);
         }
         return max;
+    }
+
+    private static boolean isImage(String contentType) {
+        return contentType.startsWith("image/");
     }
 
     /** Whether the file starts the way files of {@code contentType} do. */
