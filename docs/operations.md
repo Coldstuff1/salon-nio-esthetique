@@ -48,15 +48,27 @@ one-time code (TOTP) on every sign-in for employees and admins (the `otp-require
      [{ "AllowedOrigins": ["https://<domain>"], "AllowedMethods": ["GET", "PUT", "HEAD"],
         "AllowedHeaders": ["content-type"], "MaxAgeSeconds": 3600 }]
      ```
-   - an IAM user for the app, with an access key and only this policy:
+   - an IAM user for the app, with an access key and only this policy (`ListBucket` makes S3 answer 404
+     rather than 403 for an upload that never arrived):
      ```json
-     { "Version": "2012-10-17", "Statement": [{ "Effect": "Allow",
-       "Action": ["s3:GetObject", "s3:PutObject", "s3:DeleteObject"],
-       "Resource": "arn:aws:s3:::<bucket>/media/*" }] }
+     { "Version": "2012-10-17", "Statement": [
+       { "Effect": "Allow", "Action": ["s3:GetObject", "s3:PutObject", "s3:DeleteObject"],
+         "Resource": "arn:aws:s3:::<bucket>/media/*" },
+       { "Effect": "Allow", "Action": "s3:ListBucket", "Resource": "arn:aws:s3:::<bucket>" }] }
      ```
-   - turn on versioning, so a deleted photo can be recovered.
-6. **Backup bucket**: a second bucket and a second IAM user (`s3:ListBucket` on the bucket,
-   `s3:GetObject`/`PutObject`/`DeleteObject` on its objects). Don't reuse the app's key.
+   - turn on versioning, so a deleted photo can be recovered, and a lifecycle rule that permanently deletes
+     noncurrent versions after 30 days and removes expired delete markers (otherwise deleted files are kept,
+     and billed, forever).
+6. **Backup bucket**: a second bucket, with versioning and the same lifecycle rule (the key on the server then
+   can't destroy existing backups: it has no `s3:DeleteObjectVersion`), and a second IAM user with this
+   policy. Don't reuse the app's key.
+   ```json
+   { "Version": "2012-10-17", "Statement": [
+     { "Effect": "Allow", "Action": ["s3:ListBucket", "s3:GetBucketLocation"],
+       "Resource": "arn:aws:s3:::<backup-bucket>" },
+     { "Effect": "Allow", "Action": ["s3:GetObject", "s3:PutObject", "s3:DeleteObject"],
+       "Resource": "arn:aws:s3:::<backup-bucket>/*" }] }
+   ```
 7. **Configure**: clone the repository on the server, `cp .env.prod.example .env.prod`, fill in every value,
    `chmod 600 .env.prod`. Keep a copy of the whole file in a password manager: without `RESTIC_PASSWORD` the
    backups can't be read, and the dump restores the database roles with their passwords, so a rebuilt server
