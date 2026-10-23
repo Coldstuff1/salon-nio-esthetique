@@ -98,6 +98,23 @@ ssh -L 8180:localhost:8180 <user>@<server>
 
 then open <http://localhost:8180/admin/> on your machine.
 
+Once, before the first sign-in, point the `master` realm at the tunnel. Otherwise the console signs in through
+`https://auth.<domain>/realms/master`, which Caddy hides, and stops at "Timeout when waiting for 3rd party
+check iframe message". On the server, from the repository root (the first command asks for the bootstrap
+password):
+
+```sh
+source deploy/lib.sh
+stack exec keycloak /opt/keycloak/bin/kcadm.sh config credentials --config /tmp/kcadm.config \
+    --server http://localhost:8080 --realm master --user bootstrap-admin
+stack exec keycloak /opt/keycloak/bin/kcadm.sh update realms/master --config /tmp/kcadm.config \
+    -s 'attributes.frontendUrl=http://localhost:8180'
+stack exec keycloak rm /tmp/kcadm.config
+```
+
+Only `master` changes; the `nio` realm keeps its public address. The setting lives in the database, so it
+survives restarts and restores.
+
 ## Employees
 
 **Onboarding**: the person registers on the site like a client (or an admin creates them in the `nio` realm
@@ -193,7 +210,8 @@ docker compose -f compose.prod.yaml -f deploy/compose.staging.yaml --env-file de
 ```
 
 Then open <https://nio.localhost> (accept the certificate warning); emails arrive at <http://localhost:8025>,
-the admin console is at <http://localhost:8180/admin/> (`bootstrap-admin` / `staging-admin`). Remove it all with
+the admin console is at <http://localhost:8180/admin/> (`bootstrap-admin` / `staging-admin`; first run the
+`kcadm.sh` commands from *Keycloak admin console*, with these compose flags instead of `stack`). Remove it all with
 `... down -v` (same flags).
 
 ## Privacy (Québec Law 25)
