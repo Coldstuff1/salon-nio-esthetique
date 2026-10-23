@@ -30,3 +30,11 @@ springdoc:
 salon:
   zone: America/Montreal
   slot-step-minutes: 15
+  media:
+    endpoint: http://localhost:8333
+    public-endpoint: http://localhost:8333
+    bucket: nio-media
+    access-key: nio-dev
+    secret-key: nio-dev-secret
+    create-bucket: true
+    allowed-origins: http://localhost:5173

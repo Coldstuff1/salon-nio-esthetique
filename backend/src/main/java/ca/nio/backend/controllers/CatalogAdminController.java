@@ -113,7 +113,7 @@ public class CatalogAdminController {
         }
         Employee employee = new Employee(request.id(), request.displayName());
         employee.setBio(request.bio());
-        return PublicController.EmployeeSummary.of(employees.save(employee));
+        return PublicController.EmployeeSummary.of(employees.save(employee), null);
     }
 
     @DeleteMapping("/employees/{id}")

@@ -5,6 +5,7 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
 
+import org.jspecify.annotations.Nullable;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.annotation.Version;
 import org.springframework.data.relational.core.mapping.MappedCollection;
@@ -27,6 +28,9 @@ public class Employee {
     private String displayName;
     private String bio;
     private boolean active = true;
+    /** Optional profile photo, a {@link Media} id. */
+    @Nullable
+    private UUID photoId;
     @Version
     private Integer version;
 

@@ -1,5 +1,6 @@
 package ca.nio.backend.controllers;
 
+import java.net.URI;
 import java.time.Instant;
 import java.time.LocalDate;
 import java.util.Comparator;
@@ -27,6 +28,7 @@ import ca.nio.backend.repositories.EmployeeRepository;
 import ca.nio.backend.repositories.ProductRepository;
 import ca.nio.backend.repositories.ServiceTypeRepository;
 import ca.nio.backend.services.BookingService;
+import ca.nio.backend.services.MediaService;
 import ca.nio.backend.services.NotFoundException;
 import ca.nio.backend.services.ProductSelection;
 import ca.nio.backend.services.Quote;
@@ -47,6 +49,7 @@ public class PublicController {
     private final ServiceTypeRepository serviceTypes;
     private final ProductRepository products;
     private final BookingService bookingService;
+    private final MediaService mediaService;
 
     @GetMapping("/service-types")
     public List<ServiceType> serviceTypes() {
@@ -60,7 +63,7 @@ public class PublicController {
 
     @GetMapping("/employees")
     public List<EmployeeSummary> employees() {
-        return employees.findByActiveTrueOrderByDisplayName().stream().map(EmployeeSummary::of).toList();
+        return employees.findByActiveTrueOrderByDisplayName().stream().map(this::summary).toList();
     }
 
     @GetMapping("/employees/{id}/offerings")
@@ -87,7 +90,7 @@ public class PublicController {
                 .map(o -> ProductView.of(productsById.get(o.productId()), o))
                 .sorted(Comparator.comparing(ProductView::name))
                 .toList();
-        return new EmployeeOfferings(EmployeeSummary.of(employee), services, productViews);
+        return new EmployeeOfferings(summary(employee), services, productViews);
     }
 
     @GetMapping("/employees/{id}/slots")
@@ -101,6 +104,10 @@ public class PublicController {
         return bookingService.quote(request.employeeId(), request.serviceIds(), request.products());
     }
 
+    private EmployeeSummary summary(Employee employee) {
+        return EmployeeSummary.of(employee, mediaService.url(employee.getPhotoId()));
+    }
+
     private static <T> Map<UUID, T> byId(List<T> items, Function<T, UUID> id) {
         return items.stream().collect(Collectors.toMap(id, Function.identity()));
     }
@@ -109,10 +116,10 @@ public class PublicController {
                                @Nullable List<@Valid ProductSelection> products) {
     }
 
-    public record EmployeeSummary(UUID id, String displayName, @Nullable String bio) {
+    public record EmployeeSummary(UUID id, String displayName, @Nullable String bio, @Nullable URI photoUrl) {
 
-        static EmployeeSummary of(Employee employee) {
-            return new EmployeeSummary(employee.getId(), employee.getDisplayName(), employee.getBio());
+        static EmployeeSummary of(Employee employee, @Nullable URI photoUrl) {
+            return new EmployeeSummary(employee.getId(), employee.getDisplayName(), employee.getBio(), photoUrl);
         }
 
     }

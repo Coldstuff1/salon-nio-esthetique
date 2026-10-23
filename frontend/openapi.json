@@ -252,6 +252,110 @@
         }
       }
     },
+    "/api/staff/me/photo" : {
+      "put" : {
+        "tags" : [ "staff-controller" ],
+        "operationId" : "setPhoto",
+        "requestBody" : {
+          "content" : {
+            "application/json" : {
+              "schema" : {
+                "$ref" : "#/components/schemas/PhotoRequest"
+              }
+            }
+          },
+          "required" : true
+        },
+        "responses" : {
+          "404" : {
+            "description" : "Not Found",
+            "content" : {
+              "application/problem+json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ProblemDetail"
+                }
+              }
+            }
+          },
+          "409" : {
+            "description" : "Conflict",
+            "content" : {
+              "application/problem+json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ProblemDetail"
+                }
+              }
+            }
+          },
+          "400" : {
+            "description" : "Bad Request",
+            "content" : {
+              "application/problem+json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ProblemDetail"
+                }
+              }
+            }
+          },
+          "200" : {
+            "description" : "OK",
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/StaffProfile"
+                }
+              }
+            }
+          }
+        }
+      },
+      "delete" : {
+        "tags" : [ "staff-controller" ],
+        "operationId" : "removePhoto",
+        "responses" : {
+          "404" : {
+            "description" : "Not Found",
+            "content" : {
+              "application/problem+json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ProblemDetail"
+                }
+              }
+            }
+          },
+          "409" : {
+            "description" : "Conflict",
+            "content" : {
+              "application/problem+json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ProblemDetail"
+                }
+              }
+            }
+          },
+          "400" : {
+            "description" : "Bad Request",
+            "content" : {
+              "application/problem+json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ProblemDetail"
+                }
+              }
+            }
+          },
+          "200" : {
+            "description" : "OK",
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/StaffProfile"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/staff/me/availability" : {
       "put" : {
         "tags" : [ "staff-controller" ],
@@ -652,6 +756,64 @@
               "*/*" : {
                 "schema" : {
                   "$ref" : "#/components/schemas/Quote"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/media/uploads" : {
+      "post" : {
+        "tags" : [ "media-controller" ],
+        "operationId" : "requestUpload",
+        "requestBody" : {
+          "content" : {
+            "application/json" : {
+              "schema" : {
+                "$ref" : "#/components/schemas/UploadRequest"
+              }
+            }
+          },
+          "required" : true
+        },
+        "responses" : {
+          "404" : {
+            "description" : "Not Found",
+            "content" : {
+              "application/problem+json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ProblemDetail"
+                }
+              }
+            }
+          },
+          "409" : {
+            "description" : "Conflict",
+            "content" : {
+              "application/problem+json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ProblemDetail"
+                }
+              }
+            }
+          },
+          "400" : {
+            "description" : "Bad Request",
+            "content" : {
+              "application/problem+json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ProblemDetail"
+                }
+              }
+            }
+          },
+          "201" : {
+            "description" : "Created",
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/UploadTicket"
                 }
               }
             }
@@ -1834,6 +1996,10 @@
           "bio" : {
             "type" : [ "string", "null" ]
           },
+          "photoUrl" : {
+            "type" : [ "string", "null" ],
+            "format" : "uri"
+          },
           "active" : {
             "type" : "boolean"
           },
@@ -1924,6 +2090,16 @@
           }
         },
         "required" : [ "priceCents", "quantityOnHand" ]
+      },
+      "PhotoRequest" : {
+        "type" : "object",
+        "properties" : {
+          "mediaId" : {
+            "type" : "string",
+            "format" : "uuid"
+          }
+        },
+        "required" : [ "mediaId" ]
       },
       "AvailabilityRequest" : {
         "type" : "object",
@@ -2180,6 +2356,39 @@
         },
         "required" : [ "employeeId", "products", "services", "subtotalCents", "totalDurationMinutes" ]
       },
+      "UploadRequest" : {
+        "type" : "object",
+        "properties" : {
+          "contentType" : {
+            "type" : "string",
+            "minLength" : 1
+          },
+          "sizeBytes" : {
+            "type" : "integer",
+            "format" : "int64",
+            "exclusiveMinimum" : 0
+          }
+        },
+        "required" : [ "contentType", "sizeBytes" ]
+      },
+      "UploadTicket" : {
+        "type" : "object",
+        "properties" : {
+          "mediaId" : {
+            "type" : "string",
+            "format" : "uuid"
+          },
+          "uploadUrl" : {
+            "type" : "string",
+            "format" : "uri"
+          },
+          "expiresAt" : {
+            "type" : "string",
+            "format" : "date-time"
+          }
+        },
+        "required" : [ "expiresAt", "mediaId", "uploadUrl" ]
+      },
       "BookingRequest" : {
         "type" : "object",
         "properties" : {
@@ -2292,6 +2501,10 @@
           },
           "bio" : {
             "type" : [ "string", "null" ]
+          },
+          "photoUrl" : {
+            "type" : [ "string", "null" ],
+            "format" : "uri"
           }
         },
         "required" : [ "displayName", "id" ]

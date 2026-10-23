@@ -1,5 +1,6 @@
 package ca.nio.backend.controllers;
 
+import java.net.URI;
 import java.time.Instant;
 import java.time.LocalTime;
 import java.util.Comparator;
@@ -31,6 +32,7 @@ import ca.nio.backend.model.TimeOff;
 import ca.nio.backend.repositories.EmployeeRepository;
 import ca.nio.backend.services.BookingService;
 import ca.nio.backend.services.CurrentUserService;
+import ca.nio.backend.services.MediaService;
 import ca.nio.backend.services.StaffService;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.Max;
@@ -53,10 +55,11 @@ public class StaffController {
     private final StaffService staffService;
     private final BookingService bookingService;
     private final EmployeeRepository employees;
+    private final MediaService mediaService;
 
     @GetMapping
     public StaffProfile profile(@AuthenticationPrincipal Jwt jwt) {
-        return StaffProfile.of(currentUser.employee(jwt));
+        return profile(currentUser.employee(jwt));
     }
 
     @PutMapping
@@ -64,14 +67,27 @@ public class StaffController {
         Employee employee = currentUser.employee(jwt);
         employee.setDisplayName(request.displayName());
         employee.setBio(request.bio());
-        return StaffProfile.of(employees.save(employee));
+        return profile(employees.save(employee));
+    }
+
+    /** Attaches a photo uploaded through {@code POST /api/media/uploads}. */
+    @PutMapping("/photo")
+    public StaffProfile setPhoto(@AuthenticationPrincipal Jwt jwt, @Valid @RequestBody PhotoRequest request) {
+        UUID id = currentUser.employee(jwt).getId();
+        return profile(staffService.setPhoto(id, id, request.mediaId()));
+    }
+
+    @DeleteMapping("/photo")
+    public StaffProfile removePhoto(@AuthenticationPrincipal Jwt jwt) {
+        UUID id = currentUser.employee(jwt).getId();
+        return profile(staffService.setPhoto(id, id, null));
     }
 
     @PutMapping("/availability")
     public StaffProfile replaceAvailability(@AuthenticationPrincipal Jwt jwt,
                                             @RequestBody List<@Valid AvailabilityRequest> windows) {
         UUID id = currentUser.employee(jwt).getId();
-        return StaffProfile.of(staffService.replaceAvailability(id, windows.stream()
+        return profile(staffService.replaceAvailability(id, windows.stream()
                 .map(w -> new Availability(w.dayOfWeek(), w.startTime(), w.endTime()))
                 .toList()));
     }
@@ -93,7 +109,7 @@ public class StaffController {
     public StaffProfile putServiceOffering(@AuthenticationPrincipal Jwt jwt, @PathVariable UUID serviceTypeId,
                                            @Valid @RequestBody ServiceOfferingRequest request) {
         UUID id = currentUser.employee(jwt).getId();
-        return StaffProfile.of(staffService.putServiceOffering(id, new ServiceOffering(serviceTypeId,
+        return profile(staffService.putServiceOffering(id, new ServiceOffering(serviceTypeId,
                 request.priceCents(), request.durationMinutes(), request.active() == null || request.active())));
     }
 
@@ -101,7 +117,7 @@ public class StaffController {
     public StaffProfile putProductOffering(@AuthenticationPrincipal Jwt jwt, @PathVariable UUID productId,
                                            @Valid @RequestBody ProductOfferingRequest request) {
         UUID id = currentUser.employee(jwt).getId();
-        return StaffProfile.of(staffService.putProductOffering(id, new ProductOffering(productId,
+        return profile(staffService.putProductOffering(id, new ProductOffering(productId,
                 request.priceCents(), request.quantityOnHand(), request.active() == null || request.active())));
     }
 
@@ -111,6 +127,13 @@ public class StaffController {
         return bookingService.schedule(CurrentUserService.userId(jwt), from, to).stream()
                 .map(BookingView::of)
                 .toList();
+    }
+
+    private StaffProfile profile(Employee employee) {
+        return StaffProfile.of(employee, mediaService.url(employee.getPhotoId()));
+    }
+
+    public record PhotoRequest(@NotNull UUID mediaId) {
     }
 
     public record ProfileRequest(@NotBlank @Size(max = 120) String displayName, @Nullable String bio) {
@@ -132,12 +155,13 @@ public class StaffController {
                                          @Nullable Boolean active) {
     }
 
-    public record StaffProfile(UUID id, String displayName, @Nullable String bio, boolean active,
+    public record StaffProfile(UUID id, String displayName, @Nullable String bio, @Nullable URI photoUrl,
+                               boolean active,
                                List<Availability> availability, List<TimeOff> timeOff,
                                Set<ServiceOffering> serviceOfferings, Set<ProductOffering> productOfferings) {
 
-        static StaffProfile of(Employee employee) {
-            return new StaffProfile(employee.getId(), employee.getDisplayName(), employee.getBio(),
+        static StaffProfile of(Employee employee, @Nullable URI photoUrl) {
+            return new StaffProfile(employee.getId(), employee.getDisplayName(), employee.getBio(), photoUrl,
                     employee.isActive(),
                     employee.getAvailability().stream()
                             .sorted(Comparator.comparingInt(Availability::dayOfWeek)

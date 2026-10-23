@@ -5,6 +5,7 @@ import java.util.Collection;
 import java.util.HashSet;
 import java.util.UUID;
 
+import org.jspecify.annotations.Nullable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -31,6 +32,7 @@ public class StaffService {
     private final EmployeeRepository employees;
     private final ServiceTypeRepository serviceTypes;
     private final ProductRepository products;
+    private final MediaService media;
 
     @Transactional
     public Employee replaceAvailability(UUID employeeId, Collection<Availability> windows) {
@@ -75,6 +77,26 @@ public class StaffService {
         Employee employee = employee(employeeId);
         employee.putProductOffering(offering);
         return employees.save(employee);
+    }
+
+    /**
+     * Attaches a photo the uploader has finished sending, replacing (and deleting) the previous one.
+     * Pass a null media id to remove the photo.
+     */
+    @Transactional
+    public Employee setPhoto(UUID employeeId, UUID uploaderId, @Nullable UUID mediaId) {
+        Employee employee = employee(employeeId);
+        UUID previous = employee.getPhotoId();
+        if (mediaId != null && mediaId.equals(previous)) {
+            return employee;
+        }
+        if (mediaId != null) {
+            media.claim(mediaId, uploaderId);
+        }
+        employee.setPhotoId(mediaId);
+        Employee saved = employees.save(employee);
+        media.delete(previous);
+        return saved;
     }
 
     private Employee employee(UUID employeeId) {

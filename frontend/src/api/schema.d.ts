@@ -52,6 +52,22 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/staff/me/photo": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put: operations["setPhoto"];
+        post?: never;
+        delete: operations["removePhoto"];
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/staff/me/availability": {
         parameters: {
             query?: never;
@@ -126,6 +142,22 @@ export interface paths {
         get?: never;
         put?: never;
         post: operations["quote"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/media/uploads": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: operations["requestUpload"];
         delete?: never;
         options?: never;
         head?: never;
@@ -456,6 +488,8 @@ export interface components {
             id: string;
             displayName: string;
             bio?: string | null;
+            /** Format: uri */
+            photoUrl?: string | null;
             active: boolean;
             availability: components["schemas"]["Availability"][];
             timeOff: components["schemas"]["TimeOff"][];
@@ -484,6 +518,10 @@ export interface components {
             /** Format: int32 */
             quantityOnHand: number;
             active?: boolean | null;
+        };
+        PhotoRequest: {
+            /** Format: uuid */
+            mediaId: string;
         };
         AvailabilityRequest: {
             /** Format: int32 */
@@ -576,6 +614,19 @@ export interface components {
             /** Format: int32 */
             totalDurationMinutes: number;
         };
+        UploadRequest: {
+            contentType: string;
+            /** Format: int64 */
+            sizeBytes: number;
+        };
+        UploadTicket: {
+            /** Format: uuid */
+            mediaId: string;
+            /** Format: uri */
+            uploadUrl: string;
+            /** Format: date-time */
+            expiresAt: string;
+        };
         BookingRequest: {
             /** Format: uuid */
             employeeId: string;
@@ -615,6 +666,8 @@ export interface components {
             id: string;
             displayName: string;
             bio?: string | null;
+            /** Format: uri */
+            photoUrl?: string | null;
         };
         EmployeeOfferings: {
             employee: components["schemas"]["EmployeeSummary"];
@@ -821,6 +874,104 @@ export interface operations {
                 "application/json": components["schemas"]["ProductOfferingRequest"];
             };
         };
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["StaffProfile"];
+                };
+            };
+            /** @description Bad Request */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetail"];
+                };
+            };
+            /** @description Not Found */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetail"];
+                };
+            };
+            /** @description Conflict */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetail"];
+                };
+            };
+        };
+    };
+    setPhoto: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["PhotoRequest"];
+            };
+        };
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["StaffProfile"];
+                };
+            };
+            /** @description Bad Request */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetail"];
+                };
+            };
+            /** @description Not Found */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetail"];
+                };
+            };
+            /** @description Conflict */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetail"];
+                };
+            };
+        };
+    };
+    removePhoto: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
         responses: {
             /** @description OK */
             200: {
@@ -1182,6 +1333,57 @@ export interface operations {
                 };
                 content: {
                     "*/*": components["schemas"]["Quote"];
+                };
+            };
+            /** @description Bad Request */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetail"];
+                };
+            };
+            /** @description Not Found */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetail"];
+                };
+            };
+            /** @description Conflict */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetail"];
+                };
+            };
+        };
+    };
+    requestUpload: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["UploadRequest"];
+            };
+        };
+        responses: {
+            /** @description Created */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["UploadTicket"];
                 };
             };
             /** @description Bad Request */

@@ -1,0 +1,11 @@
+{
+  "identities": [
+    {
+      "name": "nio-backend",
+      "credentials": [
+        { "accessKey": "nio-dev", "secretKey": "nio-dev-secret" }
+      ],
+      "actions": ["Admin", "Read", "Write", "List", "Tagging"]
+    }
+  ]
+}
