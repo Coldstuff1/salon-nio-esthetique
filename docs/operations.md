@@ -18,6 +18,9 @@ Browser ──presigned URLs──▶ managed S3 bucket (photos, videos) ◀─�
   network with no route out. Keycloak's admin port is published on the server's loopback only.
 - Secrets live in `.env.prod` on the server (template: `.env.prod.example`); each service receives only the
   variables it uses.
+- CI builds and scans the backend, frontend and Keycloak images and pushes them to GHCR
+  (`ghcr.io/coldstuff1/nio-*`), tagged with the commit. The server only pulls them; `.env.release` holds the
+  deployed commit, so run compose through `stack` from `deploy/lib.sh` (it reads both files).
 - The backend runs with `SPRING_PROFILES_ACTIVE=prod` (`application-prod.yaml`): it refuses to start when a
   setting is missing, and the API docs are switched off.
 - Keycloak is built from `backend/docker/keycloak/Dockerfile` with the `nio` theme and the production realm
@@ -34,7 +37,7 @@ one-time code (TOTP) on every sign-in for employees and admins (the `otp-require
    22, 80 and 443 in the firewall. Docker bypasses `ufw` for published ports, which is why nothing else is
    published. SSH with keys only, no root login; enable unattended security upgrades. 4 GB of RAM is enough:
    each service has a `mem_limit` in `compose.prod.yaml` (about 2.5 GB in all) and the JVMs size their heaps
-   from it. Add a 2 GB swap file for the image builds.
+   from it. Add a 2 GB swap file as a safety margin.
 2. **DNS**: `A`/`AAAA` records for `<domain>` and `auth.<domain>` pointing at the server.
 3. **Email**: an account with a transactional email provider; add its SPF and DKIM records and a DMARC
    policy for the domain. With Amazon SES (region `ca-central-1`): verify the domain with Easy DKIM, set a
@@ -69,17 +72,13 @@ one-time code (TOTP) on every sign-in for employees and admins (the `otp-require
      { "Effect": "Allow", "Action": ["s3:GetObject", "s3:PutObject", "s3:DeleteObject"],
        "Resource": "arn:aws:s3:::<backup-bucket>/*" }] }
    ```
-7. **Configure**: clone the repository on the server, `cp .env.prod.example .env.prod`, fill in every value,
+7. **Configure**: clone the repository on the server into `/opt/nio`, `cp .env.prod.example .env.prod`, fill in every value,
    `chmod 600 .env.prod`. Keep a copy of the whole file in a password manager: without `RESTIC_PASSWORD` the
    backups can't be read, and the dump restores the database roles with their passwords, so a rebuilt server
    needs the same values.
-8. **Start**: build the images one at a time, so a small server doesn't run three builds at once, then start:
-   ```sh
-   source deploy/lib.sh   # from the repository root
-   stack build keycloak && stack build backend && stack build frontend
-   stack up -d
-   ```
-   then `stack ps` until everything is healthy. Caddy fetches the certificates on the first request.
+8. **Start**: set up *Continuous deployment* (below), then approve the deploy of the latest `main` in GitHub
+   Actions (or run `deploy/deploy.sh <commit sha>` on the server, for a commit CI has pushed images for). It
+   returns once everything is healthy. Caddy fetches the certificates on the first request.
 9. **Replace the bootstrap admin** (see *Keycloak admin console* below): sign in with `KC_BOOTSTRAP_ADMIN_*`,
    create your own user in the `master` realm, give it the `admin` role, sign in as it and set up a one-time
    code (*Signing in* in the account menu), then delete the bootstrap user. The bootstrap variables are only
@@ -160,26 +159,63 @@ Photos aren't in the dump: they stay in the media bucket (versioned).
 
 Do a restore drill before launch and then every few months, ideally into a scratch server.
 
-## Updating
+## Continuous deployment
 
-```sh
-git pull
-docker compose -f compose.prod.yaml --env-file .env.prod up -d --build
-```
+Every push to `main` runs CI (`.github/workflows/ci.yml`): the tests, `npm audit`, then each image is built,
+scanned by Trivy and pushed to GHCR under the commit's sha. The `deploy` job then waits for approval in the
+`production` environment (*Actions → the run → Review deployments*). Once approved, it connects to the server
+over SSH and runs `deploy/deploy.sh <sha>`, which:
 
-On a 4 GB server, build one service at a time as in *First deployment*, and run `docker builder prune` now and
-then to free disk space. Flyway migrates the database on backend start. Dependabot proposes dependency and
-image updates weekly; CI (`.github/workflows/ci.yml`) runs the tests, `npm audit` and a Trivy scan of each
-image. Accepted scan findings are listed in `.trivyignore.yaml`, each with an expiry date.
+1. backs up the databases (`deploy/backup.sh pre-deploy`; Flyway migrations only go forward);
+2. checks the commit out, so `compose.prod.yaml`, the Caddyfile and the scripts match the images;
+3. writes the sha to `.env.release`, pulls the images and recreates what changed, waiting until every service
+   is healthy;
+4. if one isn't, goes back to the previous commit the same way and fails the job.
+
+The job then fetches the site and the realm's OpenID configuration from outside. Only one deploy runs at a time;
+if several commits wait for approval, only the newest is kept. Accepted scan findings are listed in
+`.trivyignore.yaml`, each with an expiry date. Dependabot proposes dependency and image updates weekly.
+
+**Rollback**: re-run the *deploy* job of an earlier run, or on the server `deploy/deploy.sh <earlier sha>`. The
+images of the current and the previous release stay on the server; older ones are pulled again. If a migration
+damaged data, restore the `pre-deploy` snapshot (*Backups and restore*), then deploy the earlier commit.
+
+### Setup (once)
+
+1. **Server**: the deploy user (the one that runs the backups) is in the `docker` group, which amounts to
+   root on that server. The repository is cloned in `/opt/nio`; if the GitHub repository is private, give the
+   server a read-only *deploy key* so `git fetch` works. If the packages are private, log Docker in to GHCR as
+   that user, with a classic personal access token limited to `read:packages`:
+   ```sh
+   docker login ghcr.io -u <github user>   # paste the token
+   ```
+2. **SSH key for CI**, created on your machine:
+   ```sh
+   ssh-keygen -t ed25519 -f nio-ci -N '' -C nio-ci
+   ```
+   On the server, add the public key to the deploy user's `~/.ssh/authorized_keys`, restricted to the deploy
+   script (it then rejects anything that isn't a commit sha):
+   ```
+   command="/opt/nio/deploy/deploy.sh",no-port-forwarding,no-X11-forwarding,no-agent-forwarding,no-pty ssh-ed25519 AAAA… nio-ci
+   ```
+3. **GitHub** → *Settings → Environments → New environment* `production`:
+   - *Required reviewers*: yourself; *Deployment branches*: `main` only;
+   - secrets: `PROD_SSH_KEY` (the content of `nio-ci`, then delete the file) and `PROD_SSH_KNOWN_HOSTS`
+     (the output of `ssh-keyscan -t ed25519 <server>`; compare its fingerprint with
+     `ssh-keygen -lf /etc/ssh/ssh_host_ed25519_key.pub` run on the server);
+   - variables: `PROD_SSH_HOST` (the server's address) and `PROD_SSH_USER` (the deploy user).
+
+The public domains are set at the top of the workflow (`NIO_SITE_DOMAIN`, `NIO_AUTH_DOMAIN`); the frontend
+image has the Keycloak URL baked in, so change them there if the domains change.
 
 ## Rotating secrets
 
 - **Database passwords**: change them in Postgres first, then in `.env.prod`, then recreate the service
   (the init script only ran once, on the empty volume):
   ```sh
-  docker compose -f compose.prod.yaml --env-file .env.prod exec postgres \
-      psql -U postgres -c "ALTER ROLE nio_app PASSWORD '<new>'"
-  docker compose -f compose.prod.yaml --env-file .env.prod up -d backend
+  source deploy/lib.sh   # from the repository root
+  stack exec postgres psql -U postgres -c "ALTER ROLE nio_app PASSWORD '<new>'"
+  stack up -d backend
   ```
   Same for `keycloak` (then recreate `keycloak`) and `postgres` itself.
 - **SMTP and reCAPTCHA**: the values in `.env.prod` were copied into the realm on first start; change them in the
@@ -192,7 +228,7 @@ image. Accepted scan findings are listed in `.trivyignore.yaml`, each with an ex
 
 - An external uptime check (any free service) on `https://<domain>/` and
   `https://auth.<domain>/realms/nio/.well-known/openid-configuration`.
-- Logs: `docker compose -f compose.prod.yaml --env-file .env.prod logs --since 24h <service>`. Every change made
+- Logs: `stack logs --since 24h <service>` (after `source deploy/lib.sh`). Every change made
   through the API is logged by the backend as `POST /api/... -> 201 by <user id> (<username>)`.
 - Memory: `docker stats --no-stream` shows each service against its limit. A service that hits its limit is
   restarted (`docker inspect <container> --format '{{.State.OOMKilled}}'`); raise its `mem_limit` if that

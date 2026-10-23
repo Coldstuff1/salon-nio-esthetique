@@ -1,4 +1,5 @@
-# Shared by backup.sh and restore.sh: settings from .env.prod, restic in a container, the production stack.
+# Shared by the deploy scripts: settings from .env.prod, restic in a container, the production stack (images
+# tagged with the commit in .env.release, which deploy.sh writes).
 # Sourced from the repository root.
 
 setting() { sed -n "s/^$1=//p" .env.prod | tail -n 1; }
@@ -13,4 +14,4 @@ restic() {
         restic/restic:0.19.1 "$@"
 }
 
-stack() { docker compose -f compose.prod.yaml --env-file .env.prod "$@"; }
+stack() { docker compose -f compose.prod.yaml --env-file .env.prod --env-file .env.release "$@"; }

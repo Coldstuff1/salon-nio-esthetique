@@ -1,5 +1,6 @@
-# Production stack for a single server:
-#   docker compose -f compose.prod.yaml --env-file .env.prod up -d --build
+# Production stack for a single server. deploy/deploy.sh (run by CI) pulls the images CI built for a commit and
+# starts them; the tag comes from .env.release, so use `stack` from deploy/lib.sh rather than plain compose.
+# The build sections are for the local rehearsal (deploy/compose.staging.yaml).
 # Only Caddy is reachable from outside (ports 80/443); Keycloak's admin port is bound to the server's loopback
 # for SSH-tunnel access. Each service gets only the secrets it uses. See docs/operations.md.
 name: nio
@@ -40,6 +41,7 @@ services:
 
   frontend:
     <<: *service
+    image: ghcr.io/coldstuff1/nio-frontend:${NIO_IMAGE_TAG:?}
     build:
       context: ./frontend
       args:
@@ -61,6 +63,7 @@ services:
 
   backend:
     <<: *service
+    image: ghcr.io/coldstuff1/nio-backend:${NIO_IMAGE_TAG:?}
     build: ./backend
     environment:
       SPRING_PROFILES_ACTIVE: prod
@@ -95,6 +98,7 @@ services:
 
   keycloak:
     <<: *service
+    image: ghcr.io/coldstuff1/nio-keycloak:${NIO_IMAGE_TAG:?}
     build: ./backend/docker/keycloak
     environment:
       KC_DB_URL: jdbc:postgresql://postgres:5432/keycloak
