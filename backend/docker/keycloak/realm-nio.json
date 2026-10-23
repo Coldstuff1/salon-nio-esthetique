@@ -148,6 +148,7 @@
           }
         }
       ],
+      "fullScopeAllowed": false,
       "defaultClientScopes": [
         "web-origins",
         "acr",
@@ -171,6 +172,16 @@
       "protocol": "openid-connect",
       "standardFlowEnabled": false,
       "directAccessGrantsEnabled": false
+    }
+  ],
+  "scopeMappings": [
+    {
+      "client": "nio-frontend",
+      "roles": [
+        "client",
+        "employee",
+        "admin"
+      ]
     }
   ],
   "browserFlow": "browser-nio",

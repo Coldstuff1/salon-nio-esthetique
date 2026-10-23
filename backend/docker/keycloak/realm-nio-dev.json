@@ -146,6 +146,7 @@
           }
         }
       ],
+      "fullScopeAllowed": false,
       "defaultClientScopes": [
         "web-origins",
         "acr",
@@ -202,6 +203,25 @@
             "introspection.token.claim": "true"
           }
         }
+      ],
+      "fullScopeAllowed": false
+    }
+  ],
+  "scopeMappings": [
+    {
+      "client": "nio-frontend",
+      "roles": [
+        "client",
+        "employee",
+        "admin"
+      ]
+    },
+    {
+      "client": "nio-swagger",
+      "roles": [
+        "client",
+        "employee",
+        "admin"
       ]
     }
   ],
