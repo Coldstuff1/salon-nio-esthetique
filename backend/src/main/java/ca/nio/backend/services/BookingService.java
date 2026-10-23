@@ -7,6 +7,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.UUID;
 
+import org.jspecify.annotations.Nullable;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -129,6 +130,18 @@ public class BookingService {
             throw new InvalidRequestException("'from' must be before 'to'");
         }
         return bookings.findByEmployeeIdAndStartsAtBeforeAndEndsAtAfterOrderByStartsAt(employeeId, to, from);
+    }
+
+    /** Every booking overlapping {@code [from, to)}, optionally for one employee. */
+    @Transactional(readOnly = true)
+    public List<Booking> allBookings(Instant from, Instant to, @Nullable UUID employeeId) {
+        if (employeeId != null) {
+            return schedule(employeeId, from, to);
+        }
+        if (!from.isBefore(to)) {
+            throw new InvalidRequestException("'from' must be before 'to'");
+        }
+        return bookings.findByStartsAtBeforeAndEndsAtAfterOrderByStartsAt(to, from);
     }
 
     private Employee activeEmployee(UUID employeeId) {

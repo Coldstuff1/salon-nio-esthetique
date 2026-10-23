@@ -84,6 +84,22 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/me/profile": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["profile_1"];
+        put: operations["updateProfile_1"];
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/admin/service-types/{id}": {
         parameters: {
             query?: never;
@@ -111,6 +127,22 @@ export interface paths {
         put: operations["updateProduct"];
         post?: never;
         delete: operations["deactivateProduct"];
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/admin/employees/{id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put: operations["updateEmployee"];
+        post?: never;
+        delete: operations["deactivateEmployee"];
         options?: never;
         head?: never;
         patch?: never;
@@ -267,7 +299,7 @@ export interface paths {
             path?: never;
             cookie?: never;
         };
-        get?: never;
+        get: operations["employees"];
         put?: never;
         post: operations["createEmployee"];
         delete?: never;
@@ -284,6 +316,22 @@ export interface paths {
             cookie?: never;
         };
         get: operations["schedule"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/public/services": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["services"];
         put?: never;
         post?: never;
         delete?: never;
@@ -331,7 +379,7 @@ export interface paths {
             path?: never;
             cookie?: never;
         };
-        get: operations["employees"];
+        get: operations["employees_1"];
         put?: never;
         post?: never;
         delete?: never;
@@ -404,6 +452,22 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/admin/bookings": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["bookings"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/staff/me/time-off/{timeOffId}": {
         parameters: {
             query?: never;
@@ -415,22 +479,6 @@ export interface paths {
         put?: never;
         post?: never;
         delete: operations["removeTimeOff"];
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/api/admin/employees/{id}": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        put?: never;
-        post?: never;
-        delete: operations["deactivateEmployee"];
         options?: never;
         head?: never;
         patch?: never;
@@ -531,6 +579,17 @@ export interface components {
             /** Format: time-local */
             endTime: string;
         };
+        CustomerProfileRequest: {
+            displayName: string;
+            phone?: string | null;
+        };
+        CustomerProfile: {
+            /** Format: uuid */
+            id: string;
+            displayName: string;
+            email?: string | null;
+            phone?: string | null;
+        };
         ServiceTypeRequest: {
             name: string;
             description?: string | null;
@@ -566,6 +625,20 @@ export interface components {
             active: boolean;
             /** Format: int32 */
             version: number;
+        };
+        EmployeeUpdateRequest: {
+            displayName: string;
+            bio?: string | null;
+            active?: boolean | null;
+        };
+        AdminEmployee: {
+            /** Format: uuid */
+            id: string;
+            displayName: string;
+            bio?: string | null;
+            /** Format: uri */
+            photoUrl?: string | null;
+            active: boolean;
         };
         TimeOffRequest: {
             /** Format: date-time */
@@ -641,8 +714,12 @@ export interface components {
             id: string;
             /** Format: uuid */
             customerId: string;
+            customerName: string;
+            customerEmail?: string | null;
+            customerPhone?: string | null;
             /** Format: uuid */
             employeeId: string;
+            employeeName: string;
             /** Format: date-time */
             startsAt: string;
             /** Format: date-time */
@@ -660,6 +737,22 @@ export interface components {
             id: string;
             displayName: string;
             bio?: string | null;
+        };
+        ServiceSummary: {
+            /** Format: uuid */
+            serviceTypeId: string;
+            name: string;
+            description?: string | null;
+            category?: string | null;
+            /** Format: int32 */
+            minPriceCents?: number | null;
+            /** Format: int32 */
+            maxPriceCents?: number | null;
+            /** Format: int32 */
+            minDurationMinutes?: number | null;
+            /** Format: int32 */
+            maxDurationMinutes?: number | null;
+            employeeIds: string[];
         };
         EmployeeSummary: {
             /** Format: uuid */
@@ -1062,6 +1155,104 @@ export interface operations {
             };
         };
     };
+    profile_1: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["CustomerProfile"];
+                };
+            };
+            /** @description Bad Request */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetail"];
+                };
+            };
+            /** @description Not Found */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetail"];
+                };
+            };
+            /** @description Conflict */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetail"];
+                };
+            };
+        };
+    };
+    updateProfile_1: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["CustomerProfileRequest"];
+            };
+        };
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["CustomerProfile"];
+                };
+            };
+            /** @description Bad Request */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetail"];
+                };
+            };
+            /** @description Not Found */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetail"];
+                };
+            };
+            /** @description Conflict */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetail"];
+                };
+            };
+        };
+    };
     updateServiceType: {
         parameters: {
             query?: never;
@@ -1216,6 +1407,106 @@ export interface operations {
         };
     };
     deactivateProduct: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description No Content */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Bad Request */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetail"];
+                };
+            };
+            /** @description Not Found */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetail"];
+                };
+            };
+            /** @description Conflict */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetail"];
+                };
+            };
+        };
+    };
+    updateEmployee: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["EmployeeUpdateRequest"];
+            };
+        };
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["AdminEmployee"];
+                };
+            };
+            /** @description Bad Request */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetail"];
+                };
+            };
+            /** @description Not Found */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetail"];
+                };
+            };
+            /** @description Conflict */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetail"];
+                };
+            };
+        };
+    };
+    deactivateEmployee: {
         parameters: {
             query?: never;
             header?: never;
@@ -1809,6 +2100,53 @@ export interface operations {
             };
         };
     };
+    employees: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["AdminEmployee"][];
+                };
+            };
+            /** @description Bad Request */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetail"];
+                };
+            };
+            /** @description Not Found */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetail"];
+                };
+            };
+            /** @description Conflict */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetail"];
+                };
+            };
+        };
+    };
     createEmployee: {
         parameters: {
             query?: never;
@@ -1828,7 +2166,7 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
-                    "*/*": components["schemas"]["EmployeeSummary"];
+                    "*/*": components["schemas"]["AdminEmployee"];
                 };
             };
             /** @description Bad Request */
@@ -1879,6 +2217,53 @@ export interface operations {
                 };
                 content: {
                     "*/*": components["schemas"]["BookingView"][];
+                };
+            };
+            /** @description Bad Request */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetail"];
+                };
+            };
+            /** @description Not Found */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetail"];
+                };
+            };
+            /** @description Conflict */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetail"];
+                };
+            };
+        };
+    };
+    services: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["ServiceSummary"][];
                 };
             };
             /** @description Bad Request */
@@ -2004,7 +2389,7 @@ export interface operations {
             };
         };
     };
-    employees: {
+    employees_1: {
         parameters: {
             query?: never;
             header?: never;
@@ -2246,23 +2631,27 @@ export interface operations {
             };
         };
     };
-    removeTimeOff: {
+    bookings: {
         parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                timeOffId: string;
+            query: {
+                from: string;
+                to: string;
+                employeeId?: string;
             };
+            header?: never;
+            path?: never;
             cookie?: never;
         };
         requestBody?: never;
         responses: {
-            /** @description No Content */
-            204: {
+            /** @description OK */
+            200: {
                 headers: {
                     [name: string]: unknown;
                 };
-                content?: never;
+                content: {
+                    "*/*": components["schemas"]["BookingView"][];
+                };
             };
             /** @description Bad Request */
             400: {
@@ -2293,12 +2682,12 @@ export interface operations {
             };
         };
     };
-    deactivateEmployee: {
+    removeTimeOff: {
         parameters: {
             query?: never;
             header?: never;
             path: {
-                id: string;
+                timeOffId: string;
             };
             cookie?: never;
         };

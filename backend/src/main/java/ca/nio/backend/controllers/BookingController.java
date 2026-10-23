@@ -36,41 +36,40 @@ public class BookingController {
 
     private final BookingService bookingService;
     private final CurrentUserService currentUser;
+    private final BookingViews views;
 
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
     @PreAuthorize("hasRole('CLIENT')")
     public BookingView reserve(@AuthenticationPrincipal Jwt jwt, @Valid @RequestBody BookingRequest request) {
         UUID customerId = currentUser.customer(jwt).getId();
-        return BookingView.of(bookingService.reserve(customerId, new ReserveCommand(request.employeeId(),
+        return views.of(bookingService.reserve(customerId, new ReserveCommand(request.employeeId(),
                 request.startsAt(), request.serviceIds(), request.products(), request.notes())));
     }
 
     @GetMapping("/mine")
     @PreAuthorize("hasRole('CLIENT')")
     public List<BookingView> mine(@AuthenticationPrincipal Jwt jwt) {
-        return bookingService.customerBookings(CurrentUserService.userId(jwt)).stream()
-                .map(BookingView::of)
-                .toList();
+        return views.of(bookingService.customerBookings(CurrentUserService.userId(jwt)));
     }
 
     @PostMapping("/{id}/cancel")
     public BookingView cancel(@PathVariable UUID id, @AuthenticationPrincipal Jwt jwt, Authentication authentication) {
         boolean admin = authentication.getAuthorities().stream()
                 .anyMatch(a -> "ROLE_ADMIN".equals(a.getAuthority()));
-        return BookingView.of(bookingService.cancel(id, CurrentUserService.userId(jwt), admin));
+        return views.of(bookingService.cancel(id, CurrentUserService.userId(jwt), admin));
     }
 
     @PostMapping("/{id}/complete")
     @PreAuthorize("hasRole('EMPLOYEE')")
     public BookingView complete(@PathVariable UUID id, @AuthenticationPrincipal Jwt jwt) {
-        return BookingView.of(bookingService.close(id, CurrentUserService.userId(jwt), BookingStatus.COMPLETED));
+        return views.of(bookingService.close(id, CurrentUserService.userId(jwt), BookingStatus.COMPLETED));
     }
 
     @PostMapping("/{id}/no-show")
     @PreAuthorize("hasRole('EMPLOYEE')")
     public BookingView noShow(@PathVariable UUID id, @AuthenticationPrincipal Jwt jwt) {
-        return BookingView.of(bookingService.close(id, CurrentUserService.userId(jwt), BookingStatus.NO_SHOW));
+        return views.of(bookingService.close(id, CurrentUserService.userId(jwt), BookingStatus.NO_SHOW));
     }
 
     public record BookingRequest(@NotNull UUID employeeId, @NotNull Instant startsAt,

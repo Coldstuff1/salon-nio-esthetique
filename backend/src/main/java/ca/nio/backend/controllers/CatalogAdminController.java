@@ -1,5 +1,7 @@
 package ca.nio.backend.controllers;
 
+import java.net.URI;
+import java.util.Comparator;
 import java.util.List;
 import java.util.UUID;
 
@@ -23,6 +25,7 @@ import ca.nio.backend.repositories.EmployeeRepository;
 import ca.nio.backend.repositories.ProductRepository;
 import ca.nio.backend.repositories.ServiceTypeRepository;
 import ca.nio.backend.services.ConflictException;
+import ca.nio.backend.services.MediaService;
 import ca.nio.backend.services.NotFoundException;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.Min;
@@ -44,6 +47,7 @@ public class CatalogAdminController {
     private final ServiceTypeRepository serviceTypes;
     private final ProductRepository products;
     private final EmployeeRepository employees;
+    private final MediaService mediaService;
 
     @GetMapping("/service-types")
     public List<ServiceType> serviceTypes() {
@@ -104,29 +108,55 @@ public class CatalogAdminController {
         products.save(product);
     }
 
+    /** Every employee, including deactivated ones. */
+    @GetMapping("/employees")
+    public List<AdminEmployee> employees() {
+        return employees.findAll().stream()
+                .sorted(Comparator.comparing(Employee::getDisplayName))
+                .map(this::adminEmployee)
+                .toList();
+    }
+
     /** Registers a Keycloak user (by subject id) as an employee ahead of their first login. */
     @PostMapping("/employees")
     @ResponseStatus(HttpStatus.CREATED)
-    public PublicController.EmployeeSummary createEmployee(@Valid @RequestBody EmployeeRequest request) {
+    public AdminEmployee createEmployee(@Valid @RequestBody EmployeeRequest request) {
         if (employees.existsById(request.id())) {
             throw new ConflictException("Employee " + request.id() + " already exists");
         }
         Employee employee = new Employee(request.id(), request.displayName());
         employee.setBio(request.bio());
-        return PublicController.EmployeeSummary.of(employees.save(employee), null);
+        return adminEmployee(employees.save(employee));
+    }
+
+    /** Edits an employee's public details; {@code active: true} reactivates a deactivated employee. */
+    @PutMapping("/employees/{id}")
+    public AdminEmployee updateEmployee(@PathVariable UUID id, @Valid @RequestBody EmployeeUpdateRequest request) {
+        Employee employee = employee(id);
+        employee.setDisplayName(request.displayName());
+        employee.setBio(request.bio());
+        employee.setActive(request.active() == null || request.active());
+        return adminEmployee(employees.save(employee));
     }
 
     @DeleteMapping("/employees/{id}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
     public void deactivateEmployee(@PathVariable UUID id) {
-        Employee employee = employees.findById(id)
-                .orElseThrow(() -> new NotFoundException("Employee " + id + " not found"));
+        Employee employee = employee(id);
         employee.setActive(false);
         employees.save(employee);
     }
 
     private ServiceType serviceType(UUID id) {
         return serviceTypes.findById(id).orElseThrow(() -> new NotFoundException("Service " + id + " not found"));
+    }
+
+    private Employee employee(UUID id) {
+        return employees.findById(id).orElseThrow(() -> new NotFoundException("Employee " + id + " not found"));
+    }
+
+    private AdminEmployee adminEmployee(Employee employee) {
+        return AdminEmployee.of(employee, mediaService.url(employee.getPhotoId()));
     }
 
     private Product product(UUID id) {
@@ -143,6 +173,20 @@ public class CatalogAdminController {
     }
 
     public record EmployeeRequest(@NotNull UUID id, @NotBlank @Size(max = 120) String displayName, @Nullable String bio) {
+    }
+
+    public record EmployeeUpdateRequest(@NotBlank @Size(max = 120) String displayName, @Nullable String bio,
+                                        @Nullable Boolean active) {
+    }
+
+    public record AdminEmployee(UUID id, String displayName, @Nullable String bio, @Nullable URI photoUrl,
+                                boolean active) {
+
+        static AdminEmployee of(Employee employee, @Nullable URI photoUrl) {
+            return new AdminEmployee(employee.getId(), employee.getDisplayName(), employee.getBio(), photoUrl,
+                    employee.isActive());
+        }
+
     }
 
 }

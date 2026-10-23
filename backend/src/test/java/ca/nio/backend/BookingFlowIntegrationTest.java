@@ -95,7 +95,9 @@ class BookingFlowIntegrationTest {
                 .andExpect(status().isCreated())
                 .andExpect(jsonPath("$.subtotalCents").value(13000))
                 .andExpect(jsonPath("$.endsAt").value(at(11, 0).toString()))
-                .andExpect(jsonPath("$.services[0].nameSnapshot").value("Facial"));
+                .andExpect(jsonPath("$.services[0].nameSnapshot").value("Facial"))
+                .andExpect(jsonPath("$.employeeName").value("employee-" + employeeId))
+                .andExpect(jsonPath("$.customerName").value("client-" + customerId));
 
         mockMvc.perform(get("/api/bookings/mine").with(customer()))
                 .andExpect(jsonPath("$.length()").value(1));
@@ -133,6 +135,39 @@ class BookingFlowIntegrationTest {
 
         // the freed slot can be booked again
         book(at(9, 0), 0).andExpect(status().isCreated());
+    }
+
+    @Test
+    void scheduleShowsTheCustomersContactDetails() throws Exception {
+        send(put("/api/me/profile"), customer(), Map.of("displayName", "Marie Tremblay", "phone", "514 555-0199"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.phone").value("514 555-0199"));
+        book(at(9, 0), 0).andExpect(status().isCreated());
+
+        mockMvc.perform(get("/api/staff/me/schedule").with(employee())
+                        .param("from", at(0, 0).toString()).param("to", at(23, 0).toString()))
+                .andExpect(jsonPath("$[0].customerName").value("Marie Tremblay"))
+                .andExpect(jsonPath("$[0].customerPhone").value("514 555-0199"));
+    }
+
+    @Test
+    void adminsListEveryonesBookings() throws Exception {
+        book(at(9, 0), 0).andExpect(status().isCreated());
+        JwtRequestPostProcessor admin = keycloakJwt(UUID.randomUUID(), "admin");
+
+        mockMvc.perform(get("/api/admin/bookings").with(admin)
+                        .param("from", at(0, 0).toString()).param("to", at(23, 0).toString())
+                        .param("employeeId", employeeId.toString()))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.length()").value(1))
+                .andExpect(jsonPath("$[0].customerId").value(customerId.toString()));
+        mockMvc.perform(get("/api/admin/bookings").with(admin)
+                        .param("from", at(0, 0).toString()).param("to", at(23, 0).toString()))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$[?(@.employeeId == '" + employeeId + "')]").exists());
+        mockMvc.perform(get("/api/admin/bookings").with(customer())
+                        .param("from", at(0, 0).toString()).param("to", at(23, 0).toString()))
+                .andExpect(status().isForbidden());
     }
 
     @Test

@@ -56,6 +56,7 @@ public class StaffController {
     private final BookingService bookingService;
     private final EmployeeRepository employees;
     private final MediaService mediaService;
+    private final BookingViews views;
 
     @GetMapping
     public StaffProfile profile(@AuthenticationPrincipal Jwt jwt) {
@@ -124,9 +125,7 @@ public class StaffController {
     @GetMapping("/schedule")
     public List<BookingView> schedule(@AuthenticationPrincipal Jwt jwt, @RequestParam Instant from,
                                       @RequestParam Instant to) {
-        return bookingService.schedule(CurrentUserService.userId(jwt), from, to).stream()
-                .map(BookingView::of)
-                .toList();
+        return views.of(bookingService.schedule(CurrentUserService.userId(jwt), from, to));
     }
 
     private StaffProfile profile(Employee employee) {

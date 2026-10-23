@@ -417,6 +417,110 @@
         }
       }
     },
+    "/api/me/profile" : {
+      "get" : {
+        "tags" : [ "customer-profile-controller" ],
+        "operationId" : "profile_1",
+        "responses" : {
+          "404" : {
+            "description" : "Not Found",
+            "content" : {
+              "application/problem+json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ProblemDetail"
+                }
+              }
+            }
+          },
+          "409" : {
+            "description" : "Conflict",
+            "content" : {
+              "application/problem+json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ProblemDetail"
+                }
+              }
+            }
+          },
+          "400" : {
+            "description" : "Bad Request",
+            "content" : {
+              "application/problem+json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ProblemDetail"
+                }
+              }
+            }
+          },
+          "200" : {
+            "description" : "OK",
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/CustomerProfile"
+                }
+              }
+            }
+          }
+        }
+      },
+      "put" : {
+        "tags" : [ "customer-profile-controller" ],
+        "operationId" : "updateProfile_1",
+        "requestBody" : {
+          "content" : {
+            "application/json" : {
+              "schema" : {
+                "$ref" : "#/components/schemas/CustomerProfileRequest"
+              }
+            }
+          },
+          "required" : true
+        },
+        "responses" : {
+          "404" : {
+            "description" : "Not Found",
+            "content" : {
+              "application/problem+json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ProblemDetail"
+                }
+              }
+            }
+          },
+          "409" : {
+            "description" : "Conflict",
+            "content" : {
+              "application/problem+json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ProblemDetail"
+                }
+              }
+            }
+          },
+          "400" : {
+            "description" : "Bad Request",
+            "content" : {
+              "application/problem+json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ProblemDetail"
+                }
+              }
+            }
+          },
+          "200" : {
+            "description" : "OK",
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/CustomerProfile"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/admin/service-types/{id}" : {
       "put" : {
         "tags" : [ "catalog-admin-controller" ],
@@ -601,6 +705,121 @@
       "delete" : {
         "tags" : [ "catalog-admin-controller" ],
         "operationId" : "deactivateProduct",
+        "parameters" : [ {
+          "name" : "id",
+          "in" : "path",
+          "required" : true,
+          "schema" : {
+            "type" : "string",
+            "format" : "uuid"
+          }
+        } ],
+        "responses" : {
+          "404" : {
+            "description" : "Not Found",
+            "content" : {
+              "application/problem+json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ProblemDetail"
+                }
+              }
+            }
+          },
+          "409" : {
+            "description" : "Conflict",
+            "content" : {
+              "application/problem+json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ProblemDetail"
+                }
+              }
+            }
+          },
+          "400" : {
+            "description" : "Bad Request",
+            "content" : {
+              "application/problem+json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ProblemDetail"
+                }
+              }
+            }
+          },
+          "204" : {
+            "description" : "No Content"
+          }
+        }
+      }
+    },
+    "/api/admin/employees/{id}" : {
+      "put" : {
+        "tags" : [ "catalog-admin-controller" ],
+        "operationId" : "updateEmployee",
+        "parameters" : [ {
+          "name" : "id",
+          "in" : "path",
+          "required" : true,
+          "schema" : {
+            "type" : "string",
+            "format" : "uuid"
+          }
+        } ],
+        "requestBody" : {
+          "content" : {
+            "application/json" : {
+              "schema" : {
+                "$ref" : "#/components/schemas/EmployeeUpdateRequest"
+              }
+            }
+          },
+          "required" : true
+        },
+        "responses" : {
+          "404" : {
+            "description" : "Not Found",
+            "content" : {
+              "application/problem+json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ProblemDetail"
+                }
+              }
+            }
+          },
+          "409" : {
+            "description" : "Conflict",
+            "content" : {
+              "application/problem+json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ProblemDetail"
+                }
+              }
+            }
+          },
+          "400" : {
+            "description" : "Bad Request",
+            "content" : {
+              "application/problem+json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ProblemDetail"
+                }
+              }
+            }
+          },
+          "200" : {
+            "description" : "OK",
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/AdminEmployee"
+                }
+              }
+            }
+          }
+        }
+      },
+      "delete" : {
+        "tags" : [ "catalog-admin-controller" ],
+        "operationId" : "deactivateEmployee",
         "parameters" : [ {
           "name" : "id",
           "in" : "path",
@@ -1265,6 +1484,55 @@
       }
     },
     "/api/admin/employees" : {
+      "get" : {
+        "tags" : [ "catalog-admin-controller" ],
+        "operationId" : "employees",
+        "responses" : {
+          "404" : {
+            "description" : "Not Found",
+            "content" : {
+              "application/problem+json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ProblemDetail"
+                }
+              }
+            }
+          },
+          "409" : {
+            "description" : "Conflict",
+            "content" : {
+              "application/problem+json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ProblemDetail"
+                }
+              }
+            }
+          },
+          "400" : {
+            "description" : "Bad Request",
+            "content" : {
+              "application/problem+json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ProblemDetail"
+                }
+              }
+            }
+          },
+          "200" : {
+            "description" : "OK",
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "type" : "array",
+                  "items" : {
+                    "$ref" : "#/components/schemas/AdminEmployee"
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
       "post" : {
         "tags" : [ "catalog-admin-controller" ],
         "operationId" : "createEmployee",
@@ -1314,7 +1582,7 @@
             "content" : {
               "*/*" : {
                 "schema" : {
-                  "$ref" : "#/components/schemas/EmployeeSummary"
+                  "$ref" : "#/components/schemas/AdminEmployee"
                 }
               }
             }
@@ -1382,6 +1650,57 @@
                   "type" : "array",
                   "items" : {
                     "$ref" : "#/components/schemas/BookingView"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/public/services" : {
+      "get" : {
+        "tags" : [ "public-controller" ],
+        "operationId" : "services",
+        "responses" : {
+          "404" : {
+            "description" : "Not Found",
+            "content" : {
+              "application/problem+json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ProblemDetail"
+                }
+              }
+            }
+          },
+          "409" : {
+            "description" : "Conflict",
+            "content" : {
+              "application/problem+json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ProblemDetail"
+                }
+              }
+            }
+          },
+          "400" : {
+            "description" : "Bad Request",
+            "content" : {
+              "application/problem+json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ProblemDetail"
+                }
+              }
+            }
+          },
+          "200" : {
+            "description" : "OK",
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "type" : "array",
+                  "items" : {
+                    "$ref" : "#/components/schemas/ServiceSummary"
                   }
                 }
               }
@@ -1495,7 +1814,7 @@
     "/api/public/employees" : {
       "get" : {
         "tags" : [ "public-controller" ],
-        "operationId" : "employees",
+        "operationId" : "employees_1",
         "responses" : {
           "404" : {
             "description" : "Not Found",
@@ -1779,14 +2098,30 @@
         }
       }
     },
-    "/api/staff/me/time-off/{timeOffId}" : {
-      "delete" : {
-        "tags" : [ "staff-controller" ],
-        "operationId" : "removeTimeOff",
+    "/api/admin/bookings" : {
+      "get" : {
+        "tags" : [ "admin-booking-controller" ],
+        "operationId" : "bookings",
         "parameters" : [ {
-          "name" : "timeOffId",
-          "in" : "path",
+          "name" : "from",
+          "in" : "query",
           "required" : true,
+          "schema" : {
+            "type" : "string",
+            "format" : "date-time"
+          }
+        }, {
+          "name" : "to",
+          "in" : "query",
+          "required" : true,
+          "schema" : {
+            "type" : "string",
+            "format" : "date-time"
+          }
+        }, {
+          "name" : "employeeId",
+          "in" : "query",
+          "required" : false,
           "schema" : {
             "type" : "string",
             "format" : "uuid"
@@ -1823,18 +2158,28 @@
               }
             }
           },
-          "204" : {
-            "description" : "No Content"
+          "200" : {
+            "description" : "OK",
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "type" : "array",
+                  "items" : {
+                    "$ref" : "#/components/schemas/BookingView"
+                  }
+                }
+              }
+            }
           }
         }
       }
     },
-    "/api/admin/employees/{id}" : {
+    "/api/staff/me/time-off/{timeOffId}" : {
       "delete" : {
-        "tags" : [ "catalog-admin-controller" ],
-        "operationId" : "deactivateEmployee",
+        "tags" : [ "staff-controller" ],
+        "operationId" : "removeTimeOff",
         "parameters" : [ {
-          "name" : "id",
+          "name" : "timeOffId",
           "in" : "path",
           "required" : true,
           "schema" : {
@@ -2121,6 +2466,42 @@
         },
         "required" : [ "dayOfWeek", "endTime", "startTime" ]
       },
+      "CustomerProfileRequest" : {
+        "type" : "object",
+        "properties" : {
+          "displayName" : {
+            "type" : "string",
+            "maxLength" : 120,
+            "minLength" : 0
+          },
+          "phone" : {
+            "type" : [ "string", "null" ],
+            "maxLength" : 30,
+            "minLength" : 0,
+            "pattern" : "[0-9+()\\-. ]*"
+          }
+        },
+        "required" : [ "displayName" ]
+      },
+      "CustomerProfile" : {
+        "type" : "object",
+        "properties" : {
+          "id" : {
+            "type" : "string",
+            "format" : "uuid"
+          },
+          "displayName" : {
+            "type" : "string"
+          },
+          "email" : {
+            "type" : [ "string", "null" ]
+          },
+          "phone" : {
+            "type" : [ "string", "null" ]
+          }
+        },
+        "required" : [ "displayName", "id" ]
+      },
       "ServiceTypeRequest" : {
         "type" : "object",
         "properties" : {
@@ -2225,6 +2606,46 @@
           }
         },
         "required" : [ "active", "costCents", "id", "name", "sku", "version" ]
+      },
+      "EmployeeUpdateRequest" : {
+        "type" : "object",
+        "properties" : {
+          "displayName" : {
+            "type" : "string",
+            "maxLength" : 120,
+            "minLength" : 0
+          },
+          "bio" : {
+            "type" : [ "string", "null" ]
+          },
+          "active" : {
+            "type" : [ "boolean", "null" ]
+          }
+        },
+        "required" : [ "displayName" ]
+      },
+      "AdminEmployee" : {
+        "type" : "object",
+        "properties" : {
+          "id" : {
+            "type" : "string",
+            "format" : "uuid"
+          },
+          "displayName" : {
+            "type" : "string"
+          },
+          "bio" : {
+            "type" : [ "string", "null" ]
+          },
+          "photoUrl" : {
+            "type" : [ "string", "null" ],
+            "format" : "uri"
+          },
+          "active" : {
+            "type" : "boolean"
+          }
+        },
+        "required" : [ "active", "displayName", "id" ]
       },
       "TimeOffRequest" : {
         "type" : "object",
@@ -2433,9 +2854,21 @@
             "type" : "string",
             "format" : "uuid"
           },
+          "customerName" : {
+            "type" : "string"
+          },
+          "customerEmail" : {
+            "type" : [ "string", "null" ]
+          },
+          "customerPhone" : {
+            "type" : [ "string", "null" ]
+          },
           "employeeId" : {
             "type" : "string",
             "format" : "uuid"
+          },
+          "employeeName" : {
+            "type" : "string"
           },
           "startsAt" : {
             "type" : "string",
@@ -2469,7 +2902,7 @@
             }
           }
         },
-        "required" : [ "customerId", "employeeId", "endsAt", "id", "products", "services", "startsAt", "status", "subtotalCents" ]
+        "required" : [ "customerId", "customerName", "employeeId", "employeeName", "endsAt", "id", "products", "services", "startsAt", "status", "subtotalCents" ]
       },
       "EmployeeRequest" : {
         "type" : "object",
@@ -2488,6 +2921,48 @@
           }
         },
         "required" : [ "displayName", "id" ]
+      },
+      "ServiceSummary" : {
+        "type" : "object",
+        "properties" : {
+          "serviceTypeId" : {
+            "type" : "string",
+            "format" : "uuid"
+          },
+          "name" : {
+            "type" : "string"
+          },
+          "description" : {
+            "type" : [ "string", "null" ]
+          },
+          "category" : {
+            "type" : [ "string", "null" ]
+          },
+          "minPriceCents" : {
+            "type" : [ "integer", "null" ],
+            "format" : "int32"
+          },
+          "maxPriceCents" : {
+            "type" : [ "integer", "null" ],
+            "format" : "int32"
+          },
+          "minDurationMinutes" : {
+            "type" : [ "integer", "null" ],
+            "format" : "int32"
+          },
+          "maxDurationMinutes" : {
+            "type" : [ "integer", "null" ],
+            "format" : "int32"
+          },
+          "employeeIds" : {
+            "type" : "array",
+            "items" : {
+              "type" : "string",
+              "format" : "uuid"
+            }
+          }
+        },
+        "required" : [ "employeeIds", "name", "serviceTypeId" ]
       },
       "EmployeeSummary" : {
         "type" : "object",

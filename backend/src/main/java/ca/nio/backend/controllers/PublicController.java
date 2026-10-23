@@ -4,6 +4,8 @@ import java.net.URI;
 import java.time.Instant;
 import java.time.LocalDate;
 import java.util.Comparator;
+import java.util.IntSummaryStatistics;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
@@ -54,6 +56,24 @@ public class PublicController {
     @GetMapping("/service-types")
     public List<ServiceType> serviceTypes() {
         return serviceTypes.findByActiveTrueOrderByName();
+    }
+
+    /**
+     * Each active service with its price and duration range across the active employees offering it, and who
+     * they are. Ranges are null when nobody offers the service yet.
+     */
+    @GetMapping("/services")
+    public List<ServiceSummary> services() {
+        List<Employee> staff = employees.findByActiveTrueOrderByDisplayName();
+        return serviceTypes.findByActiveTrueOrderByName().stream()
+                .map(type -> ServiceSummary.of(type, staff.stream()
+                        .flatMap(e -> e.serviceOffering(type.getId())
+                                .filter(ServiceOffering::active)
+                                .map(o -> Map.entry(e.getId(), o))
+                                .stream())
+                        .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue, (a, b) -> a,
+                                LinkedHashMap::new))))
+                .toList();
     }
 
     @GetMapping("/products")
@@ -131,6 +151,26 @@ public class PublicController {
         static ServiceView of(ServiceType type, ServiceOffering offering) {
             return new ServiceView(type.getId(), type.getName(), type.getDescription(), type.getCategory(),
                     offering.priceCents(), offering.durationMinutes());
+        }
+
+    }
+
+    public record ServiceSummary(UUID serviceTypeId, String name, @Nullable String description,
+                                 @Nullable String category,
+                                 @Nullable Integer minPriceCents, @Nullable Integer maxPriceCents,
+                                 @Nullable Integer minDurationMinutes, @Nullable Integer maxDurationMinutes,
+                                 List<UUID> employeeIds) {
+
+        static ServiceSummary of(ServiceType type, Map<UUID, ServiceOffering> offeringsByEmployee) {
+            boolean offered = !offeringsByEmployee.isEmpty();
+            IntSummaryStatistics prices = offeringsByEmployee.values().stream()
+                    .mapToInt(ServiceOffering::priceCents).summaryStatistics();
+            IntSummaryStatistics durations = offeringsByEmployee.values().stream()
+                    .mapToInt(ServiceOffering::durationMinutes).summaryStatistics();
+            return new ServiceSummary(type.getId(), type.getName(), type.getDescription(), type.getCategory(),
+                    offered ? prices.getMin() : null, offered ? prices.getMax() : null,
+                    offered ? durations.getMin() : null, offered ? durations.getMax() : null,
+                    List.copyOf(offeringsByEmployee.keySet()));
         }
 
     }
