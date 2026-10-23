@@ -6,6 +6,9 @@
     // Extra safety for array and object lookups, but may have false positives.
     "noUncheckedIndexedAccess": true,
 
+    // i18n messages live in src/i18n/*.json.
+    "resolveJsonModule": true,
+
     // Path mapping for cleaner imports.
     "paths": {
       "@/*": ["./src/*"]

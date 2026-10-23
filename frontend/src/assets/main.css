@@ -1,35 +1,126 @@
-@import './base.css';
+@import 'tailwindcss';
 
-#app {
-  max-width: 1280px;
-  margin: 0 auto;
-  padding: 2rem;
-  font-weight: normal;
+@import '@fontsource/jost/400.css';
+@import '@fontsource/jost/500.css';
+@import '@fontsource/jost/600.css';
+@import '@fontsource/cormorant-garamond/500.css';
+@import '@fontsource/cormorant-garamond/600.css';
+@import '@fontsource/allura/400.css';
+
+/* `dark:` follows the data-theme attribute set by useTheme, not the OS directly */
+@custom-variant dark (&:where([data-theme=dark], [data-theme=dark] *));
+
+/* Brand tokens, taken from the salon's Instagram posts. Components use the Tailwind names below
+   (bg-paper, text-ink, border-line, …), so dark mode is only a matter of swapping these values. */
+:root {
+  --c-paper: #fbf4f0;
+  --c-surface: #ffffff;
+  --c-surface-soft: #f5ebe6;
+  --c-ink: #2b2d27;
+  --c-ink-muted: #6b645f;
+  --c-line: rgb(43 45 39 / 0.8);
+  --c-line-soft: #e6d8d2;
+  --c-accent: #8a3557;
+  --c-accent-hover: #742a48;
+  --c-accent-ink: #ffffff;
+  --c-blush: #e9b8c0;
+  --c-danger: #a3412f;
+  --c-success: #5e7a5a;
+  color-scheme: light;
 }
 
-a,
-.green {
-  text-decoration: none;
-  color: hsla(160, 100%, 37%, 1);
-  transition: 0.4s;
-  padding: 3px;
+[data-theme='dark'] {
+  --c-paper: #1e191b;
+  --c-surface: #2a2326;
+  --c-surface-soft: #332a2e;
+  --c-ink: #f3e9e4;
+  --c-ink-muted: #b9aba5;
+  --c-line: rgb(243 233 228 / 0.6);
+  --c-line-soft: #3d3337;
+  --c-accent: #d99ab0;
+  --c-accent-hover: #e6b3c5;
+  --c-accent-ink: #1e191b;
+  --c-blush: #7a4558;
+  --c-danger: #e08a76;
+  --c-success: #9dbb96;
+  color-scheme: dark;
 }
 
-@media (hover: hover) {
-  a:hover {
-    background-color: hsla(160, 100%, 37%, 0.2);
-  }
+@theme inline {
+  --color-paper: var(--c-paper);
+  --color-surface: var(--c-surface);
+  --color-surface-soft: var(--c-surface-soft);
+  --color-ink: var(--c-ink);
+  --color-ink-muted: var(--c-ink-muted);
+  --color-line: var(--c-line);
+  --color-line-soft: var(--c-line-soft);
+  --color-accent: var(--c-accent);
+  --color-accent-hover: var(--c-accent-hover);
+  --color-accent-ink: var(--c-accent-ink);
+  --color-blush: var(--c-blush);
+  --color-danger: var(--c-danger);
+  --color-success: var(--c-success);
+
+  --font-display: 'Cormorant Garamond', Georgia, 'Times New Roman', serif;
+  --font-script: 'Allura', 'Snell Roundhand', cursive;
+  --font-sans: 'Jost', system-ui, -apple-system, 'Segoe UI', sans-serif;
+
+  --text-display: clamp(2.5rem, 6vw, 4.5rem);
+  --text-display--line-height: 1.05;
+  --text-label: 0.8125rem;
+  --text-label--line-height: 1.4;
 }
 
-@media (min-width: 1024px) {
+@layer base {
   body {
-    display: flex;
-    place-items: center;
+    @apply min-h-screen bg-paper font-sans text-base/[1.65] text-ink antialiased;
+    transition:
+      background-color 200ms,
+      color 200ms;
   }
 
-  #app {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    padding: 0 2rem;
+  h1,
+  h2,
+  h3,
+  h4 {
+    @apply font-display font-medium text-ink;
+  }
+
+  :focus-visible {
+    @apply outline-2 outline-offset-2 outline-accent;
+  }
+
+  ::selection {
+    @apply bg-blush text-ink;
+  }
+}
+
+@layer components {
+  /* letter-spaced sans caps: buttons, nav, price items, form labels */
+  .label-caps {
+    @apply font-sans text-label font-medium tracking-[0.08em] uppercase;
+  }
+
+  /* letter-spaced serif caps: titles and the BEFORE/AFTER style labels */
+  .display-caps {
+    @apply font-display font-medium tracking-[0.12em] uppercase;
+  }
+
+  .link {
+    @apply text-accent underline decoration-blush decoration-1 underline-offset-4 transition-colors hover:text-accent-hover hover:decoration-accent;
+  }
+
+  .page-container {
+    @apply mx-auto w-full max-w-5xl px-4 sm:px-6;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
   }
 }

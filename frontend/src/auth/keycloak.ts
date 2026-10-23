@@ -44,7 +44,8 @@ export function useAuth() {
     roles: readonly(roles),
     isAdmin: computed(() => roles.value.includes('admin')),
     hasRole: (role: string) => roles.value.includes(role),
-    login: () => keycloak.login(),
+    // open Keycloak's login page in the site's current language
+    login: () => keycloak.login({ locale: document.documentElement.lang }),
     logout: () => keycloak.logout({ redirectUri: location.origin }),
   }
 }

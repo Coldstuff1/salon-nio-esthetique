@@ -1,0 +1,65 @@
+{
+  "brand": {
+    "name": "Salon Nio Esthétique",
+    "tagline": "Aesthetician services",
+    "handle": "{'@'}salonnioesthetique"
+  },
+  "nav": {
+    "home": "Home",
+    "services": "Treatments",
+    "prices": "Prices",
+    "booking": "Book",
+    "menu": "Menu"
+  },
+  "auth": {
+    "login": "Log in",
+    "logout": "Log out",
+    "whoAmI": "Who am I?"
+  },
+  "theme": {
+    "label": "Theme",
+    "light": "Light",
+    "dark": "Dark",
+    "system": "System"
+  },
+  "locale": {
+    "label": "Language"
+  },
+  "prices": {
+    "ticker": "Price list",
+    "facial": "Facial price list",
+    "waxing": "Waxing price list",
+    "basicFacial": "Basic facial",
+    "sculptingFacial": "Sculpting facial",
+    "dermaplaning": "Dermaplaning add-on",
+    "vagacial": "Vagacial",
+    "vagacialNote": "$25 off with a full Brazilian wax",
+    "brazilian": "Bikini / full Brazilian",
+    "underarms": "Underarms",
+    "legs": "Half legs / full legs",
+    "arms": "Half arms / full arms"
+  },
+  "results": {
+    "before": "Before",
+    "after": "After"
+  },
+  "booking": {
+    "status": {
+      "RESERVED": "Booked",
+      "COMPLETED": "Completed",
+      "CANCELLED": "Cancelled",
+      "NO_SHOW": "No-show"
+    }
+  },
+  "footer": {
+    "follow": "Follow us",
+    "rights": "All rights reserved."
+  },
+  "common": {
+    "loading": "Loading…",
+    "close": "Close",
+    "save": "Save",
+    "cancel": "Cancel",
+    "required": "Required"
+  }
+}

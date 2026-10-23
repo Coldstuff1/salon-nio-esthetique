@@ -1,0 +1,65 @@
+{
+  "brand": {
+    "name": "Salon Nio Esthétique",
+    "tagline": "Services d'esthéticienne",
+    "handle": "{'@'}salonnioesthetique"
+  },
+  "nav": {
+    "home": "Accueil",
+    "services": "Soins",
+    "prices": "Prix",
+    "booking": "Réserver",
+    "menu": "Menu"
+  },
+  "auth": {
+    "login": "Connexion",
+    "logout": "Déconnexion",
+    "whoAmI": "Qui suis-je ?"
+  },
+  "theme": {
+    "label": "Thème",
+    "light": "Clair",
+    "dark": "Sombre",
+    "system": "Système"
+  },
+  "locale": {
+    "label": "Langue"
+  },
+  "prices": {
+    "ticker": "Liste de prix",
+    "facial": "Liste de prix du soin de visage",
+    "waxing": "Liste de prix épilation à la cire",
+    "basicFacial": "Soin du visage de base",
+    "sculptingFacial": "Soin visage sculptant",
+    "dermaplaning": "Ajout dermaplaning",
+    "vagacial": "Vagacial",
+    "vagacialNote": "25 $ de réduction avec épilation brésilienne complète",
+    "brazilian": "Bikini / brésilien complet",
+    "underarms": "Sous les bras",
+    "legs": "Demi-jambes / jambes complètes",
+    "arms": "Demi-bras / bras complets"
+  },
+  "results": {
+    "before": "Avant",
+    "after": "Après"
+  },
+  "booking": {
+    "status": {
+      "RESERVED": "Réservé",
+      "COMPLETED": "Terminé",
+      "CANCELLED": "Annulé",
+      "NO_SHOW": "Absence"
+    }
+  },
+  "footer": {
+    "follow": "Suivez-nous",
+    "rights": "Tous droits réservés."
+  },
+  "common": {
+    "loading": "Chargement…",
+    "close": "Fermer",
+    "save": "Enregistrer",
+    "cancel": "Annuler",
+    "required": "Champ requis"
+  }
+}

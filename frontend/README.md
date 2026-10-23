@@ -1,6 +1,35 @@
 # frontend
 
-This template should help get you started developing with Vue 3 in Vite.
+Vue 3 + Vite SPA for Salon Nio Esthétique, styled with Tailwind CSS v4.
+
+## Design system
+
+The look comes from the salon's Instagram posts: blush paper, hairline frames, letter-spaced serif caps,
+one plum script word. Browse every token and component at `http://localhost:5173/#styleguide` (dev only).
+
+**Tokens** live in `src/assets/main.css` as CSS variables, redefined under `[data-theme='dark']`, and are exposed
+to Tailwind as `paper`, `surface`, `surface-soft`, `ink`, `ink-muted`, `line`, `line-soft`, `accent`, `blush`,
+`danger`, `success` (e.g. `bg-paper text-ink border-line`). Components never need `dark:` variants for color.
+
+| Font | Tailwind | Use |
+|------|----------|-----|
+| Cormorant Garamond | `font-display`, `.display-caps` | titles, section headings, BEFORE/AFTER labels |
+| Allura | `font-script` | a single accent word over a title (`ScriptTitle`) |
+| Jost | `font-sans`, `.label-caps` | body, buttons, nav, price items, form labels |
+
+Rules:
+
+- Use the semantic color classes, never raw hex values.
+- `blush` is decorative only (brushstrokes, focus halo, selection), never text.
+- Script is one word at most, always in `accent`.
+- Square corners and 1px hairline borders; the logo arch is the only curve.
+- User-facing text goes through `vue-i18n` (`src/i18n/fr.json`, `en.json`; French is the fallback).
+  Escape `@` as `{'@'}` in messages, since vue-i18n treats it as linked-message syntax.
+- Prices arrive in cents: format them with `formatPrice` / `formatPriceRange` from `src/utils/format.ts`.
+
+Components: `src/components/brand/` (logo, `ScriptTitle`, `PriceList`, `PhotoFrame`, `BeforeAfter`, ticker),
+`src/components/ui/` (buttons, form fields, card, badge, alert, dialog) and `src/components/layout/`
+(header, footer, `PageSection`, theme and language switches).
 
 ## Recommended IDE Setup
 

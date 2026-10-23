@@ -1,9 +1,27 @@
 <script setup lang="ts">
-import { ref } from 'vue'
+import { defineAsyncComponent, onBeforeUnmount, ref } from 'vue'
+import { useI18n } from 'vue-i18n'
 import { api, type Schemas } from './api/http'
 import { useAuth } from './auth/keycloak'
+import AppFooter from './components/layout/AppFooter.vue'
+import AppHeader from './components/layout/AppHeader.vue'
+import PageSection from './components/layout/PageSection.vue'
+import BaseAlert from './components/ui/BaseAlert.vue'
+import BaseButton from './components/ui/BaseButton.vue'
+import BaseCard from './components/ui/BaseCard.vue'
+import ScriptTitle from './components/brand/ScriptTitle.vue'
 
-const { authenticated, username, roles, login, logout } = useAuth()
+// dev-only design system catalogue at /#styleguide, until there's a router
+const StyleGuide = import.meta.env.DEV
+  ? defineAsyncComponent(() => import('./views/StyleGuide.vue'))
+  : undefined
+const hash = ref(location.hash)
+const onHashChange = () => (hash.value = location.hash)
+window.addEventListener('hashchange', onHashChange)
+onBeforeUnmount(() => window.removeEventListener('hashchange', onHashChange))
+
+const { authenticated, roles } = useAuth()
+const { t } = useI18n()
 
 const me = ref<Schemas['Me']>()
 const error = ref<string>()
@@ -21,41 +39,27 @@ async function whoAmI() {
 </script>
 
 <template>
-  <header>
-    <h1>Nio Esthétique</h1>
+  <div class="flex min-h-screen flex-col">
+    <AppHeader />
 
-    <div v-if="authenticated" class="auth">
-      <span>{{ username }} <small>({{ roles.join(', ') }})</small></span>
-      <button @click="logout">Log out</button>
-    </div>
-    <div v-else class="auth">
-      <button @click="login">Log in</button>
-    </div>
-  </header>
+    <main class="flex-1">
+      <component :is="StyleGuide" v-if="StyleGuide && hash === '#styleguide'" />
 
-  <main v-if="authenticated">
-    <button @click="whoAmI">Who am I?</button>
-    <pre v-if="me">{{ me }}</pre>
-    <p v-if="error" class="error">{{ error }}</p>
-  </main>
+      <PageSection v-else narrow>
+        <div class="mb-12 text-center">
+          <ScriptTitle as="h1" :title="t('brand.name')" />
+          <p class="label-caps mt-4 text-ink-muted">{{ t('brand.tagline') }}</p>
+        </div>
+
+        <BaseCard v-if="authenticated" class="flex flex-col items-start gap-4">
+          <p class="text-sm text-ink-muted">{{ roles.join(', ') }}</p>
+          <BaseButton variant="outline" @click="whoAmI">{{ t('auth.whoAmI') }}</BaseButton>
+          <pre v-if="me" class="w-full overflow-x-auto bg-surface-soft p-4 text-sm">{{ me }}</pre>
+          <BaseAlert v-if="error" tone="danger" class="w-full">{{ error }}</BaseAlert>
+        </BaseCard>
+      </PageSection>
+    </main>
+
+    <AppFooter />
+  </div>
 </template>
-
-<style scoped>
-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  gap: 1rem;
-  margin-bottom: 2rem;
-}
-
-.auth {
-  display: flex;
-  align-items: center;
-  gap: 1rem;
-}
-
-.error {
-  color: crimson;
-}
-</style>
