@@ -16,6 +16,8 @@ import org.springframework.boot.context.properties.bind.DefaultValue;
  * @param dispatchInterval pause between two passes of the {@link DeliveryDispatcher}
  * @param push             Web Push settings
  * @param jobs             the scheduled notifications ({@link ReminderJobs})
+ * @param retention        how long notifications are kept ({@link NotificationPurge})
+ * @param unsubscribeSecret signs the unsubscribe links in emails; changing it voids every link already sent
  */
 @ConfigurationProperties("salon.notifications")
 public record NotificationProperties(@DefaultValue("http://localhost:5173") URI siteUrl,
@@ -23,7 +25,9 @@ public record NotificationProperties(@DefaultValue("http://localhost:5173") URI 
                                      @DefaultValue("Salon Nio Esthétique") String fromName,
                                      @DefaultValue("15s") Duration dispatchInterval,
                                      @DefaultValue Push push,
-                                     @DefaultValue Jobs jobs) {
+                                     @DefaultValue Jobs jobs,
+                                     @DefaultValue Retention retention,
+                                     @Nullable String unsubscribeSecret) {
 
     /**
      * @param cron        when {@link ReminderJobs} looks for something to send, in the salon's time zone; {@code -}
@@ -37,6 +41,21 @@ public record NotificationProperties(@DefaultValue("http://localhost:5173") URI 
                        @DefaultValue("24h") Duration reminder,
                        @DefaultValue("07:00") LocalTime agendaTime,
                        @DefaultValue("2h") Duration openBooking) {
+    }
+
+    /**
+     * Notifications are kept only as long as they're useful (Law 25: personal information is kept no longer than
+     * needed).
+     *
+     * @param cron       when the purge runs, in the salon's time zone; {@code -} turns it off
+     * @param read       how long a notification is kept once read
+     * @param unread     how long one nobody read is kept
+     * @param deliveries how long the record of an email or push sent (or not) is kept
+     */
+    public record Retention(@DefaultValue("0 30 3 * * *") String cron,
+                            @DefaultValue("90d") Duration read,
+                            @DefaultValue("365d") Duration unread,
+                            @DefaultValue("30d") Duration deliveries) {
     }
 
     /**

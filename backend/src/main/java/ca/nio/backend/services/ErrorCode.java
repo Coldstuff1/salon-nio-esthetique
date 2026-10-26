@@ -44,6 +44,7 @@ public enum ErrorCode {
 
     // notifications
     UNSUPPORTED_PUSH_SERVICE,
+    INVALID_UNSUBSCRIBE_LINK,
 
     // accounts
     EMAIL_NOT_VERIFIED,

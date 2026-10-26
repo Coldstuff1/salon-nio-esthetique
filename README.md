@@ -26,7 +26,7 @@ The SPA logs in with OAuth2 Authorization Code + PKCE (`keycloak-js`) and calls 
 - Admin console: http://localhost:8180 (`admin` / `admin`)
 - Realm `nio` is imported from `backend/docker/keycloak/realm-nio-dev.json` on first start.
 - Dev users (password `nio-dev-password`): `client1`, `employee1`, `admin1`
-- New users get the `client` role by default and must verify their email before booking; the verification email lands in Mailpit, like the backend's notification emails. Push notifications work on localhost too, in Chrome and Firefox: *Notifications* page → *On this device*.
+- New users get the `client` role by default and must verify their email before booking; the verification email lands in Mailpit, like the backend's notification emails. Push notifications work on localhost too, in Chrome and Firefox: *Notifications → Settings* → *On this device*.
 
 The realm comes in two files. `realm-nio.json` is the production realm, baked into the Keycloak image: no users, URLs and secrets read from the environment, reCAPTCHA on registration and a required one-time code for employees and admins. `realm-nio-dev.json` adds the dev users and the Swagger UI client, points at localhost and Mailpit, and keeps Keycloak's stock sign-in flow (no one-time code locally). Every other setting (password policy, lockout, roles, clients) is the same in both; change it in both.
 

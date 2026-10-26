@@ -54,6 +54,33 @@
     "unread": "unread",
     "markAllRead": "Mark all as read",
     "empty": "Nothing yet. You'll find news about your appointments here.",
+    "settingsLink": "Settings",
+    "settings": {
+      "intro": "Everything shows up in your notifications on the site. Choose what is also sent to you by email or on your devices.",
+      "email": "Email",
+      "push": "Devices",
+      "pushHint": "Device notifications only show up where you turned them on, above.",
+      "types": {
+        "BOOKING_CONFIRMED": "Appointment confirmation",
+        "BOOKING_CANCELLED": "Appointment cancelled by the salon",
+        "BOOKING_REMINDER": "Reminder the day before an appointment",
+        "STAFF_BOOKING_CREATED": "New appointment with me",
+        "STAFF_BOOKING_CANCELLED": "Appointment with me cancelled",
+        "STAFF_DAILY_AGENDA": "My appointments for the day, at 7 a.m.",
+        "STAFF_BOOKING_OPEN": "Appointment still open after it ended",
+        "LATE_CANCELLATION": "Last-minute cancellation",
+        "BUG_REPORT_SUBMITTED": "New bug report",
+        "BUG_REPORT_CLOSED": "Updates on my reports"
+      }
+    },
+    "unsubscribe": {
+      "question": "Stop emails for “{type}”?",
+      "explanation": "You'll still see these notifications on the site. Your other emails don't change.",
+      "confirm": "Unsubscribe",
+      "done": "Done: you won't get emails for “{type}” anymore.",
+      "invalid": "This unsubscribe link isn't valid. You can choose your emails in the notification settings.",
+      "manage": "Manage all my notifications"
+    },
     "push": {
       "title": "On this device",
       "on": "Notifications show up on this device, even when the site is closed.",
@@ -245,7 +272,9 @@
     "adminEmployees": "Employees",
     "adminBugReports": "Bug reports",
     "adminBugReport": "Bug report",
-    "notifications": "Notifications"
+    "notifications": "Notifications",
+    "notificationSettings": "Notification settings",
+    "unsubscribe": "Unsubscribe"
   },
   "errors": {
     "notFoundTitle": "Page not found",
@@ -302,7 +331,8 @@
       "too-many-bug-reports": "You've sent a lot of reports today (max {max}). Please try again tomorrow.",
       "bug-report-not-found": "This report could not be found.",
       "notification-not-found": "This notification could not be found.",
-      "unsupported-push-service": "This browser uses a notification service the site doesn't support."
+      "unsupported-push-service": "This browser uses a notification service the site doesn't support.",
+      "invalid-unsubscribe-link": "This unsubscribe link isn't valid."
     }
   },
   "services": {

@@ -5,7 +5,6 @@ import { useRouter } from 'vue-router'
 import { api, type Schemas } from '@/api/http'
 import { problemMessage } from '@/api/problem'
 import PageSection from '@/components/layout/PageSection.vue'
-import PushDeviceCard from '@/components/notifications/PushDeviceCard.vue'
 import BaseAlert from '@/components/ui/BaseAlert.vue'
 import BaseButton from '@/components/ui/BaseButton.vue'
 import RequestState from '@/components/ui/RequestState.vue'
@@ -92,12 +91,15 @@ async function markAllRead() {
     <div class="flex flex-col gap-8">
       <div class="flex flex-wrap items-end justify-between gap-4">
         <h1 class="display-caps text-3xl">{{ t('pages.notifications') }}</h1>
-        <BaseButton v-if="hasUnread" variant="outline" size="sm" :loading="markingAll" @click="markAllRead">
-          {{ t('notifications.markAllRead') }}
-        </BaseButton>
+        <div class="flex flex-wrap gap-3">
+          <BaseButton v-if="hasUnread" variant="outline" size="sm" :loading="markingAll" @click="markAllRead">
+            {{ t('notifications.markAllRead') }}
+          </BaseButton>
+          <BaseButton variant="ghost" size="sm" :to="{ name: 'notification-settings' }">
+            {{ t('notifications.settingsLink') }}
+          </BaseButton>
+        </div>
       </div>
-
-      <PushDeviceCard />
 
       <BaseAlert v-if="actionError" tone="danger">{{ actionError }}</BaseAlert>
 

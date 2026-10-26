@@ -5,6 +5,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
+import org.springframework.data.jdbc.repository.query.Modifying;
 import org.springframework.data.jdbc.repository.query.Query;
 import org.springframework.data.repository.Repository;
 
@@ -27,5 +28,9 @@ public interface NotificationDeliveryRepository extends Repository<NotificationD
     Optional<NotificationDelivery> lockNextDue(Instant now);
 
     List<NotificationDelivery> findByNotificationId(UUID notificationId);
+
+    @Modifying
+    @Query("DELETE FROM notification_delivery WHERE created_at < :before AND status <> 'PENDING'")
+    int deleteFinishedBefore(Instant before);
 
 }

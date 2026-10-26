@@ -56,6 +56,8 @@ salon:
   notifications:
     site-url: http://localhost:5173
     from-address: no-reply@localhost
+    # development only, like the VAPID pair below; production has its own (NIO_UNSUBSCRIBE_SECRET)
+    unsubscribe-secret: dev-unsubscribe-secret-not-for-production
     # a key pair for development only, committed like the dev S3 credentials; production has its own
     # (docs/operations.md, "Notifications")
     push:

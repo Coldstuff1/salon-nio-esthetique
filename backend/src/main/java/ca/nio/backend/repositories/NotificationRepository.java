@@ -40,4 +40,11 @@ public interface NotificationRepository extends Repository<Notification, UUID> {
     @Query("UPDATE notification SET read_at = :readAt WHERE recipient_id = :recipientId AND read_at IS NULL")
     int markAllRead(UUID recipientId, Instant readAt);
 
+    /** Deletes notifications read before {@code readBefore}, and any created before {@code createdBefore}. */
+    @Modifying
+    @Query("""
+            DELETE FROM notification
+            WHERE read_at < :readBefore OR created_at < :createdBefore""")
+    int deleteOld(Instant readBefore, Instant createdBefore);
+
 }

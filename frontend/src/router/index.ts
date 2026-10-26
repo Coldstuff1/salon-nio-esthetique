@@ -214,6 +214,19 @@ export const router = createRouter({
       component: () => import('@/views/NotificationsView.vue'),
       meta: { title: 'pages.notifications', signedIn: true },
     },
+    {
+      path: '/notifications/settings',
+      name: 'notification-settings',
+      component: () => import('@/views/NotificationSettingsView.vue'),
+      meta: { title: 'pages.notificationSettings', signedIn: true },
+    },
+    // from the link in notification emails; works signed out
+    {
+      path: '/unsubscribe',
+      name: 'unsubscribe',
+      component: () => import('@/views/UnsubscribeView.vue'),
+      meta: { title: 'pages.unsubscribe' },
+    },
 
     {
       path: '/forbidden',

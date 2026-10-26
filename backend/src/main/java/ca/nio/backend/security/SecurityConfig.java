@@ -25,7 +25,8 @@ public class SecurityConfig {
                         .requestMatchers("/api/admin/**").hasRole("ADMIN")
                         .requestMatchers("/api/staff/**").hasRole("EMPLOYEE")
                         .requestMatchers("/api/media/**", "/api/bug-reports/**", "/api/me/notifications/**",
-                                "/api/me/push-subscriptions/**").hasAnyRole("CLIENT", "EMPLOYEE", "ADMIN")
+                                "/api/me/push-subscriptions/**",
+                                "/api/me/notification-settings/**").hasAnyRole("CLIENT", "EMPLOYEE", "ADMIN")
                         .requestMatchers("/api/me/profile/**", "/api/bookings/mine").hasRole("CLIENT")
                         .requestMatchers(HttpMethod.POST, "/api/bookings").hasRole("CLIENT")
                         .requestMatchers("/api/bookings/*/complete", "/api/bookings/*/no-show").hasRole("EMPLOYEE")

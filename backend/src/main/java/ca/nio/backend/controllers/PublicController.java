@@ -23,6 +23,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import ca.nio.backend.model.Employee;
 import ca.nio.backend.model.LocalizedText;
+import ca.nio.backend.model.NotificationType;
 import ca.nio.backend.model.Product;
 import ca.nio.backend.model.ProductOffering;
 import ca.nio.backend.model.ServiceOffering;
@@ -33,6 +34,7 @@ import ca.nio.backend.repositories.ServiceTypeRepository;
 import ca.nio.backend.services.BookingService;
 import ca.nio.backend.services.ErrorCode;
 import ca.nio.backend.services.MediaService;
+import ca.nio.backend.services.NotificationSettingsService;
 import ca.nio.backend.services.NotFoundException;
 import ca.nio.backend.services.ProductSelection;
 import ca.nio.backend.services.Quote;
@@ -57,6 +59,7 @@ public class PublicController {
     private final BookingService bookingService;
     private final MediaService mediaService;
     private final WebPushClient webPush;
+    private final NotificationSettingsService notificationSettings;
 
     @GetMapping("/service-types")
     public List<ServiceType> serviceTypes() {
@@ -148,6 +151,15 @@ public class PublicController {
         return new PushKey(webPush.publicKey());
     }
 
+    /**
+     * Stops the emails an unsubscribe link is about, without signing in: the site's unsubscribe page calls it,
+     * and so do mail apps' own unsubscribe buttons (RFC 8058 one-click, the {@code List-Unsubscribe} header).
+     */
+    @PostMapping("/unsubscribe")
+    public Unsubscribed unsubscribe(@RequestParam @Size(max = 200) String token) {
+        return new Unsubscribed(notificationSettings.unsubscribe(token));
+    }
+
     private EmployeeSummary summary(Employee employee) {
         return EmployeeSummary.of(employee, mediaService.url(employee.getPhotoId()));
     }
@@ -158,6 +170,10 @@ public class PublicController {
 
     public record QuoteRequest(@NotNull UUID employeeId, @NotEmpty @Size(max = 10) List<UUID> serviceIds,
                                @Size(max = 10) @Nullable List<@Valid ProductSelection> products) {
+    }
+
+    /** @param type the notifications no longer emailed */
+    public record Unsubscribed(NotificationType type) {
     }
 
     /** @param publicKey base64url, as {@code PushManager.subscribe()} takes it for {@code applicationServerKey} */

@@ -36,11 +36,13 @@ public class NotificationService {
 
     private final NotificationRepository notifications;
     private final NotificationDeliveryRepository deliveries;
+    private final NotificationSettingsService settings;
     private final JsonMapper json;
 
     /**
      * Notifies one person, unless a notification with the same dedupe key exists already (an event delivered
-     * twice, a job that runs again). Besides the in-app list, it's queued for the type's channels, which the
+     * twice, a job that runs again). Besides the in-app list, it's queued for the channels the person gets this type
+     * over (its defaults, or their own choice), which the
      * {@link DeliveryDispatcher} sends shortly after.
      *
      * @param dedupeKey names the occurrence, e.g. {@code STAFF_BOOKING_CREATED:<bookingId>:<recipientId>}
@@ -53,7 +55,7 @@ public class NotificationService {
                 Instant.now()) == 0) {
             return;
         }
-        for (NotificationChannel channel : type.defaultChannels()) {
+        for (NotificationChannel channel : settings.channels(recipientId, type)) {
             deliveries.save(new NotificationDelivery(id, channel));
         }
     }

@@ -39,6 +39,7 @@ salon:
   notifications:
     site-url: ${NIO_SITE_URL}
     from-address: ${NIO_SMTP_FROM}
+    unsubscribe-secret: ${NIO_UNSUBSCRIBE_SECRET}
     push:
       public-key: ${NIO_VAPID_PUBLIC_KEY}
       private-key: ${NIO_VAPID_PRIVATE_KEY}

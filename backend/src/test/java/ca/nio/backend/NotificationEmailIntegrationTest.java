@@ -103,10 +103,20 @@ class NotificationEmailIntegrationTest {
         assertThat(JsonPath.<String>read(email, "$.Text"))
                 .contains("Bonjour Marie Tremblay,")
                 .contains("Votre rendez-vous avec Julie Roy le lundi " + monday.getDayOfMonth())
-                .contains("http://localhost:5173/account/bookings/" + bookingId);
+                .contains("http://localhost:5173/account/bookings/" + bookingId)
+                .contains("Ne plus recevoir ces courriels")
+                .contains("http://localhost:5173/unsubscribe?token=" + customerId + ".BOOKING_CONFIRMED.")
+                .contains("Gérer mes notifications")
+                .contains("http://localhost:5173/notifications/settings");
         assertThat(JsonPath.<String>read(email, "$.HTML"))
                 .contains("href=\"http://localhost:5173/account/bookings/" + bookingId + "\"")
                 .contains("Voir mon rendez-vous");
+        // mail apps' own unsubscribe button posts straight to the API
+        String headers = mailpitApi("/api/v1/message/" + JsonPath.read(email, "$.ID") + "/headers");
+        assertThat(JsonPath.<String>read(headers, "$['List-Unsubscribe'][0]"))
+                .startsWith("<http://localhost:5173/api/public/unsubscribe?token=" + customerId + ".BOOKING_CONFIRMED.");
+        assertThat(JsonPath.<String>read(headers, "$['List-Unsubscribe-Post'][0]"))
+                .isEqualTo("List-Unsubscribe=One-Click");
         assertThat(deliveryStatuses(customerId)).containsExactly("SENT");
         // the employee's notification has no email by default
         await().until(() -> !jdbc.sql("SELECT id FROM notification WHERE recipient_id = ?").param(employeeId)

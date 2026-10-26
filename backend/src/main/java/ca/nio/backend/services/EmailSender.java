@@ -36,6 +36,7 @@ public class EmailSender implements ChannelSender {
     private final NotificationRecipientRepository recipients;
     private final CustomerRepository customers;
     private final NotificationProperties properties;
+    private final NotificationSettingsService settings;
 
     private record Contact(@Nullable String email, String name, Locale locale) {
     }
@@ -54,15 +55,24 @@ public class EmailSender implements ChannelSender {
         NotificationMessages.Text text = messages.text(notification, contact.locale());
         String greeting = messages.message("email.greeting", contact.locale(), contact.name());
         String footer = messages.message("email.footer", contact.locale());
-        String url = notification.getLink() == null ? null
-                : UriComponentsBuilder.fromUri(properties.siteUrl()).path(notification.getLink()).build().toUriString();
+        String url = notification.getLink() == null ? null : siteUrl(notification.getLink());
+        String token = settings.unsubscribeToken(notification.getRecipientId(), notification.getType());
+        String unsubscribeUrl = UriComponentsBuilder.fromUri(properties.siteUrl()).path("/unsubscribe")
+                .queryParam("token", token).build().toUriString();
+        String settingsUrl = siteUrl("/notifications/settings");
+        String unsubscribe = messages.message("email.unsubscribe", contact.locale());
+        String manage = messages.message("email.settings", contact.locale());
 
         Context context = new Context(contact.locale(), Map.of(
                 "lang", contact.locale().getLanguage(),
                 "greeting", greeting,
                 "title", text.title(),
                 "body", text.body(),
-                "footer", footer));
+                "footer", footer,
+                "unsubscribe", unsubscribe,
+                "unsubscribeUrl", unsubscribeUrl,
+                "settings", manage,
+                "settingsUrl", settingsUrl));
         if (url != null) {
             context.setVariable("url", url);
             context.setVariable("action", text.action());
@@ -70,7 +80,9 @@ public class EmailSender implements ChannelSender {
         String html = templates.process("email/notification", context);
         String plain = greeting + "\n\n" + text.body() + "\n\n"
                 + (url == null ? "" : text.action() + "\n" + url + "\n\n")
-                + "-- \n" + footer + "\n";
+                + "-- \n" + footer + "\n"
+                + unsubscribe + "\n" + unsubscribeUrl + "\n"
+                + manage + "\n" + settingsUrl + "\n";
 
         MimeMessage message = mail.createMimeMessage();
         try {
@@ -81,10 +93,18 @@ public class EmailSender implements ChannelSender {
             helper.setText(plain, html);
             // tells mail servers and vacation responders not to answer it
             message.setHeader("Auto-Submitted", "auto-generated");
+            // mail apps show their own unsubscribe button, which posts here without opening anything (RFC 8058)
+            message.setHeader("List-Unsubscribe", "<" + UriComponentsBuilder.fromUri(properties.siteUrl())
+                    .path("/api/public/unsubscribe").queryParam("token", token).build().toUriString() + ">");
+            message.setHeader("List-Unsubscribe-Post", "List-Unsubscribe=One-Click");
         } catch (MessagingException | UnsupportedEncodingException e) {
             throw new MailPreparationException(e);
         }
         mail.send(message);
+    }
+
+    private String siteUrl(String path) {
+        return UriComponentsBuilder.fromUri(properties.siteUrl()).path(path).build().toUriString();
     }
 
     /** From the person's last visit; clients who never loaded the site since have their profile's email. */

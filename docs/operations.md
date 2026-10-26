@@ -213,9 +213,17 @@ image has the Keycloak URL baked in, so change them there if the domains change.
 ## Notifications
 
 Everyone has the bell (in-app list). Some types are also emailed (through the SMTP provider) or pushed to the
-browsers where the person turned push on (*Notifications* page → *On this device*). Each email or push is a row
-in `notification_delivery`: `SENT`, `SKIPPED` (no address, no browser) or `FAILED` after the last retry, with
-`last_error`.
+browsers where the person turned push on. Each type has default channels (`NotificationType`); people change
+them on *Notifications → Settings* (`/notifications/settings`), and only their changes are stored
+(`notification_preference`). Each email or push is a row in `notification_delivery`: `SENT`, `SKIPPED` (no
+address, no browser) or `FAILED` after the last retry, with `last_error`.
+
+Every email has an unsubscribe link to the site's `/unsubscribe` page and a `List-Unsubscribe` header, so mail
+apps show their own unsubscribe button (one click, RFC 8058); both stop that type of email only. The links are
+signed with `NIO_UNSUBSCRIBE_SECRET` (generate it like the other secrets) and never expire.
+
+Nightly at 3:30 salon time, `NotificationPurge` deletes notifications 90 days after they were read (365 days if
+never read) and email/push records after 30 days (`salon.notifications.retention`).
 
 Some notifications come from the clock (`ReminderJobs`, every 5 minutes): clients get a reminder 24 hours before
 an appointment (not when they booked less than 24 hours ahead), employees with appointments get their day's
@@ -238,7 +246,7 @@ rm vapid.pem
 
 The backend refuses to start if the two don't match. `NIO_VAPID_SUBJECT` is a `mailto:` address push services
 can write to about the site's traffic. On iPhone and iPad, push works only once the site is added to the Home
-Screen (iOS 16.4 and later); the *Notifications* page explains this to visitors.
+Screen (iOS 16.4 and later); the notification settings page explains this to visitors.
 
 ## Rotating secrets
 
@@ -256,6 +264,8 @@ Screen (iOS 16.4 and later); the *Notifications* page explains this to visitors.
 - **S3 keys**: create the new key, update `.env.prod`, `up -d backend`, then delete the old key.
 - **VAPID keys**: only if the private key leaked. Browsers subscribed with the old public key get nothing more;
   each one is subscribed again with the new key the next time its person opens the site.
+- **Unsubscribe secret**: only if it leaked; every unsubscribe link already sent stops working (people can still
+  use the settings page).
 - **Keycloak signing keys**: *Realm settings → Keys → Providers*: add a new `rsa-generated` provider with a higher
   priority, wait a day (sessions roll over), then remove the old one.
 
@@ -304,4 +314,8 @@ skin conditions). Not legal advice: confirm against the guidance of the Commissi
       ```sql
       UPDATE customer SET display_name = 'Deleted client', email = NULL, phone = NULL WHERE id = '<user id>';
       UPDATE booking SET notes = NULL WHERE customer_id = '<user id>';
+      DELETE FROM notification WHERE recipient_id = '<user id>';
+      DELETE FROM notification_preference WHERE recipient_id = '<user id>';
+      DELETE FROM push_subscription WHERE recipient_id = '<user id>';
+      DELETE FROM notification_recipient WHERE id = '<user id>';
       ```

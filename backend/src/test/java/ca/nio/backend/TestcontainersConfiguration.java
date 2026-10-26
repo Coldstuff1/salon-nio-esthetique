@@ -52,6 +52,7 @@ class TestcontainersConfiguration {
             registry.add("salon.notifications.push.allowed-hosts", () -> "localhost");
             // ReminderJobsIntegrationTest runs them by hand, at times of its choosing
             registry.add("salon.notifications.jobs.cron", () -> "-");
+            registry.add("salon.notifications.retention.cron", () -> "-");
         };
     }
 

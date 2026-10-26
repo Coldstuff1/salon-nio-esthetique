@@ -89,6 +89,8 @@ services:
       NIO_VAPID_PUBLIC_KEY: ${NIO_VAPID_PUBLIC_KEY:?}
       NIO_VAPID_PRIVATE_KEY: ${NIO_VAPID_PRIVATE_KEY:?}
       NIO_VAPID_SUBJECT: ${NIO_VAPID_SUBJECT:?}
+      # signs the unsubscribe links in notification emails
+      NIO_UNSUBSCRIBE_SECRET: ${NIO_UNSUBSCRIBE_SECRET:?}
     # the JVM sizes its heap from this limit (75 %), not from the server's RAM; the limits fit a 4 GB server
     mem_limit: 768m
     read_only: true

@@ -54,6 +54,33 @@
     "unread": "non lue",
     "markAllRead": "Tout marquer comme lu",
     "empty": "Rien pour le moment. Les nouvelles de vos rendez-vous apparaîtront ici.",
+    "settingsLink": "Réglages",
+    "settings": {
+      "intro": "Tout apparaît dans vos notifications sur le site. Choisissez ce qui vous est aussi envoyé par courriel ou sur vos appareils.",
+      "email": "Courriel",
+      "push": "Appareils",
+      "pushHint": "Les notifications sur les appareils ne s'affichent que là où vous les avez activées, ci-dessus.",
+      "types": {
+        "BOOKING_CONFIRMED": "Confirmation de rendez-vous",
+        "BOOKING_CANCELLED": "Rendez-vous annulé par le salon",
+        "BOOKING_REMINDER": "Rappel la veille d'un rendez-vous",
+        "STAFF_BOOKING_CREATED": "Nouveau rendez-vous avec moi",
+        "STAFF_BOOKING_CANCELLED": "Rendez-vous annulé avec moi",
+        "STAFF_DAILY_AGENDA": "Mes rendez-vous du jour, à 7 h",
+        "STAFF_BOOKING_OPEN": "Rendez-vous encore ouvert après la fin",
+        "LATE_CANCELLATION": "Annulation de dernière minute",
+        "BUG_REPORT_SUBMITTED": "Nouveau signalement",
+        "BUG_REPORT_CLOSED": "Suivi de mes signalements"
+      }
+    },
+    "unsubscribe": {
+      "question": "Ne plus recevoir de courriels pour « {type} » ?",
+      "explanation": "Vous verrez toujours ces notifications sur le site. Vos autres courriels ne changent pas.",
+      "confirm": "Me désabonner",
+      "done": "C'est fait : vous ne recevrez plus de courriels pour « {type} ».",
+      "invalid": "Ce lien de désabonnement n'est pas valide. Vous pouvez choisir vos courriels dans les réglages des notifications.",
+      "manage": "Gérer toutes mes notifications"
+    },
     "push": {
       "title": "Sur cet appareil",
       "on": "Les notifications s'affichent sur cet appareil, même quand le site est fermé.",
@@ -245,7 +272,9 @@
     "adminEmployees": "Employés",
     "adminBugReports": "Signalements",
     "adminBugReport": "Signalement",
-    "notifications": "Notifications"
+    "notifications": "Notifications",
+    "notificationSettings": "Réglages des notifications",
+    "unsubscribe": "Désabonnement"
   },
   "errors": {
     "notFoundTitle": "Page introuvable",
@@ -302,7 +331,8 @@
       "too-many-bug-reports": "Vous avez envoyé beaucoup de signalements aujourd'hui (max. {max}). Réessayez demain.",
       "bug-report-not-found": "Ce signalement est introuvable.",
       "notification-not-found": "Cette notification est introuvable.",
-      "unsupported-push-service": "Ce navigateur utilise un service de notifications que le site ne prend pas en charge."
+      "unsupported-push-service": "Ce navigateur utilise un service de notifications que le site ne prend pas en charge.",
+      "invalid-unsubscribe-link": "Ce lien de désabonnement n'est pas valide."
     }
   },
   "services": {

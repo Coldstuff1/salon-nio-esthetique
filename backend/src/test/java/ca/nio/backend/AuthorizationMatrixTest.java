@@ -68,6 +68,7 @@ class AuthorizationMatrixTest {
                 new Endpoint(HttpMethod.GET, "/api/public/employees/" + ID + "/slots", EVERYONE),
                 new Endpoint(HttpMethod.POST, "/api/public/quote", EVERYONE),
                 new Endpoint(HttpMethod.GET, "/api/public/push-key", EVERYONE),
+                new Endpoint(HttpMethod.POST, "/api/public/unsubscribe?token=x", EVERYONE),
 
                 new Endpoint(HttpMethod.GET, "/api/me", SIGNED_IN),
                 new Endpoint(HttpMethod.GET, "/api/me/profile", CLIENT),
@@ -78,6 +79,8 @@ class AuthorizationMatrixTest {
                 new Endpoint(HttpMethod.POST, "/api/me/notifications/read-all", SIGNED_IN),
                 new Endpoint(HttpMethod.PUT, "/api/me/push-subscriptions", SIGNED_IN),
                 new Endpoint(HttpMethod.DELETE, "/api/me/push-subscriptions", SIGNED_IN),
+                new Endpoint(HttpMethod.GET, "/api/me/notification-settings", SIGNED_IN),
+                new Endpoint(HttpMethod.PUT, "/api/me/notification-settings", SIGNED_IN),
 
                 new Endpoint(HttpMethod.POST, "/api/bookings", CLIENT),
                 new Endpoint(HttpMethod.GET, "/api/bookings/mine", CLIENT),

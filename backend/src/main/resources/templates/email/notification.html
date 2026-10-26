@@ -34,7 +34,12 @@
           </td>
         </tr>
         <tr>
-          <td style="padding:20px 0 0;font-size:12px;line-height:1.5;color:#6b645f;" th:text="${footer}">Footer</td>
+          <td style="padding:20px 0 0;font-size:12px;line-height:1.5;color:#6b645f;">
+            <span th:text="${footer}">Footer</span><br>
+            <a th:href="${unsubscribeUrl}" th:text="${unsubscribe}" style="color:#6b645f;">Unsubscribe</a>
+            &middot;
+            <a th:href="${settingsUrl}" th:text="${settings}" style="color:#6b645f;">Settings</a>
+          </td>
         </tr>
       </table>
     </td>
