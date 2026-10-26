@@ -58,6 +58,7 @@ public enum ErrorCode {
     TIME_OFF_NOT_FOUND,
     MEDIA_NOT_FOUND,
     BUG_REPORT_NOT_FOUND,
+    NOTIFICATION_NOT_FOUND,
 
     // concurrency and storage
     DATA_CONFLICT,

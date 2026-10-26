@@ -6,6 +6,10 @@ spring:
       jdbc:
         schema-initialization:
           enabled: true
+      # listeners (e.g. notifications) that didn't finish before a crash or shutdown run again on startup
+      republish-outstanding-events-on-restart: true
+      # finished publications are deleted instead of piling up in event_publication
+      completion-mode: delete
   docker:
     compose:
       lifecycle-management: start-only

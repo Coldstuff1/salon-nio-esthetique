@@ -19,6 +19,7 @@ import org.springframework.web.bind.annotation.RestController;
 import ca.nio.backend.model.BugReport;
 import ca.nio.backend.model.BugReportStatus;
 import ca.nio.backend.repositories.BugReportRepository;
+import ca.nio.backend.services.BugReportService;
 import ca.nio.backend.services.ErrorCode;
 import ca.nio.backend.services.MediaService;
 import ca.nio.backend.services.NotFoundException;
@@ -38,6 +39,7 @@ public class AdminBugReportController {
 
     private final BugReportRepository reports;
     private final MediaService mediaService;
+    private final BugReportService bugReportService;
 
     /** Every report in every status, newest first; there are few enough to filter in the browser. */
     @GetMapping
@@ -56,10 +58,8 @@ public class AdminBugReportController {
     /** Sets the status and the internal note; a blank note clears it. */
     @PutMapping("/{id}")
     public AdminBugReportDetail triage(@PathVariable UUID id, @Valid @RequestBody BugReportTriageRequest request) {
-        BugReport report = find(id);
         String note = request.adminNote() == null || request.adminNote().isBlank() ? null : request.adminNote().strip();
-        report.triage(request.status(), note);
-        return detail(reports.save(report));
+        return detail(bugReportService.triage(id, request.status(), note));
     }
 
     private BugReport find(UUID id) {

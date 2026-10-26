@@ -7,6 +7,7 @@ import BrandLogo from '@/components/brand/BrandLogo.vue'
 import BaseButton from '@/components/ui/BaseButton.vue'
 import { useNavLinks } from '@/router/nav'
 import LocaleSwitch from './LocaleSwitch.vue'
+import NotificationBell from './NotificationBell.vue'
 import ReportBugDialog from './ReportBugDialog.vue'
 import ThemeToggle from './ThemeToggle.vue'
 
@@ -40,6 +41,7 @@ function openReport() {
       </nav>
 
       <div class="flex items-center gap-1 sm:gap-3">
+        <NotificationBell v-if="authenticated" />
         <LocaleSwitch />
         <ThemeToggle />
         <!-- the drawer has these on phones -->

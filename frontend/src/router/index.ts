@@ -11,6 +11,8 @@ declare module 'vue-router' {
     title?: string
     /** realm role needed to open the page; children inherit it */
     role?: Role
+    /** the page is for any signed-in visitor, whatever their role */
+    signedIn?: boolean
     /** route name of the `AreaLayout` tab to highlight, for pages under a tab (e.g. one booking) */
     tab?: string
   }
@@ -207,6 +209,13 @@ export const router = createRouter({
     },
 
     {
+      path: '/notifications',
+      name: 'notifications',
+      component: () => import('@/views/NotificationsView.vue'),
+      meta: { title: 'pages.notifications', signedIn: true },
+    },
+
+    {
       path: '/forbidden',
       name: 'forbidden',
       component: () => import('@/views/ForbiddenView.vue'),
@@ -238,8 +247,8 @@ export const router = createRouter({
 })
 
 router.beforeEach((to) => {
-  const role = to.meta.role
-  if (!role) return true
+  const { role, signedIn } = to.meta
+  if (!role && !signedIn) return true
 
   const { authenticated, hasRole, login } = useAuth()
   if (!authenticated.value) {
@@ -247,7 +256,7 @@ router.beforeEach((to) => {
     void login(to.fullPath)
     return false
   }
-  if (!hasRole(role)) {
+  if (role && !hasRole(role)) {
     return { name: 'forbidden', query: { page: to.fullPath }, replace: true }
   }
   return true

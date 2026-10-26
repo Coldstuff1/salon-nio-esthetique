@@ -48,6 +48,46 @@
     "login": "Connexion",
     "logout": "Déconnexion"
   },
+  "notifications": {
+    "bell": "Notifications",
+    "bellUnread": "Notifications ({n} non lues)",
+    "unread": "non lue",
+    "markAllRead": "Tout marquer comme lu",
+    "empty": "Rien pour le moment. Les nouvelles de vos rendez-vous apparaîtront ici.",
+    "types": {
+      "BOOKING_CONFIRMED": {
+        "title": "Rendez-vous confirmé",
+        "body": "Avec {employeeName}, le {date} à {time}."
+      },
+      "BOOKING_CANCELLED": {
+        "title": "Rendez-vous annulé",
+        "body": "Le salon a annulé votre rendez-vous avec {employeeName} du {date} à {time}."
+      },
+      "STAFF_BOOKING_CREATED": {
+        "title": "Nouveau rendez-vous",
+        "body": "{customerName}, le {date} à {time}."
+      },
+      "STAFF_BOOKING_CANCELLED": {
+        "title": "Rendez-vous annulé",
+        "body": "Le rendez-vous de {customerName} du {date} à {time} a été annulé."
+      },
+      "LATE_CANCELLATION": {
+        "title": "Annulation de dernière minute",
+        "body": "{customerName} a annulé son rendez-vous avec {employeeName} du {date} à {time}."
+      },
+      "BUG_REPORT_SUBMITTED": {
+        "title": "Nouveau signalement",
+        "body": "{reporterName} : « {title} »"
+      },
+      "BUG_REPORT_CLOSED": {
+        "title": "Votre signalement",
+        "body": {
+          "RESOLVED": "« {title} » a été corrigé. Merci !",
+          "DISMISSED": "« {title} » a été examiné et fermé."
+        }
+      }
+    }
+  },
   "theme": {
     "label": "Thème",
     "light": "Clair",
@@ -182,7 +222,8 @@
     "adminProducts": "Produits",
     "adminEmployees": "Employés",
     "adminBugReports": "Signalements",
-    "adminBugReport": "Signalement"
+    "adminBugReport": "Signalement",
+    "notifications": "Notifications"
   },
   "errors": {
     "notFoundTitle": "Page introuvable",
@@ -237,7 +278,8 @@
       "email-not-verified": "Confirmez d'abord votre courriel à l'aide du lien que nous vous avons envoyé.",
       "employee-inactive": "Votre compte employé a été désactivé. Communiquez avec l'administration du salon.",
       "too-many-bug-reports": "Vous avez envoyé beaucoup de signalements aujourd'hui (max. {max}). Réessayez demain.",
-      "bug-report-not-found": "Ce signalement est introuvable."
+      "bug-report-not-found": "Ce signalement est introuvable.",
+      "notification-not-found": "Cette notification est introuvable."
     }
   },
   "services": {

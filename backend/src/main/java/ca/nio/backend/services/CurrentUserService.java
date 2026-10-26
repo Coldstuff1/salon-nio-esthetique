@@ -8,11 +8,13 @@ import java.util.UUID;
 
 import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import ca.nio.backend.model.Customer;
 import ca.nio.backend.model.Employee;
 import ca.nio.backend.repositories.CustomerRepository;
 import ca.nio.backend.repositories.EmployeeRepository;
+import ca.nio.backend.repositories.NotificationRecipientRepository;
 
 import lombok.RequiredArgsConstructor;
 
@@ -28,6 +30,7 @@ public class CurrentUserService {
 
     private final CustomerRepository customers;
     private final EmployeeRepository employees;
+    private final NotificationRecipientRepository recipients;
 
     public static UUID userId(Jwt jwt) {
         return UUID.fromString(jwt.getSubject());
@@ -58,6 +61,14 @@ public class CurrentUserService {
         return customers.findById(userId(jwt))
                 .orElseGet(() -> customers.save(new Customer(userId(jwt), displayName(jwt),
                         jwt.getClaimAsString("email"))));
+    }
+
+    /** Copies how to reach this person (email, name, roles, language) for notifications. */
+    @Transactional
+    public void syncRecipient(Jwt jwt) {
+        String locale = jwt.getClaimAsString("locale");
+        recipients.upsert(userId(jwt), jwt.getClaimAsString("email"), displayName(jwt), String.join(",", appRoles(jwt)),
+                locale == null ? null : locale.startsWith("en") ? "en" : locale.startsWith("fr") ? "fr" : null);
     }
 
     /**

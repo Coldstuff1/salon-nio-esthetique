@@ -22,6 +22,7 @@ public class MeController {
     @GetMapping
     public Me me(@AuthenticationPrincipal Jwt jwt) {
         List<String> roles = CurrentUserService.realmRoles(jwt);
+        currentUser.syncRecipient(jwt);
         if (roles.contains("client")) {
             currentUser.customer(jwt);
         }

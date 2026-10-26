@@ -124,7 +124,8 @@ public class BookingService {
             employees.touch(booking.getEmployeeId());
         }
         Booking saved = bookings.save(booking);
-        events.publishEvent(new BookingCancelled(saved.getId(), saved.getCustomerId(), saved.getEmployeeId()));
+        events.publishEvent(new BookingCancelled(saved.getId(), saved.getCustomerId(), saved.getEmployeeId(),
+                saved.getStartsAt(), actorId));
         return saved;
     }
 

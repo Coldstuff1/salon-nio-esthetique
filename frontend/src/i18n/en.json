@@ -48,6 +48,46 @@
     "login": "Log in",
     "logout": "Log out"
   },
+  "notifications": {
+    "bell": "Notifications",
+    "bellUnread": "Notifications ({n} unread)",
+    "unread": "unread",
+    "markAllRead": "Mark all as read",
+    "empty": "Nothing yet. You'll find news about your appointments here.",
+    "types": {
+      "BOOKING_CONFIRMED": {
+        "title": "Appointment confirmed",
+        "body": "With {employeeName} on {date} at {time}."
+      },
+      "BOOKING_CANCELLED": {
+        "title": "Appointment cancelled",
+        "body": "The salon cancelled your appointment with {employeeName} on {date} at {time}."
+      },
+      "STAFF_BOOKING_CREATED": {
+        "title": "New appointment",
+        "body": "{customerName} on {date} at {time}."
+      },
+      "STAFF_BOOKING_CANCELLED": {
+        "title": "Appointment cancelled",
+        "body": "{customerName}'s appointment on {date} at {time} was cancelled."
+      },
+      "LATE_CANCELLATION": {
+        "title": "Last-minute cancellation",
+        "body": "{customerName} cancelled their appointment with {employeeName} on {date} at {time}."
+      },
+      "BUG_REPORT_SUBMITTED": {
+        "title": "New bug report",
+        "body": "{reporterName}: “{title}”"
+      },
+      "BUG_REPORT_CLOSED": {
+        "title": "Your report",
+        "body": {
+          "RESOLVED": "“{title}” has been fixed. Thank you!",
+          "DISMISSED": "“{title}” was reviewed and closed."
+        }
+      }
+    }
+  },
   "theme": {
     "label": "Theme",
     "light": "Light",
@@ -182,7 +222,8 @@
     "adminProducts": "Products",
     "adminEmployees": "Employees",
     "adminBugReports": "Bug reports",
-    "adminBugReport": "Bug report"
+    "adminBugReport": "Bug report",
+    "notifications": "Notifications"
   },
   "errors": {
     "notFoundTitle": "Page not found",
@@ -237,7 +278,8 @@
       "email-not-verified": "Please confirm your email first, using the link we sent you.",
       "employee-inactive": "Your staff account has been deactivated. Please contact the salon's administration.",
       "too-many-bug-reports": "You've sent a lot of reports today (max {max}). Please try again tomorrow.",
-      "bug-report-not-found": "This report could not be found."
+      "bug-report-not-found": "This report could not be found.",
+      "notification-not-found": "This notification could not be found."
     }
   },
   "services": {

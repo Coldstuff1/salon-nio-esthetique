@@ -12,11 +12,13 @@ import org.springframework.boot.context.properties.bind.DefaultValue;
  * @param maxUpcomingBookings reservations a client can hold at once, so one account can't fill the calendar
  * @param bookingHorizon      how far ahead clients can book
  * @param maxBugReportsPerDay reports one person can send in 24 hours, so one account can't flood the admins
+ * @param lateCancellationNotice a client cancelling closer than this to the start time is reported to the admins
  */
 @ConfigurationProperties("salon")
 public record SalonProperties(@DefaultValue("America/Toronto") ZoneId zone,
                               @DefaultValue("15") int slotStepMinutes,
                               @DefaultValue("3") int maxUpcomingBookings,
                               @DefaultValue("90d") Duration bookingHorizon,
-                              @DefaultValue("10") int maxBugReportsPerDay) {
+                              @DefaultValue("10") int maxBugReportsPerDay,
+                              @DefaultValue("24h") Duration lateCancellationNotice) {
 }

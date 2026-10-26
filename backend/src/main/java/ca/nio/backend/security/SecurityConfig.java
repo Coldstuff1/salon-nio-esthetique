@@ -24,7 +24,7 @@ public class SecurityConfig {
                         // the controllers check roles too; these keep a forgotten annotation from opening an area
                         .requestMatchers("/api/admin/**").hasRole("ADMIN")
                         .requestMatchers("/api/staff/**").hasRole("EMPLOYEE")
-                        .requestMatchers("/api/media/**", "/api/bug-reports/**").hasAnyRole("CLIENT", "EMPLOYEE", "ADMIN")
+                        .requestMatchers("/api/media/**", "/api/bug-reports/**", "/api/me/notifications/**").hasAnyRole("CLIENT", "EMPLOYEE", "ADMIN")
                         .requestMatchers("/api/me/profile/**", "/api/bookings/mine").hasRole("CLIENT")
                         .requestMatchers(HttpMethod.POST, "/api/bookings").hasRole("CLIENT")
                         .requestMatchers("/api/bookings/*/complete", "/api/bookings/*/no-show").hasRole("EMPLOYEE")

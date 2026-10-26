@@ -71,6 +71,10 @@ class AuthorizationMatrixTest {
                 new Endpoint(HttpMethod.GET, "/api/me", SIGNED_IN),
                 new Endpoint(HttpMethod.GET, "/api/me/profile", CLIENT),
                 new Endpoint(HttpMethod.PUT, "/api/me/profile", CLIENT),
+                new Endpoint(HttpMethod.GET, "/api/me/notifications", SIGNED_IN),
+                new Endpoint(HttpMethod.GET, "/api/me/notifications/unread-count", SIGNED_IN),
+                new Endpoint(HttpMethod.POST, "/api/me/notifications/" + ID + "/read", SIGNED_IN),
+                new Endpoint(HttpMethod.POST, "/api/me/notifications/read-all", SIGNED_IN),
 
                 new Endpoint(HttpMethod.POST, "/api/bookings", CLIENT),
                 new Endpoint(HttpMethod.GET, "/api/bookings/mine", CLIENT),
