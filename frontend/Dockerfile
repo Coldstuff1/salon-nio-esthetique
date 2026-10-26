@@ -17,6 +17,10 @@ RUN npm run build
 
 # runs as an unprivileged user and listens on 8080
 FROM nginxinc/nginx-unprivileged:1.31.7-alpine
+# the base image is only rebuilt for nginx releases; take Alpine's security fixes from in between
+USER root
+RUN apk upgrade --no-cache
+USER 101
 COPY nginx/ /etc/nginx/templates/
 COPY --from=build /app/dist /usr/share/nginx/html
 # where the CSP lets the page reach; override for production
