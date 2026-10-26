@@ -54,6 +54,16 @@
     "unread": "unread",
     "markAllRead": "Mark all as read",
     "empty": "Nothing yet. You'll find news about your appointments here.",
+    "push": {
+      "title": "On this device",
+      "on": "Notifications show up on this device, even when the site is closed.",
+      "off": "Get a notification on this device as soon as there's news, even when the site is closed.",
+      "enable": "Turn on",
+      "disable": "Turn off",
+      "blocked": "Notifications are blocked for this site. Allow them in your browser's settings, then come back here.",
+      "installFirst": "On iPhone and iPad, first add the site to your Home Screen: tap Share, then “Add to Home Screen”. Then open it from its icon to turn on notifications.",
+      "unsupported": "This browser can't show notifications."
+    },
     "types": {
       "BOOKING_CONFIRMED": {
         "title": "Appointment confirmed",
@@ -279,7 +289,8 @@
       "employee-inactive": "Your staff account has been deactivated. Please contact the salon's administration.",
       "too-many-bug-reports": "You've sent a lot of reports today (max {max}). Please try again tomorrow.",
       "bug-report-not-found": "This report could not be found.",
-      "notification-not-found": "This notification could not be found."
+      "notification-not-found": "This notification could not be found.",
+      "unsupported-push-service": "This browser uses a notification service the site doesn't support."
     }
   },
   "services": {

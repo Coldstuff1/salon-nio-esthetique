@@ -170,10 +170,11 @@ class NotificationEmailIntegrationTest {
         return response.body();
     }
 
+    /** Of the person's email deliveries; push has its own test. */
     private List<String> deliveryStatuses(UUID recipientId) {
         return jdbc.sql("""
                         SELECT d.status FROM notification_delivery d JOIN notification n ON n.id = d.notification_id
-                        WHERE n.recipient_id = ?""")
+                        WHERE n.recipient_id = ? AND d.channel = 'EMAIL'""")
                 .param(recipientId)
                 .query(String.class).list();
     }

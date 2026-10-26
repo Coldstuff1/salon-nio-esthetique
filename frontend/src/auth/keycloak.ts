@@ -25,6 +25,13 @@ keycloak.onTokenExpired = () => {
   keycloak.updateToken(30).catch(() => keycloak.clearToken())
 }
 
+const beforeLogoutHooks: (() => Promise<void>)[] = []
+
+/** Runs `hook` when the person signs out, while their token still works; its failure doesn't stop the sign-out. */
+export function beforeLogout(hook: () => Promise<void>) {
+  beforeLogoutHooks.push(hook)
+}
+
 export async function initAuth() {
   try {
     await keycloak.init({
@@ -61,6 +68,9 @@ export function useAuth() {
         locale: document.documentElement.lang,
         redirectUri: path ? new URL(path, location.origin).href : undefined,
       }),
-    logout: () => keycloak.logout({ redirectUri: location.origin }),
+    logout: async () => {
+      await Promise.all(beforeLogoutHooks.map((hook) => hook().catch(() => {})))
+      await keycloak.logout({ redirectUri: location.origin })
+    },
   }
 }

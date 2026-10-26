@@ -56,6 +56,11 @@ salon:
   notifications:
     site-url: http://localhost:5173
     from-address: no-reply@localhost
+    # a key pair for development only, committed like the dev S3 credentials; production has its own
+    # (docs/operations.md, "Notifications")
+    push:
+      public-key: BLRMwTrjTibku8zYH1brqvSmrx4pQ_1k5zL7GCAD7cPuAL_A-757m242MYvnu-eIzBPlBXW5f73ubOYhUM1FY-4
+      private-key: xckGOvQAv_t7eiZXitzGhJOZ0t80YFmHsVKdvzc2s6I
   slot-step-minutes: 15
   media:
     endpoint: http://localhost:8333

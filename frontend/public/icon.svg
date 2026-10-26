@@ -1,0 +1,15 @@
+<!-- Source of the installed app's icons (npm run gen:icons): the logo's arch and brushstroke, without its
+     lettering, in the light theme's colors. -->
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200">
+  <rect width="200" height="200" fill="#fbf4f0" />
+  <g transform="translate(40 14) scale(0.6)">
+    <path d="M14 292 V100 A86 86 0 0 1 186 100 V292 Z" fill="#f5ebe6" />
+    <path d="M22 284 V100 A78 78 0 0 1 178 100 V284 Z" fill="none" stroke="#2b2d27" stroke-width="3" />
+    <path
+      d="M88 92 C112 112, 92 150, 112 176 C126 196, 104 222, 120 248 C104 228, 88 200, 98 172 C84 146, 104 118, 88 92 Z"
+      fill="#e9b8c0"
+      opacity="0.85"
+    />
+    <path d="M96 104 C116 130, 98 160, 118 196" fill="none" stroke="#8a3557" stroke-width="6" stroke-linecap="round" opacity="0.6" />
+  </g>
+</svg>

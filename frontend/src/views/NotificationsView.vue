@@ -5,6 +5,7 @@ import { useRouter } from 'vue-router'
 import { api, type Schemas } from '@/api/http'
 import { problemMessage } from '@/api/problem'
 import PageSection from '@/components/layout/PageSection.vue'
+import PushDeviceCard from '@/components/notifications/PushDeviceCard.vue'
 import BaseAlert from '@/components/ui/BaseAlert.vue'
 import BaseButton from '@/components/ui/BaseButton.vue'
 import RequestState from '@/components/ui/RequestState.vue'
@@ -95,6 +96,8 @@ async function markAllRead() {
           {{ t('notifications.markAllRead') }}
         </BaseButton>
       </div>
+
+      <PushDeviceCard />
 
       <BaseAlert v-if="actionError" tone="danger">{{ actionError }}</BaseAlert>
 

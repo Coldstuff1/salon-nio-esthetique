@@ -487,6 +487,134 @@
         }
       }
     },
+    "/api/me/push-subscriptions" : {
+      "put" : {
+        "tags" : [ "push-subscription-controller" ],
+        "operationId" : "subscribe",
+        "parameters" : [ {
+          "name" : "User-Agent",
+          "in" : "header",
+          "required" : false,
+          "schema" : {
+            "type" : "string"
+          }
+        } ],
+        "requestBody" : {
+          "content" : {
+            "application/json" : {
+              "schema" : {
+                "$ref" : "#/components/schemas/PushSubscriptionRequest"
+              }
+            }
+          },
+          "required" : true
+        },
+        "responses" : {
+          "204" : {
+            "description" : "No Content"
+          },
+          "400" : {
+            "description" : "Bad Request",
+            "content" : {
+              "application/problem+json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ProblemDetail"
+                }
+              }
+            }
+          },
+          "403" : {
+            "description" : "Forbidden",
+            "content" : {
+              "application/problem+json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ProblemDetail"
+                }
+              }
+            }
+          },
+          "404" : {
+            "description" : "Not Found",
+            "content" : {
+              "application/problem+json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ProblemDetail"
+                }
+              }
+            }
+          },
+          "409" : {
+            "description" : "Conflict",
+            "content" : {
+              "application/problem+json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ProblemDetail"
+                }
+              }
+            }
+          }
+        }
+      },
+      "delete" : {
+        "tags" : [ "push-subscription-controller" ],
+        "operationId" : "unsubscribe",
+        "parameters" : [ {
+          "name" : "endpoint",
+          "in" : "query",
+          "required" : true,
+          "schema" : {
+            "type" : "string",
+            "maxLength" : 1024,
+            "minLength" : 0
+          }
+        } ],
+        "responses" : {
+          "204" : {
+            "description" : "No Content"
+          },
+          "400" : {
+            "description" : "Bad Request",
+            "content" : {
+              "application/problem+json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ProblemDetail"
+                }
+              }
+            }
+          },
+          "403" : {
+            "description" : "Forbidden",
+            "content" : {
+              "application/problem+json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ProblemDetail"
+                }
+              }
+            }
+          },
+          "404" : {
+            "description" : "Not Found",
+            "content" : {
+              "application/problem+json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ProblemDetail"
+                }
+              }
+            }
+          },
+          "409" : {
+            "description" : "Conflict",
+            "content" : {
+              "application/problem+json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ProblemDetail"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/me/profile" : {
       "get" : {
         "tags" : [ "customer-profile-controller" ],
@@ -2391,6 +2519,64 @@
         }
       }
     },
+    "/api/public/push-key" : {
+      "get" : {
+        "tags" : [ "public-controller" ],
+        "operationId" : "pushKey",
+        "responses" : {
+          "200" : {
+            "description" : "OK",
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/PushKey"
+                }
+              }
+            }
+          },
+          "400" : {
+            "description" : "Bad Request",
+            "content" : {
+              "application/problem+json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ProblemDetail"
+                }
+              }
+            }
+          },
+          "403" : {
+            "description" : "Forbidden",
+            "content" : {
+              "application/problem+json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ProblemDetail"
+                }
+              }
+            }
+          },
+          "404" : {
+            "description" : "Not Found",
+            "content" : {
+              "application/problem+json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ProblemDetail"
+                }
+              }
+            }
+          },
+          "409" : {
+            "description" : "Conflict",
+            "content" : {
+              "application/problem+json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ProblemDetail"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/public/products" : {
       "get" : {
         "tags" : [ "public-controller" ],
@@ -3375,6 +3561,36 @@
         },
         "required" : [ "dayOfWeek", "endTime", "startTime" ]
       },
+      "Keys" : {
+        "type" : "object",
+        "properties" : {
+          "p256dh" : {
+            "type" : "string",
+            "maxLength" : 100,
+            "minLength" : 0
+          },
+          "auth" : {
+            "type" : "string",
+            "maxLength" : 50,
+            "minLength" : 0
+          }
+        },
+        "required" : [ "auth", "p256dh" ]
+      },
+      "PushSubscriptionRequest" : {
+        "type" : "object",
+        "properties" : {
+          "endpoint" : {
+            "type" : "string",
+            "maxLength" : 1024,
+            "minLength" : 0
+          },
+          "keys" : {
+            "$ref" : "#/components/schemas/Keys"
+          }
+        },
+        "required" : [ "endpoint", "keys" ]
+      },
       "CustomerProfileRequest" : {
         "type" : "object",
         "properties" : {
@@ -4097,6 +4313,15 @@
           }
         },
         "required" : [ "employeeIds", "name", "serviceTypeId" ]
+      },
+      "PushKey" : {
+        "type" : "object",
+        "properties" : {
+          "publicKey" : {
+            "type" : "string"
+          }
+        },
+        "required" : [ "publicKey" ]
       },
       "ProductSummary" : {
         "type" : "object",

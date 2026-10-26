@@ -39,6 +39,10 @@ salon:
   notifications:
     site-url: ${NIO_SITE_URL}
     from-address: ${NIO_SMTP_FROM}
+    push:
+      public-key: ${NIO_VAPID_PUBLIC_KEY}
+      private-key: ${NIO_VAPID_PRIVATE_KEY}
+      subject: ${NIO_VAPID_SUBJECT}
   media:
     endpoint: ${NIO_S3_ENDPOINT}
     public-endpoint: ${NIO_S3_PUBLIC_ENDPOINT}

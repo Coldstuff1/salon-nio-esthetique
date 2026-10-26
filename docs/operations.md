@@ -12,6 +12,7 @@ Internet ──443──▶ Caddy ──▶ frontend (nginx: SPA, /api proxy, CS
                                   │                                                    │
                                   └────────────▶ Postgres ◀────────────────────────────┘
 Browser ──presigned URLs──▶ managed S3 bucket (photos, videos) ◀── backend (head/delete)
+backend ──SMTP──▶ email provider          backend ──Web Push──▶ browsers' push services ──▶ service worker
 ```
 
 - `compose.prod.yaml` runs everything; only Caddy publishes ports (80, 443). Postgres sits on an internal
@@ -73,8 +74,8 @@ one-time code (TOTP) on every sign-in for employees and admins (the `otp-require
      { "Effect": "Allow", "Action": ["s3:GetObject", "s3:PutObject", "s3:DeleteObject"],
        "Resource": "arn:aws:s3:::<backup-bucket>/*" }] }
    ```
-7. **Configure**: clone the repository on the server into `/opt/nio`, `cp .env.prod.example .env.prod`, fill in every value,
-   `chmod 600 .env.prod`. Keep a copy of the whole file in a password manager: without `RESTIC_PASSWORD` the
+7. **Configure**: clone the repository on the server into `/opt/nio`, `cp .env.prod.example .env.prod`, fill in every value
+   (the `NIO_VAPID_*` keys as in *Notifications* below), `chmod 600 .env.prod`. Keep a copy of the whole file in a password manager: without `RESTIC_PASSWORD` the
    backups can't be read, and the dump restores the database roles with their passwords, so a rebuilt server
    needs the same values.
 8. **Start**: set up *Continuous deployment* (below), then approve the deploy of the latest `main` in GitHub
@@ -209,6 +210,31 @@ damaged data, restore the `pre-deploy` snapshot (*Backups and restore*), then de
 The public domains are set at the top of the workflow (`NIO_SITE_DOMAIN`, `NIO_AUTH_DOMAIN`); the frontend
 image has the Keycloak URL baked in, so change them there if the domains change.
 
+## Notifications
+
+Everyone has the bell (in-app list). Some types are also emailed (through the SMTP provider) or pushed to the
+browsers where the person turned push on (*Notifications* page → *On this device*). Each email or push is a row
+in `notification_delivery`: `SENT`, `SKIPPED` (no address, no browser) or `FAILED` after the last retry, with
+`last_error`.
+
+**Web Push** needs no account: the backend signs each message with the salon's VAPID key pair and posts it to
+the push service the browser chose (Google, Mozilla, Apple or Microsoft; others are refused, see
+`salon.notifications.push.allowed-hosts`). Generate the pair once, on any machine with OpenSSL, and put it in
+`.env.prod`:
+
+```sh
+openssl ecparam -name prime256v1 -genkey -noout -out vapid.pem
+# NIO_VAPID_PRIVATE_KEY
+openssl ec -in vapid.pem -outform DER | tail -c +8 | head -c 32 | base64 | tr '/+' '_-' | tr -d '=\n'; echo
+# NIO_VAPID_PUBLIC_KEY
+openssl ec -in vapid.pem -pubout -outform DER | tail -c 65 | base64 | tr '/+' '_-' | tr -d '=\n'; echo
+rm vapid.pem
+```
+
+The backend refuses to start if the two don't match. `NIO_VAPID_SUBJECT` is a `mailto:` address push services
+can write to about the site's traffic. On iPhone and iPad, push works only once the site is added to the Home
+Screen (iOS 16.4 and later); the *Notifications* page explains this to visitors.
+
 ## Rotating secrets
 
 - **Database passwords**: change them in Postgres first, then in `.env.prod`, then recreate the service
@@ -223,6 +249,8 @@ image has the Keycloak URL baked in, so change them there if the domains change.
   admin console (*Realm settings → Email*; *Authentication → registration-nio → reCAPTCHA*). The backend reads
   the SMTP values from `.env.prod` on every start, so update the file too and `up -d backend`.
 - **S3 keys**: create the new key, update `.env.prod`, `up -d backend`, then delete the old key.
+- **VAPID keys**: only if the private key leaked. Browsers subscribed with the old public key get nothing more;
+  each one is subscribed again with the new key the next time its person opens the site.
 - **Keycloak signing keys**: *Realm settings → Keys → Providers*: add a new `rsa-generated` provider with a higher
   priority, wait a day (sessions roll over), then remove the old one.
 

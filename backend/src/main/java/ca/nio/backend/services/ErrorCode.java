@@ -42,6 +42,9 @@ public enum ErrorCode {
     // bug reports
     TOO_MANY_BUG_REPORTS,
 
+    // notifications
+    UNSUPPORTED_PUSH_SERVICE,
+
     // accounts
     EMAIL_NOT_VERIFIED,
     EMPLOYEE_INACTIVE,

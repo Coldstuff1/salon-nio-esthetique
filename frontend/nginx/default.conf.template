@@ -54,6 +54,21 @@ server {
         add_header Cache-Control "no-cache" always;
     }
 
+    # the service worker and the install manifest keep fixed names: revalidate them like index.html, so a deploy
+    # reaches browsers at once (they also check the worker for updates themselves, at most a day apart)
+    location = /sw.js {
+        include /etc/nginx/conf.d/security-headers.inc;
+        add_header Cache-Control "no-cache" always;
+    }
+
+    location = /manifest.webmanifest {
+        include /etc/nginx/conf.d/security-headers.inc;
+        add_header Cache-Control "no-cache" always;
+        # nginx's mime.types has no entry for it
+        types { }
+        default_type application/manifest+json;
+    }
+
     location / {
         include /etc/nginx/conf.d/security-headers.inc;
         try_files $uri $uri/ /index.html;

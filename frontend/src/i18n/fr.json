@@ -54,6 +54,16 @@
     "unread": "non lue",
     "markAllRead": "Tout marquer comme lu",
     "empty": "Rien pour le moment. Les nouvelles de vos rendez-vous apparaîtront ici.",
+    "push": {
+      "title": "Sur cet appareil",
+      "on": "Les notifications s'affichent sur cet appareil, même quand le site est fermé.",
+      "off": "Recevez une notification sur cet appareil dès qu'il y a du nouveau, même quand le site est fermé.",
+      "enable": "Activer",
+      "disable": "Désactiver",
+      "blocked": "Les notifications sont bloquées pour ce site. Autorisez-les dans les réglages du navigateur, puis revenez ici.",
+      "installFirst": "Sur iPhone et iPad, ajoutez d'abord le site à l'écran d'accueil : touchez Partager, puis « Sur l'écran d'accueil ». Ouvrez-le ensuite depuis son icône pour activer les notifications.",
+      "unsupported": "Ce navigateur ne peut pas afficher de notifications."
+    },
     "types": {
       "BOOKING_CONFIRMED": {
         "title": "Rendez-vous confirmé",
@@ -279,7 +289,8 @@
       "employee-inactive": "Votre compte employé a été désactivé. Communiquez avec l'administration du salon.",
       "too-many-bug-reports": "Vous avez envoyé beaucoup de signalements aujourd'hui (max. {max}). Réessayez demain.",
       "bug-report-not-found": "Ce signalement est introuvable.",
-      "notification-not-found": "Cette notification est introuvable."
+      "notification-not-found": "Cette notification est introuvable.",
+      "unsupported-push-service": "Ce navigateur utilise un service de notifications que le site ne prend pas en charge."
     }
   },
   "services": {

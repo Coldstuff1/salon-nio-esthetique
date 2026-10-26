@@ -36,6 +36,7 @@ import ca.nio.backend.services.MediaService;
 import ca.nio.backend.services.NotFoundException;
 import ca.nio.backend.services.ProductSelection;
 import ca.nio.backend.services.Quote;
+import ca.nio.backend.services.WebPushClient;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.NotNull;
@@ -55,6 +56,7 @@ public class PublicController {
     private final ProductRepository products;
     private final BookingService bookingService;
     private final MediaService mediaService;
+    private final WebPushClient webPush;
 
     @GetMapping("/service-types")
     public List<ServiceType> serviceTypes() {
@@ -140,6 +142,12 @@ public class PublicController {
         return bookingService.quote(request.employeeId(), request.serviceIds(), request.products());
     }
 
+    /** The salon's VAPID public key, which browsers need to turn push notifications on. */
+    @GetMapping("/push-key")
+    public PushKey pushKey() {
+        return new PushKey(webPush.publicKey());
+    }
+
     private EmployeeSummary summary(Employee employee) {
         return EmployeeSummary.of(employee, mediaService.url(employee.getPhotoId()));
     }
@@ -150,6 +158,10 @@ public class PublicController {
 
     public record QuoteRequest(@NotNull UUID employeeId, @NotEmpty @Size(max = 10) List<UUID> serviceIds,
                                @Size(max = 10) @Nullable List<@Valid ProductSelection> products) {
+    }
+
+    /** @param publicKey base64url, as {@code PushManager.subscribe()} takes it for {@code applicationServerKey} */
+    public record PushKey(String publicKey) {
     }
 
     public record EmployeeSummary(UUID id, String displayName, @Nullable String bio, @Nullable URI photoUrl) {

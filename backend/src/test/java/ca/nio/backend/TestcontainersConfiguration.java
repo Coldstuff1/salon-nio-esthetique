@@ -48,6 +48,8 @@ class TestcontainersConfiguration {
             registry.add("spring.mail.host", mailpitContainer::getHost);
             registry.add("spring.mail.port", () -> mailpitContainer.getMappedPort(SMTP_PORT));
             registry.add("salon.notifications.dispatch-interval", () -> "500ms");
+            // PushNotificationIntegrationTest's stand-in push service
+            registry.add("salon.notifications.push.allowed-hosts", () -> "localhost");
         };
     }
 

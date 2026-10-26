@@ -85,12 +85,17 @@ services:
       NIO_SMTP_FROM: ${NIO_SMTP_FROM:?}
       NIO_SMTP_USER: ${NIO_SMTP_USER:?}
       NIO_SMTP_PASSWORD: ${NIO_SMTP_PASSWORD:?}
+      # Web Push: the salon's VAPID key pair, and who push services can contact about it
+      NIO_VAPID_PUBLIC_KEY: ${NIO_VAPID_PUBLIC_KEY:?}
+      NIO_VAPID_PRIVATE_KEY: ${NIO_VAPID_PRIVATE_KEY:?}
+      NIO_VAPID_SUBJECT: ${NIO_VAPID_SUBJECT:?}
     # the JVM sizes its heap from this limit (75 %), not from the server's RAM; the limits fit a 4 GB server
     mem_limit: 768m
     read_only: true
     tmpfs: ['/tmp']
     cap_drop: [ALL]
-    # edge for the frontend's /api proxy and outbound calls to the bucket; data for Postgres and Keycloak
+    # edge for the frontend's /api proxy and outbound calls (bucket, mail provider, push services); data for
+    # Postgres and Keycloak
     networks: [edge, data]
     healthcheck:
       # bash for /dev/tcp: the image has no curl or wget, and its /bin/sh is dash
