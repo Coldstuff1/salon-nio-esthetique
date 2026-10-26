@@ -13,9 +13,12 @@ services:
       SPRING_SECURITY_OAUTH2_RESOURCESERVER_JWT_JWK_SET_URI: http://keycloak:8080/realms/nio/protocol/openid-connect/certs
       SALON_MEDIA_ENDPOINT: http://s3:8333
       SALON_MEDIA_PUBLIC_ENDPOINT: http://localhost:8333
+      SPRING_MAIL_HOST: mailpit
     depends_on:
       postgres:
         condition: service_healthy
+      mailpit:
+        condition: service_started
       s3:
         condition: service_healthy
     ports:

@@ -78,6 +78,13 @@ services:
       NIO_S3_BUCKET: ${NIO_S3_BUCKET:?}
       NIO_S3_ACCESS_KEY: ${NIO_S3_ACCESS_KEY:?}
       NIO_S3_SECRET_KEY: ${NIO_S3_SECRET_KEY:?}
+      # notification emails, through the same provider as Keycloak's; links in them point at the site
+      NIO_SITE_URL: https://${NIO_SITE_DOMAIN:?}
+      NIO_SMTP_HOST: ${NIO_SMTP_HOST:?}
+      NIO_SMTP_PORT: ${NIO_SMTP_PORT:-587}
+      NIO_SMTP_FROM: ${NIO_SMTP_FROM:?}
+      NIO_SMTP_USER: ${NIO_SMTP_USER:?}
+      NIO_SMTP_PASSWORD: ${NIO_SMTP_PASSWORD:?}
     # the JVM sizes its heap from this limit (75 %), not from the server's RAM; the limits fit a 4 GB server
     mem_limit: 768m
     read_only: true

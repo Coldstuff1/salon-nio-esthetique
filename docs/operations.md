@@ -42,7 +42,8 @@ one-time code (TOTP) on every sign-in for employees and admins (the `otp-require
 3. **Email**: an account with a transactional email provider; add its SPF and DKIM records and a DMARC
    policy for the domain. With Amazon SES (region `ca-central-1`): verify the domain with Easy DKIM, set a
    custom MAIL FROM subdomain, create SMTP credentials in the SES console and request production access (it
-   can take a day). The SMTP host is `email-smtp.ca-central-1.amazonaws.com`, port 587.
+   can take a day). The SMTP host is `email-smtp.ca-central-1.amazonaws.com`, port 587. Keycloak (verification,
+   password reset) and the backend (notification emails, from `NIO_SMTP_FROM`) both send through it.
 4. **reCAPTCHA**: register the site (v2, "I'm not a robot" checkbox) for `auth.<domain>`.
 5. **Media bucket** (example for AWS S3, region `ca-central-1`):
    - create a bucket with *Block all public access* on and default encryption;
@@ -219,7 +220,8 @@ image has the Keycloak URL baked in, so change them there if the domains change.
   ```
   Same for `keycloak` (then recreate `keycloak`) and `postgres` itself.
 - **SMTP and reCAPTCHA**: the values in `.env.prod` were copied into the realm on first start; change them in the
-  admin console (*Realm settings → Email*; *Authentication → registration-nio → reCAPTCHA*).
+  admin console (*Realm settings → Email*; *Authentication → registration-nio → reCAPTCHA*). The backend reads
+  the SMTP values from `.env.prod` on every start, so update the file too and `up -d backend`.
 - **S3 keys**: create the new key, update `.env.prod`, `up -d backend`, then delete the old key.
 - **Keycloak signing keys**: *Realm settings → Keys → Providers*: add a new `rsa-generated` provider with a higher
   priority, wait a day (sessions roll over), then remove the old one.

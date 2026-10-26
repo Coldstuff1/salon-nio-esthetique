@@ -6,9 +6,13 @@ services:
       # SeaweedFS starts empty: let the backend create the bucket and its CORS rule
       SALON_MEDIA_CREATEBUCKET: 'true'
       SALON_MEDIA_ALLOWEDORIGINS: https://${NIO_SITE_DOMAIN}
+      # Mailpit speaks no STARTTLS
+      SPRING_MAIL_PROPERTIES_MAIL_SMTP_STARTTLS_REQUIRED: 'false'
     depends_on:
       s3:
         condition: service_healthy
+      mailpit:
+        condition: service_started
 
   keycloak:
     environment:

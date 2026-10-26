@@ -14,6 +14,19 @@ spring:
           issuer-uri: ${NIO_AUTH_URL}/realms/nio
           # ... and where the backend fetches signing keys (over the private network)
           jwk-set-uri: http://keycloak:8080/realms/nio/protocol/openid-connect/certs
+  # the transactional email provider Keycloak uses too; STARTTLS required, never plain text
+  mail:
+    host: ${NIO_SMTP_HOST}
+    port: ${NIO_SMTP_PORT}
+    username: ${NIO_SMTP_USER}
+    password: ${NIO_SMTP_PASSWORD}
+    properties:
+      mail.smtp.auth: true
+      mail.smtp.starttls.enable: true
+      mail.smtp.starttls.required: true
+      mail.smtp.connectiontimeout: 10000
+      mail.smtp.timeout: 10000
+      mail.smtp.writetimeout: 10000
 
 # the frontend builds from the committed frontend/openapi.json; nothing here needs the live spec
 springdoc:
@@ -23,6 +36,9 @@ springdoc:
     enabled: false
 
 salon:
+  notifications:
+    site-url: ${NIO_SITE_URL}
+    from-address: ${NIO_SMTP_FROM}
   media:
     endpoint: ${NIO_S3_ENDPOINT}
     public-endpoint: ${NIO_S3_PUBLIC_ENDPOINT}

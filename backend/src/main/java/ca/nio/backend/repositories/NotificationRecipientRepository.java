@@ -1,6 +1,7 @@
 package ca.nio.backend.repositories;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 
 import org.jspecify.annotations.Nullable;
@@ -24,6 +25,8 @@ public interface NotificationRecipientRepository extends Repository<Notification
                 locale = COALESCE(:locale, notification_recipient.locale),
                 updated_at = now()""")
     int upsert(UUID id, @Nullable String email, String displayName, String roles, @Nullable String locale);
+
+    Optional<NotificationRecipient> findById(UUID id);
 
     /** Everyone whose last token carried the role, e.g. {@code admin}. */
     @Query("SELECT * FROM notification_recipient WHERE ',' || roles || ',' LIKE '%,' || :role || ',%'")

@@ -10,7 +10,10 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import ca.nio.backend.model.Notification;
+import ca.nio.backend.model.NotificationChannel;
+import ca.nio.backend.model.NotificationDelivery;
 import ca.nio.backend.model.NotificationType;
+import ca.nio.backend.repositories.NotificationDeliveryRepository;
 import ca.nio.backend.repositories.NotificationRepository;
 
 import lombok.RequiredArgsConstructor;
@@ -32,19 +35,27 @@ public class NotificationService {
     };
 
     private final NotificationRepository notifications;
+    private final NotificationDeliveryRepository deliveries;
     private final JsonMapper json;
 
     /**
      * Notifies one person, unless a notification with the same dedupe key exists already (an event delivered
-     * twice, a job that runs again).
+     * twice, a job that runs again). Besides the in-app list, it's queued for the type's channels, which the
+     * {@link DeliveryDispatcher} sends shortly after.
      *
      * @param dedupeKey names the occurrence, e.g. {@code STAFF_BOOKING_CREATED:<bookingId>:<recipientId>}
      */
     @Transactional
     public void notify(UUID recipientId, NotificationType type, Map<String, String> params, @Nullable String link,
                        String dedupeKey) {
-        notifications.insertIfNew(UUID.randomUUID(), recipientId, type.name(), json.writeValueAsString(params), link,
-                dedupeKey, Instant.now());
+        UUID id = UUID.randomUUID();
+        if (notifications.insertIfNew(id, recipientId, type.name(), json.writeValueAsString(params), link, dedupeKey,
+                Instant.now()) == 0) {
+            return;
+        }
+        for (NotificationChannel channel : type.defaultChannels()) {
+            deliveries.save(new NotificationDelivery(id, channel));
+        }
     }
 
     @Transactional(readOnly = true)

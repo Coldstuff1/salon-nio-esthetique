@@ -2,6 +2,7 @@ package ca.nio.backend.repositories;
 
 import java.time.Instant;
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 
 import org.jspecify.annotations.Nullable;
@@ -21,6 +22,8 @@ public interface NotificationRepository extends Repository<Notification, UUID> {
             ON CONFLICT (dedupe_key) DO NOTHING""")
     int insertIfNew(UUID id, UUID recipientId, String type, String params, @Nullable String link, String dedupeKey,
                     Instant createdAt);
+
+    Optional<Notification> findById(UUID id);
 
     @Query("SELECT * FROM notification WHERE recipient_id = :recipientId ORDER BY created_at DESC LIMIT :limit")
     List<Notification> latest(UUID recipientId, int limit);

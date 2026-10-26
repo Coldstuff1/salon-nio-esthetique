@@ -13,6 +13,13 @@ spring:
   docker:
     compose:
       lifecycle-management: start-only
+  # notification emails land in Mailpit (http://localhost:8025)
+  mail:
+    host: localhost
+    port: 1025
+  messages:
+    # English (messages.properties) for 'en', not whatever language this machine runs in
+    fallback-to-system-locale: false
   security:
     oauth2:
       resourceserver:
@@ -41,6 +48,9 @@ springdoc:
 
 salon:
   zone: America/Montreal
+  notifications:
+    site-url: http://localhost:5173
+    from-address: no-reply@localhost
   slot-step-minutes: 15
   media:
     endpoint: http://localhost:8333

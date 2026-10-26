@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<!--/* Notification email (EmailSender). Tables and inline styles: many mail clients ignore anything else.
+       Colours are the site's light theme (frontend/src/assets/main.css). */-->
+<html xmlns:th="http://www.thymeleaf.org" th:lang="${lang}">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="color-scheme" content="light">
+  <title th:text="${title}">Title</title>
+</head>
+<body style="margin:0;padding:0;background:#fbf4f0;color:#2b2d27;font-family:'Helvetica Neue',Arial,sans-serif;">
+<table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="background:#fbf4f0;">
+  <tr>
+    <td align="center" style="padding:32px 16px;">
+      <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="max-width:560px;">
+        <tr>
+          <td style="padding:0 0 20px;font-family:Georgia,'Times New Roman',serif;font-size:14px;letter-spacing:3px;text-transform:uppercase;color:#8a3557;"
+              th:text="#{email.brand}">Salon Nio Esthétique</td>
+        </tr>
+        <tr>
+          <td style="background:#ffffff;border:1px solid #e6d8d2;padding:32px;">
+            <h1 style="margin:0 0 20px;font-family:Georgia,'Times New Roman',serif;font-size:24px;font-weight:normal;color:#2b2d27;"
+                th:text="${title}">Title</h1>
+            <p style="margin:0 0 12px;font-size:16px;line-height:1.5;" th:text="${greeting}">Hello,</p>
+            <p style="margin:0;font-size:16px;line-height:1.5;" th:text="${body}">Body</p>
+            <table th:if="${url}" role="presentation" cellpadding="0" cellspacing="0" style="margin-top:28px;">
+              <tr>
+                <td style="background:#8a3557;">
+                  <a th:href="${url}" th:text="${action}"
+                     style="display:inline-block;padding:12px 24px;font-size:13px;letter-spacing:2px;text-transform:uppercase;color:#ffffff;text-decoration:none;">Open</a>
+                </td>
+              </tr>
+            </table>
+          </td>
+        </tr>
+        <tr>
+          <td style="padding:20px 0 0;font-size:12px;line-height:1.5;color:#6b645f;" th:text="${footer}">Footer</td>
+        </tr>
+      </table>
+    </td>
+  </tr>
+</table>
+</body>
+</html>
