@@ -2,6 +2,7 @@ package ca.nio.backend.services;
 
 import java.net.URI;
 import java.time.Duration;
+import java.time.LocalTime;
 import java.util.List;
 
 import org.jspecify.annotations.Nullable;
@@ -14,13 +15,29 @@ import org.springframework.boot.context.properties.bind.DefaultValue;
  * @param fromName         name shown next to the sender address
  * @param dispatchInterval pause between two passes of the {@link DeliveryDispatcher}
  * @param push             Web Push settings
+ * @param jobs             the scheduled notifications ({@link ReminderJobs})
  */
 @ConfigurationProperties("salon.notifications")
 public record NotificationProperties(@DefaultValue("http://localhost:5173") URI siteUrl,
                                      @DefaultValue("no-reply@localhost") String fromAddress,
                                      @DefaultValue("Salon Nio Esthétique") String fromName,
                                      @DefaultValue("15s") Duration dispatchInterval,
-                                     @DefaultValue Push push) {
+                                     @DefaultValue Push push,
+                                     @DefaultValue Jobs jobs) {
+
+    /**
+     * @param cron        when {@link ReminderJobs} looks for something to send, in the salon's time zone; {@code -}
+     *                    turns them off (tests run them by hand)
+     * @param reminder    how long before an appointment the client is reminded of it; bookings made later than
+     *                    that get no reminder, their confirmation is recent enough
+     * @param agendaTime  when employees get their day's agenda, salon time
+     * @param openBooking how long after an appointment ends its employee is asked to close it, if they haven't
+     */
+    public record Jobs(@DefaultValue("0 */5 * * * *") String cron,
+                       @DefaultValue("24h") Duration reminder,
+                       @DefaultValue("07:00") LocalTime agendaTime,
+                       @DefaultValue("2h") Duration openBooking) {
+    }
 
     /**
      * @param publicKey    the VAPID public key (RFC 8292): an uncompressed P-256 point, base64url. Browsers

@@ -1039,7 +1039,7 @@ export interface components {
             /** Format: uuid */
             id: string;
             /** @enum {string} */
-            type: "BOOKING_CONFIRMED" | "BOOKING_CANCELLED" | "STAFF_BOOKING_CREATED" | "STAFF_BOOKING_CANCELLED" | "LATE_CANCELLATION" | "BUG_REPORT_SUBMITTED" | "BUG_REPORT_CLOSED";
+            type: "BOOKING_CONFIRMED" | "BOOKING_CANCELLED" | "BOOKING_REMINDER" | "STAFF_BOOKING_CREATED" | "STAFF_BOOKING_CANCELLED" | "STAFF_DAILY_AGENDA" | "STAFF_BOOKING_OPEN" | "LATE_CANCELLATION" | "BUG_REPORT_SUBMITTED" | "BUG_REPORT_CLOSED";
             params: {
                 [key: string]: string;
             };

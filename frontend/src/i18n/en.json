@@ -73,6 +73,10 @@
         "title": "Appointment cancelled",
         "body": "The salon cancelled your appointment with {employeeName} on {date} at {time}."
       },
+      "BOOKING_REMINDER": {
+        "title": "Appointment reminder",
+        "body": "With {employeeName} on {date} at {time}. Can't make it? You can cancel it."
+      },
       "STAFF_BOOKING_CREATED": {
         "title": "New appointment",
         "body": "{customerName} on {date} at {time}."
@@ -80,6 +84,14 @@
       "STAFF_BOOKING_CANCELLED": {
         "title": "Appointment cancelled",
         "body": "{customerName}'s appointment on {date} at {time} was cancelled."
+      },
+      "STAFF_BOOKING_OPEN": {
+        "title": "Appointment to close",
+        "body": "{customerName}'s appointment on {date} at {time} is still open."
+      },
+      "STAFF_DAILY_AGENDA": {
+        "title": "Your day",
+        "body": "Appointments today: {count}. The first one is at {time}."
       },
       "LATE_CANCELLATION": {
         "title": "Last-minute cancellation",

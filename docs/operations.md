@@ -217,6 +217,11 @@ browsers where the person turned push on (*Notifications* page → *On this devi
 in `notification_delivery`: `SENT`, `SKIPPED` (no address, no browser) or `FAILED` after the last retry, with
 `last_error`.
 
+Some notifications come from the clock (`ReminderJobs`, every 5 minutes): clients get a reminder 24 hours before
+an appointment (not when they booked less than 24 hours ahead), employees with appointments get their day's
+agenda at 7:00 salon time (or up to 2 hours later, if the backend was down at 7:00), and employees are asked to
+close an appointment still open 2 hours after it ended. The times are under `salon.notifications.jobs`.
+
 **Web Push** needs no account: the backend signs each message with the salon's VAPID key pair and posts it to
 the push service the browser chose (Google, Mozilla, Apple or Microsoft; others are refused, see
 `salon.notifications.push.allowed-hosts`). Generate the pair once, on any machine with OpenSSL, and put it in

@@ -50,6 +50,8 @@ class TestcontainersConfiguration {
             registry.add("salon.notifications.dispatch-interval", () -> "500ms");
             // PushNotificationIntegrationTest's stand-in push service
             registry.add("salon.notifications.push.allowed-hosts", () -> "localhost");
+            // ReminderJobsIntegrationTest runs them by hand, at times of its choosing
+            registry.add("salon.notifications.jobs.cron", () -> "-");
         };
     }
 

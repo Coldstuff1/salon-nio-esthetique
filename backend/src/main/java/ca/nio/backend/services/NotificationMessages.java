@@ -42,10 +42,11 @@ public class NotificationMessages {
         Map<String, String> params = notifications.params(notification);
         String prefix = "notification." + type + ".";
         String body = switch (type) {
-            case BOOKING_CONFIRMED, BOOKING_CANCELLED -> message(prefix + "body", locale,
+            case BOOKING_CONFIRMED, BOOKING_CANCELLED, BOOKING_REMINDER -> message(prefix + "body", locale,
                     params.get("employeeName"), date(params, locale), time(params, locale));
-            case STAFF_BOOKING_CREATED, STAFF_BOOKING_CANCELLED -> message(prefix + "body", locale,
+            case STAFF_BOOKING_CREATED, STAFF_BOOKING_CANCELLED, STAFF_BOOKING_OPEN -> message(prefix + "body", locale,
                     params.get("customerName"), date(params, locale), time(params, locale));
+            case STAFF_DAILY_AGENDA -> message(prefix + "body", locale, params.get("count"), time(params, locale));
             case LATE_CANCELLATION -> message(prefix + "body", locale, params.get("customerName"),
                     params.get("employeeName"), date(params, locale), time(params, locale));
             case BUG_REPORT_SUBMITTED -> message(prefix + "body", locale, params.get("reporterName"),

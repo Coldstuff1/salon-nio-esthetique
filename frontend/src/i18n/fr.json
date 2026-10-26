@@ -73,6 +73,10 @@
         "title": "Rendez-vous annulé",
         "body": "Le salon a annulé votre rendez-vous avec {employeeName} du {date} à {time}."
       },
+      "BOOKING_REMINDER": {
+        "title": "Rappel de rendez-vous",
+        "body": "Avec {employeeName} le {date} à {time}. Un empêchement ? Vous pouvez l'annuler."
+      },
       "STAFF_BOOKING_CREATED": {
         "title": "Nouveau rendez-vous",
         "body": "{customerName}, le {date} à {time}."
@@ -80,6 +84,14 @@
       "STAFF_BOOKING_CANCELLED": {
         "title": "Rendez-vous annulé",
         "body": "Le rendez-vous de {customerName} du {date} à {time} a été annulé."
+      },
+      "STAFF_BOOKING_OPEN": {
+        "title": "Rendez-vous à clore",
+        "body": "Le rendez-vous de {customerName} du {date} à {time} est encore ouvert."
+      },
+      "STAFF_DAILY_AGENDA": {
+        "title": "Votre journée",
+        "body": "Rendez-vous aujourd'hui : {count}. Le premier est à {time}."
       },
       "LATE_CANCELLATION": {
         "title": "Annulation de dernière minute",

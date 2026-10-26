@@ -22,6 +22,14 @@ public interface BookingRepository extends ListCrudRepository<Booking, UUID> {
     /** All employees' bookings overlapping {@code [from, to)}. */
     List<Booking> findByStartsAtBeforeAndEndsAtAfterOrderByStartsAt(Instant to, Instant from);
 
+    /** Bookings in a status starting in {@code [from, to)}. */
+    List<Booking> findByStatusAndStartsAtGreaterThanEqualAndStartsAtLessThan(BookingStatus status, Instant from,
+                                                                              Instant to);
+
+    /** Bookings in a status ending in {@code [from, to)}. */
+    List<Booking> findByStatusAndEndsAtGreaterThanEqualAndEndsAtLessThan(BookingStatus status, Instant from,
+                                                                          Instant to);
+
     List<Booking> findByEmployeeIdAndStatusAndStartsAtBeforeAndEndsAtAfter(UUID employeeId, BookingStatus status,
                                                                            Instant to, Instant from);
 

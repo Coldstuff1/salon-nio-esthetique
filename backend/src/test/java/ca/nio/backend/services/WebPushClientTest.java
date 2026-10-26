@@ -9,6 +9,7 @@ import java.nio.charset.StandardCharsets;
 import java.security.KeyPair;
 import java.time.Duration;
 import java.time.Instant;
+import java.time.LocalTime;
 import java.time.temporal.ChronoUnit;
 import java.util.List;
 import java.util.regex.Matcher;
@@ -109,7 +110,8 @@ class WebPushClientTest {
     private static NotificationProperties properties(String publicKey, String privateKey) {
         return new NotificationProperties(URI.create("http://localhost:5173"), "no-reply@localhost", "Salon",
                 Duration.ofSeconds(15), new NotificationProperties.Push(publicKey, privateKey,
-                "mailto:admin@example.com", Duration.ofHours(24), List.of()));
+                "mailto:admin@example.com", Duration.ofHours(24), List.of()),
+                new NotificationProperties.Jobs("-", Duration.ofHours(24), LocalTime.of(7, 0), Duration.ofHours(2)));
     }
 
 }
