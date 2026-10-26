@@ -37,6 +37,11 @@ management:
     web:
       exposure:
         include: health
+  health:
+    # Boot would log in to the SMTP server on every check: a slow or failing mail provider would mark the backend
+    # unhealthy and keep the site down. Failed emails are retried by the DeliveryDispatcher instead.
+    mail:
+      enabled: false
 
 springdoc:
   swagger-ui:
