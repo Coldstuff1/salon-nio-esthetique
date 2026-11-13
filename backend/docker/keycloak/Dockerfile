@@ -1,12 +1,12 @@
 # Production Keycloak: optimized build for Postgres with the nio theme and the production realm baked in.
 # Dev runs the stock image in start-dev mode instead (backend/compose.yaml).
-FROM quay.io/keycloak/keycloak:26.8.1 AS build
+FROM quay.io/keycloak/keycloak:26.8.2-2 AS build
 ENV KC_DB=postgres \
     KC_HEALTH_ENABLED=true
 COPY themes/nio /opt/keycloak/themes/nio
 RUN /opt/keycloak/bin/kc.sh build
 
-FROM quay.io/keycloak/keycloak:26.8.1
+FROM quay.io/keycloak/keycloak:26.8.2-2
 COPY --from=build /opt/keycloak/ /opt/keycloak/
 # imported on first start only; afterwards the realm lives in the database
 COPY realm-nio.json /opt/keycloak/data/import/realm-nio.json
