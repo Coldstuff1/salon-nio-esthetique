@@ -9,7 +9,8 @@ type StaffProfile = Schemas['StaffProfile']
 
 /**
  * An offering as the editor sees it: a price, one more whole number (duration or stock), for products what a unit
- * cost the employee, and for treatments where it sits in their list (null: alphabetically, after numbered ones).
+ * cost the employee, and for treatments where it sits in their list (null: alphabetically, after numbered ones)
+ * and how many can be booked per day (null: no limit).
  */
 export interface Offering {
   priceCents: number
@@ -17,10 +18,13 @@ export interface Offering {
   amount: number
   active: boolean
   displayOrder?: number | null
+  dailyLimit?: number | null
 }
 
 /** The highest list position a treatment can be given. */
 const MAX_ORDER = 999
+/** The highest daily limit a treatment can be given. */
+const MAX_LIMIT = 99
 
 interface Row {
   offered: boolean
@@ -29,6 +33,8 @@ interface Row {
   amount: string
   /** list position; blank for none (a number input's v-model may hand back a number) */
   order: string
+  /** bookings allowed per day; blank for no limit */
+  limit: string
   /** what was last saved, to know if the row changed */
   saved: string
   saving: boolean
@@ -53,6 +59,8 @@ export function useOfferingRows(options: {
   withCost?: boolean
   /** treatments also take an optional list position */
   withOrder?: boolean
+  /** treatments also take an optional daily limit */
+  withLimit?: boolean
   save: (
     id: string,
     offering: Offering,
@@ -61,8 +69,8 @@ export function useOfferingRows(options: {
   const { t } = useI18n()
   const { locale } = useLocale()
   const rows = reactive<Record<string, Row>>({})
-  const snapshot = (row: Pick<Row, 'offered' | 'price' | 'cost' | 'amount' | 'order'>) =>
-    `${row.offered}|${row.price}|${row.cost}|${row.amount}|${row.order}`
+  const snapshot = (row: Pick<Row, 'offered' | 'price' | 'cost' | 'amount' | 'order' | 'limit'>) =>
+    `${row.offered}|${row.price}|${row.cost}|${row.amount}|${row.order}|${row.limit}`
 
   /** Takes the server's values, leaving rows with unsaved changes alone unless `only` names one. */
   function reset(profile: StaffProfile, only?: string) {
@@ -75,6 +83,7 @@ export function useOfferingRows(options: {
         cost: offering.costCents === undefined ? '' : centsToInput(offering.costCents, locale.value),
         amount: String(offering.amount),
         order: offering.displayOrder == null ? '' : String(offering.displayOrder),
+        limit: offering.dailyLimit == null ? '' : String(offering.dailyLimit),
       }
       rows[id] = { ...values, saved: snapshot(values), saving: false }
     }
@@ -92,6 +101,7 @@ export function useOfferingRows(options: {
           cost: '',
           amount: String(options.defaultAmount),
           order: '',
+          limit: '',
         }
         rows[id] = { ...values, saved: snapshot(values), saving: false }
       }
@@ -115,22 +125,30 @@ export function useOfferingRows(options: {
       : undefined
   }
 
-  const orderError = (id: string) => {
-    const order = String(row(id).order).trim()
-    const value = Number(order)
-    return options.withOrder &&
-      dirty(id) &&
-      order !== '' &&
-      !(Number.isInteger(value) && value >= 1 && value <= MAX_ORDER)
+  /** Whether an optional whole-number field is blank or within 1 to `max`. */
+  const blankOrUpTo = (input: string, max: number) => {
+    const text = String(input).trim()
+    const value = Number(text)
+    return text === '' || (Number.isInteger(value) && value >= 1 && value <= max)
+  }
+  const orderError = (id: string) =>
+    options.withOrder && dirty(id) && !blankOrUpTo(row(id).order, MAX_ORDER)
       ? t('staff.offerings.orderInvalid')
       : undefined
-  }
+  const limitError = (id: string) =>
+    options.withLimit && dirty(id) && !blankOrUpTo(row(id).limit, MAX_LIMIT)
+      ? t('staff.offerings.limitInvalid')
+      : undefined
+  /** An optional whole-number field as sent: null when blank. */
+  const optionalNumber = (enabled: boolean | undefined, input: string) =>
+    enabled && String(input).trim() !== '' ? Number(input) : null
 
   async function save(id: string) {
     const current = row(id)
     const priceCents = parsePrice(current.price)
     const costCents = options.withCost ? parsePrice(current.cost) : undefined
-    if (priceCents === undefined || amountError(id) || costError(id) || orderError(id)) return
+    if (priceCents === undefined || amountError(id) || costError(id) || orderError(id) || limitError(id))
+      return
     current.saving = true
     current.error = undefined
     try {
@@ -139,7 +157,8 @@ export function useOfferingRows(options: {
         costCents,
         amount: Number(current.amount),
         active: current.offered,
-        displayOrder: options.withOrder && String(current.order).trim() !== '' ? Number(current.order) : null,
+        displayOrder: optionalNumber(options.withOrder, current.order),
+        dailyLimit: optionalNumber(options.withLimit, current.limit),
       })
       if (data) {
         reset(data, id)
@@ -154,5 +173,5 @@ export function useOfferingRows(options: {
     }
   }
 
-  return { row, dirty, priceError, costError, amountError, orderError, save }
+  return { row, dirty, priceError, costError, amountError, orderError, limitError, save }
 }

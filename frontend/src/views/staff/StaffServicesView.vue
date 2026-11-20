@@ -55,6 +55,7 @@ const offerings = useOfferingRows({
           amount: o.durationMinutes,
           active: o.active,
           displayOrder: o.displayOrder,
+          dailyLimit: o.dailyLimit,
         },
       ]),
     ),
@@ -62,6 +63,7 @@ const offerings = useOfferingRows({
   minAmount: 5,
   amountError: t('staff.offerings.durationInvalid'),
   withOrder: true,
+  withLimit: true,
   save: (id, o) =>
     api.PUT('/api/staff/me/service-offerings/{serviceTypeId}', {
       params: { path: { serviceTypeId: id } },
@@ -70,6 +72,7 @@ const offerings = useOfferingRows({
         durationMinutes: o.amount,
         active: o.active,
         displayOrder: o.displayOrder ?? null,
+        dailyLimit: o.dailyLimit ?? null,
       },
     }),
 })
@@ -96,6 +99,7 @@ const offerings = useOfferingRows({
               v-model:price="offerings.row(service.id).price"
               v-model:amount="offerings.row(service.id).amount"
               v-model:order="offerings.row(service.id).order"
+              v-model:limit="offerings.row(service.id).limit"
               :name="localize(service.name)!"
               :description="localize(service.description)"
               :note="addOnNote(service.parentIds)"
@@ -103,9 +107,11 @@ const offerings = useOfferingRows({
               :amount-min="5"
               :amount-step="5"
               :order-label="t('staff.offerings.order')"
+              :limit-label="t('staff.offerings.limit')"
               :price-error="offerings.priceError(service.id)"
               :amount-error="offerings.amountError(service.id)"
               :order-error="offerings.orderError(service.id)"
+              :limit-error="offerings.limitError(service.id)"
               :error="offerings.row(service.id).error"
               :dirty="offerings.dirty(service.id)"
               :saving="offerings.row(service.id).saving"

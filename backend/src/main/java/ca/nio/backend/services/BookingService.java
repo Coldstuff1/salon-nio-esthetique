@@ -47,6 +47,9 @@ public class BookingService {
     public List<Instant> freeSlots(UUID employeeId, LocalDate date, List<UUID> serviceIds) {
         Employee employee = activeEmployee(employeeId);
         Quote quote = priceCalculator.quote(employee, serviceIds, List.of());
+        if (availability.fullOn(employee, date, serviceIds).isPresent()) {
+            return List.of();
+        }
         Instant horizon = Instant.now().plus(salon.bookingHorizon());
         return availability.freeSlots(employee, date, quote.totalDurationMinutes()).stream()
                 .filter(slot -> !slot.isAfter(horizon))
@@ -55,8 +58,10 @@ public class BookingService {
 
     /**
      * Books the slot and holds product stock. The {@code booking_no_overlap} constraint is the final guard
-     * against two concurrent reservations of the same time. Clients can only hold a few upcoming bookings, within
-     * the booking horizon; two simultaneous requests can overshoot that cap by one, which is fine.
+     * against two concurrent reservations of the same time. For treatments with a daily limit, touching the
+     * employee locks their row until commit before that day's bookings are counted, so a concurrent reservation
+     * waits and then counts this one. Clients can only hold a few upcoming bookings, within the booking horizon;
+     * two simultaneous requests can overshoot that cap by one, which is fine.
      */
     @Transactional
     public Booking reserve(UUID customerId, ReserveCommand command) {
@@ -84,14 +89,26 @@ public class BookingService {
                 employee.getId(), BookingStatus.RESERVED, endsAt, startsAt).isEmpty()) {
             throw new ConflictException(ErrorCode.SLOT_TAKEN, "That time slot is already booked");
         }
+        boolean limited = quote.services().stream().anyMatch(line -> employee.serviceOffering(line.serviceTypeId())
+                .filter(o -> o.dailyLimit() != null).isPresent());
+        if (limited || !quote.products().isEmpty()) {
+            employees.touch(employee.getId());
+        }
+        if (limited) {
+            LocalDate day = startsAt.atZone(salon.zone()).toLocalDate();
+            availability.fullOn(employee, day, command.serviceIds()).ifPresent(full -> {
+                String name = quote.services().stream()
+                        .filter(line -> line.serviceTypeId().equals(full.serviceTypeId()))
+                        .findFirst().orElseThrow().nameSnapshot().en();
+                throw new ConflictException(ErrorCode.DAILY_LIMIT_REACHED, name + " is fully booked that day",
+                        Map.of("service", name));
+            });
+        }
         for (BookingProductLine line : quote.products()) {
             if (employees.reserveStock(employee.getId(), line.productId(), line.quantity()) == 0) {
                 throw new ConflictException(ErrorCode.OUT_OF_STOCK, "Not enough stock for " + line.nameSnapshot().en(),
                         Map.of("product", line.nameSnapshot().en()));
             }
-        }
-        if (!quote.products().isEmpty()) {
-            employees.touch(employee.getId());
         }
 
         Booking booking = bookings.save(new Booking(customerId, employee.getId(), startsAt, endsAt,

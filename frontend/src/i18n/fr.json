@@ -306,6 +306,7 @@
       "start-in-past": "Cette heure est passée. Choisissez-en une autre.",
       "outside-working-hours": "Cette heure n'est plus offerte. Choisissez-en une autre.",
       "slot-taken": "Cette heure vient d'être réservée. Choisissez-en une autre.",
+      "daily-limit-reached": "« {service} » est complet cette journée-là. Choisissez une autre journée.",
       "cancel-after-start": "Un rendez-vous ne peut plus être annulé une fois commencé.",
       "booking-closed": "Ce rendez-vous est déjà terminé ou annulé.",
       "invalid-outcome": "Ce statut n'est pas permis.",
@@ -454,7 +455,7 @@
       "clashes": "Aucun rendez-vous déjà pris pendant ce congé. | 1 rendez-vous déjà pris tombe pendant ce congé ; il n'est pas annulé automatiquement : | {n} rendez-vous déjà pris tombent pendant ce congé ; ils ne sont pas annulés automatiquement :"
     },
     "offerings": {
-      "servicesIntro": "Cochez les soins que vous offrez et fixez votre prix et la durée à réserver. Les changements s'appliquent aux nouvelles réservations seulement. Donnez un numéro à un soin pour l'afficher en premier (1 d'abord); les autres suivent en ordre alphabétique.",
+      "servicesIntro": "Cochez les soins que vous offrez et fixez votre prix et la durée à réserver. Les changements s'appliquent aux nouvelles réservations seulement. Donnez un numéro à un soin pour l'afficher en premier (1 d'abord); les autres suivent en ordre alphabétique. Fixez un maximum par jour pour ne plus accepter de réservations d'un soin une fois ce nombre atteint dans une journée; laissez vide pour aucune limite.",
       "productsIntro": "Cochez les produits que vous vendez, avec votre prix, ce qu'une unité vous a coûté et la quantité en main. Le coût n'est jamais montré aux clients. Le stock baisse quand un rendez-vous en réserve et remonte s'il est annulé.",
       "price": "Prix ($)",
       "duration": "Durée (min)",
@@ -463,6 +464,8 @@
       "durationInvalid": "Au moins 5 minutes.",
       "order": "Ordre",
       "orderInvalid": "Laissez vide, ou un nombre entier de 1 à 999.",
+      "limit": "Max / jour",
+      "limitInvalid": "Laissez vide, ou un nombre entier de 1 à 99.",
       "stockInvalid": "Un nombre entier, 0 ou plus.",
       "cost": "Coût ($)",
       "addOnHint": "Complément : les clientes ne le voient que si vous offrez aussi {treatments}."

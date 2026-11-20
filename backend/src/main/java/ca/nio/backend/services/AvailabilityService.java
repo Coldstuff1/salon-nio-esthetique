@@ -9,7 +9,9 @@ import java.time.ZonedDateTime;
 import java.util.Collection;
 import java.util.Comparator;
 import java.util.List;
+import java.util.Optional;
 import java.util.TreeSet;
+import java.util.UUID;
 
 import org.springframework.stereotype.Service;
 
@@ -17,13 +19,15 @@ import ca.nio.backend.model.Availability;
 import ca.nio.backend.model.Booking;
 import ca.nio.backend.model.BookingStatus;
 import ca.nio.backend.model.Employee;
+import ca.nio.backend.model.ServiceOffering;
 import ca.nio.backend.model.TimeOff;
 import ca.nio.backend.repositories.BookingRepository;
 
 import lombok.RequiredArgsConstructor;
 
 /**
- * Works out when an employee can be booked: weekly hours, minus time off, minus existing reservations.
+ * Works out when an employee can be booked: weekly hours, minus time off, minus existing reservations, and not
+ * on days a chosen treatment has already reached the employee's daily limit.
  */
 @Service
 @RequiredArgsConstructor
@@ -43,6 +47,22 @@ public class AvailabilityService {
                 .toList();
         return computeSlots(date, zone, employee.getAvailability(), employee.getTimeOff(), busy,
                 durationMinutes, salon.slotStepMinutes(), Instant.now());
+    }
+
+    /**
+     * The first of {@code serviceTypeIds} that the employee caps per day and that already has that many
+     * uncancelled bookings starting on {@code date}; empty if all of them can still be booked that day.
+     */
+    public Optional<ServiceOffering> fullOn(Employee employee, LocalDate date, Collection<UUID> serviceTypeIds) {
+        ZoneId zone = salon.zone();
+        Instant dayStart = date.atStartOfDay(zone).toInstant();
+        Instant dayEnd = date.plusDays(1).atStartOfDay(zone).toInstant();
+        return serviceTypeIds.stream()
+                .flatMap(id -> employee.serviceOffering(id).stream())
+                .filter(o -> o.dailyLimit() != null)
+                .filter(o -> bookings.countUncancelledWithServiceStartingBetween(employee.getId(),
+                        o.serviceTypeId(), dayStart, dayEnd) >= o.dailyLimit())
+                .findFirst();
     }
 
     /** Whether {@code [start, end)} lies inside one weekly window and doesn't touch any time off. */
