@@ -37,8 +37,8 @@ class PriceCalculatorTest {
         when(serviceTypes.findById(facial.getId())).thenReturn(Optional.of(facial));
         when(serviceTypes.findById(manicure.getId())).thenReturn(Optional.of(manicure));
         when(products.findById(cream.getId())).thenReturn(Optional.of(cream));
-        employee.putServiceOffering(new ServiceOffering(facial.getId(), 8000, 60, true));
-        employee.putServiceOffering(new ServiceOffering(manicure.getId(), 4500, 30, true));
+        employee.putServiceOffering(new ServiceOffering(facial.getId(), 8000, 60, true, null));
+        employee.putServiceOffering(new ServiceOffering(manicure.getId(), 4500, 30, true, null));
         employee.putProductOffering(new ProductOffering(cream.getId(), 2500, 1500, 3, true));
     }
 
@@ -58,7 +58,7 @@ class PriceCalculatorTest {
 
     @Test
     void rejectsInactiveOffering() {
-        employee.putServiceOffering(new ServiceOffering(manicure.getId(), 4500, 30, false));
+        employee.putServiceOffering(new ServiceOffering(manicure.getId(), 4500, 30, false, null));
 
         assertThatThrownBy(() -> calculator.quote(employee, List.of(manicure.getId()), List.of()))
                 .isInstanceOf(InvalidRequestException.class);

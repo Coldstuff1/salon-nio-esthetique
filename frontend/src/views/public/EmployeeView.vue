@@ -15,7 +15,7 @@ import { usePageTitle } from '@/composables/usePageTitle'
 import { useRequest } from '@/composables/useRequest'
 import { type LocalizedText, useLocale } from '@/i18n'
 import NotFoundView from '@/views/NotFoundView.vue'
-import { byName, groupByCategory } from '@/utils/catalog'
+import { byDisplayOrder, byName, groupByCategory } from '@/utils/catalog'
 import { formatDuration, formatPrice } from '@/utils/format'
 
 const { t } = useI18n()
@@ -36,7 +36,7 @@ const notFound = computed(() => status.value === 404 || status.value === 400)
 usePageTitle(() => (notFound.value ? t('errors.notFoundTitle') : data.value?.employee.displayName))
 
 const categories = computed(() =>
-  groupByCategory(byName(data.value?.services ?? [], localize), (s) => localize(s.category)),
+  groupByCategory(byDisplayOrder(data.value?.services ?? [], localize), (s) => localize(s.category)),
 )
 const products = computed(() => byName(data.value?.products ?? [], localize))
 

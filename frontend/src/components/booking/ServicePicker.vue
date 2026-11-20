@@ -4,7 +4,7 @@ import { useI18n } from 'vue-i18n'
 import type { Schemas } from '@/api/http'
 import BaseCheckbox from '@/components/ui/BaseCheckbox.vue'
 import { useLocale } from '@/i18n'
-import { byName, groupByCategory } from '@/utils/catalog'
+import { byDisplayOrder, byName, groupByCategory } from '@/utils/catalog'
 import { formatDuration, formatPrice } from '@/utils/format'
 
 /** Step 2: the employee's treatments (one or more, done back to back) and products to pick up on site. */
@@ -22,7 +22,7 @@ const { t } = useI18n()
 const { locale, localize } = useLocale()
 
 const categories = computed(() =>
-  groupByCategory(byName(props.offerings.services, localize), (s) => localize(s.category)),
+  groupByCategory(byDisplayOrder(props.offerings.services, localize), (s) => localize(s.category)),
 )
 const products = computed(() => byName(props.offerings.products, localize))
 

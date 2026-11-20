@@ -708,6 +708,8 @@ export interface components {
             /** Format: int32 */
             durationMinutes: number;
             active: boolean;
+            /** Format: int32 */
+            displayOrder?: number | null;
         };
         StaffProfile: {
             /** Format: uuid */
@@ -737,6 +739,8 @@ export interface components {
             /** Format: int32 */
             durationMinutes: number;
             active?: boolean | null;
+            /** Format: int32 */
+            displayOrder?: number | null;
         };
         ProductOfferingRequest: {
             /** Format: int32 */
@@ -1080,6 +1084,8 @@ export interface components {
             priceCents: number;
             /** Format: int32 */
             durationMinutes: number;
+            /** Format: int32 */
+            displayOrder?: number | null;
         };
         Me: {
             username: string;

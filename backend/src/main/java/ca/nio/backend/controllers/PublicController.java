@@ -123,7 +123,8 @@ public class PublicController {
                 .filter(ServiceOffering::active)
                 .filter(o -> typesById.containsKey(o.serviceTypeId()) && typesById.get(o.serviceTypeId()).isActive())
                 .map(o -> ServiceView.of(typesById.get(o.serviceTypeId()), o))
-                .sorted(Comparator.comparing((ServiceView view) -> view.name().en()))
+                .sorted(Comparator.comparing(ServiceView::displayOrder, Comparator.nullsLast(Comparator.naturalOrder()))
+                        .thenComparing(view -> view.name().en()))
                 .toList();
         List<ProductView> productViews = employee.getProductOfferings().stream()
                 .filter(ProductOffering::active)
@@ -190,11 +191,11 @@ public class PublicController {
 
     public record ServiceView(UUID serviceTypeId, LocalizedText name, @Nullable LocalizedText description,
                               @Nullable LocalizedText category,
-                              int priceCents, int durationMinutes) {
+                              int priceCents, int durationMinutes, @Nullable Integer displayOrder) {
 
         static ServiceView of(ServiceType type, ServiceOffering offering) {
             return new ServiceView(type.getId(), type.getName(), type.getDescription(), type.getCategory(),
-                    offering.priceCents(), offering.durationMinutes());
+                    offering.priceCents(), offering.durationMinutes(), offering.displayOrder());
         }
 
     }
