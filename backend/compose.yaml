@@ -52,7 +52,7 @@ services:
   # catches every email (Keycloak's verification and password reset, the backend's notifications); read them
   # at http://localhost:8025
   mailpit:
-    image: 'axllent/mailpit:v1.32.0'
+    image: 'axllent/mailpit:v1.33.0'
     ports:
       - '127.0.0.1:8025:8025'
       # SMTP, for the backend's notification emails when it runs outside Docker (./gradlew bootRun)
