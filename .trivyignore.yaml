@@ -1,8 +1,9 @@
 # Accepted image findings, each with a reason and an expiry so it gets looked at again.
 vulnerabilities:
-  - id: CVE-2026-114406
-    # ca-certificates in the upstream quay.io/keycloak/keycloak:26.8.1 image (UBI micro, no package manager to
-    # patch it). Only affects which CAs Keycloak trusts for its outgoing TLS (SMTP, reCAPTCHA). Goes away with
-    # the next Keycloak image; Dependabot proposes it.
+  - id: CVE-2026-102554
+    # Guava 33.6.0-jre bundled in the upstream quay.io/keycloak/keycloak:26.8.2 image (latest release; fixed in
+    # Guava 33.7.2). A denial of service when deserializing crafted Guava collections: Keycloak doesn't take Java
+    # serialized input from clients, and swapping a jar inside its Quarkus build is riskier than the finding.
+    # The backend doesn't depend on Guava. Goes away with the next Keycloak image; Dependabot proposes it.
     statement: Inherited from the Keycloak base image; fixed by the next upstream release
     expired_at: 2026-12-31

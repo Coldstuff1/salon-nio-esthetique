@@ -1,6 +1,6 @@
 <#import "footer.ftl" as loginFooter>
 <#import "theme-resources.ftl" as themeResourceTags>
-<#-- Based on Keycloak 26.8.1 base/login/template.ftl: same macro contract and scripts, salon layout. -->
+<#-- Based on Keycloak 26.8.2 base/login/template.ftl: same macro contract and scripts, salon layout. -->
 <#macro registrationLayout bodyClass="" displayInfo=false displayMessage=true displayRequiredFields=false>
 <!DOCTYPE html>
 <html class="${properties.kcHtmlClass!}" lang="${lang}"<#if realm.internationalizationEnabled> dir="${(locale.rtl)?then('rtl','ltr')}"</#if>>

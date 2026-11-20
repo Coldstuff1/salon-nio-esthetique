@@ -1,6 +1,6 @@
 <#import "template.ftl" as layout>
 <#import "passkeys.ftl" as passkeys>
-<#-- Based on Keycloak 26.8.1 base/login/login.ftl: same fields and flow, salon markup. -->
+<#-- Based on Keycloak 26.8.2 base/login/login.ftl: same fields and flow, salon markup. -->
 <@layout.registrationLayout displayMessage=!messagesPerField.existsError('username','password') displayInfo=realm.password && realm.registrationAllowed && !registrationDisabled??; section>
     <#if section = "header">
         ${msg("nioLoginTitle")}
