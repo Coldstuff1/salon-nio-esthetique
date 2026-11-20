@@ -2,8 +2,13 @@ package ca.nio.backend.controllers;
 
 import java.net.URI;
 import java.util.Comparator;
+import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
 import java.util.UUID;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 
 import org.jspecify.annotations.Nullable;
 import org.springframework.http.HttpStatus;
@@ -28,6 +33,7 @@ import ca.nio.backend.repositories.ProductRepository;
 import ca.nio.backend.repositories.ServiceTypeRepository;
 import ca.nio.backend.services.ConflictException;
 import ca.nio.backend.services.ErrorCode;
+import ca.nio.backend.services.InvalidRequestException;
 import ca.nio.backend.services.MediaService;
 import ca.nio.backend.services.NotFoundException;
 import jakarta.validation.Valid;
@@ -60,8 +66,12 @@ public class CatalogAdminController {
     @PostMapping("/service-types")
     @ResponseStatus(HttpStatus.CREATED)
     public ServiceType createServiceType(@Valid @RequestBody ServiceTypeRequest request) {
-        return serviceTypes.save(new ServiceType(request.name().text(), text(request.description()),
-                text(request.category())));
+        ServiceType type = new ServiceType(request.name().text(), text(request.description()),
+                text(request.category()));
+        if (request.parentIds() != null) {
+            type.replaceParents(validParents(null, request.parentIds()));
+        }
+        return serviceTypes.save(type);
     }
 
     @PutMapping("/service-types/{id}")
@@ -71,6 +81,9 @@ public class CatalogAdminController {
         type.setDescription(text(request.description()));
         type.setCategory(text(request.category()));
         type.setActive(request.active() == null || request.active());
+        if (request.parentIds() != null) {
+            type.replaceParents(validParents(id, request.parentIds()));
+        }
         return serviceTypes.save(type);
     }
 
@@ -157,6 +170,39 @@ public class CatalogAdminController {
         return serviceTypes.findById(id).orElseThrow(() -> new NotFoundException(ErrorCode.SERVICE_NOT_FOUND, "Service " + id + " not found"));
     }
 
+    /**
+     * The parents a treatment may be booked with, checked: they exist, aren't the treatment itself, and keep the
+     * catalog one level deep (a parent is never a sub-treatment, and a treatment with sub-treatments gets no parent).
+     */
+    private Set<UUID> validParents(@Nullable UUID selfId, List<UUID> parentIds) {
+        Set<UUID> ids = new LinkedHashSet<>(parentIds);
+        if (ids.isEmpty()) {
+            return ids;
+        }
+        if (selfId != null && ids.contains(selfId)) {
+            throw new InvalidRequestException(ErrorCode.INVALID_PARENT_SERVICE,
+                    "A treatment can't be a sub-treatment of itself");
+        }
+        if (selfId != null && serviceTypes.hasSubTreatments(selfId)) {
+            throw new InvalidRequestException(ErrorCode.HAS_SUB_TREATMENTS,
+                    "Service " + selfId + " has sub-treatments, so it can't be one");
+        }
+        Map<UUID, ServiceType> parents = serviceTypes.findAllById(ids).stream()
+                .collect(Collectors.toMap(ServiceType::getId, Function.identity()));
+        for (UUID parentId : ids) {
+            ServiceType parent = parents.get(parentId);
+            if (parent == null) {
+                throw new InvalidRequestException(ErrorCode.INVALID_PARENT_SERVICE,
+                        "Parent service " + parentId + " doesn't exist");
+            }
+            if (parent.hasParents()) {
+                throw new InvalidRequestException(ErrorCode.PARENT_IS_SUB_TREATMENT,
+                        "Service " + parentId + " is a sub-treatment, so it can't be a parent");
+            }
+        }
+        return ids;
+    }
+
     private Employee employee(UUID id) {
         return employees.findById(id).orElseThrow(() -> new NotFoundException(ErrorCode.EMPLOYEE_NOT_FOUND, "Employee " + id + " not found"));
     }
@@ -198,9 +244,14 @@ public class CatalogAdminController {
             implements LocalizedRequest {
     }
 
+    /**
+     * {@code parentIds} makes the treatment a sub-treatment of those; on an update, leaving it out keeps the
+     * current parents and an empty list clears them.
+     */
     public record ServiceTypeRequest(@NotNull @Valid LocalizedName name,
                                      @Nullable @Valid LocalizedDescription description,
-                                     @Nullable @Valid LocalizedCategory category, @Nullable Boolean active) {
+                                     @Nullable @Valid LocalizedCategory category, @Nullable Boolean active,
+                                     @Nullable @Size(max = 50) List<@NotNull UUID> parentIds) {
     }
 
     public record ProductRequest(@NotNull @Valid LocalizedName name,

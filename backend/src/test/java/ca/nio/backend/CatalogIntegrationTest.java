@@ -214,6 +214,75 @@ class CatalogIntegrationTest {
                 .andExpect(jsonPath("$.code").value("validation"));
     }
 
+    @Test
+    void adminsMakeATreatmentASubTreatmentOfOthersOneLevelDeep() throws Exception {
+        ServiceType facial = serviceTypes.save(new ServiceType(text("Facial " + UUID.randomUUID()), null, null));
+        ServiceType peel = serviceTypes.save(new ServiceType(text("Peel " + UUID.randomUUID()), null, null));
+        String ledId = id(send(post("/api/admin/service-types"), admin, Map.of(
+                "name", Map.of("en", "LED add-on"), "parentIds", List.of(facial.getId(), peel.getId())))
+                .andExpect(status().isCreated())
+                .andExpect(jsonPath("$.parentIds.length()").value(2)));
+
+        // leaving parentIds out keeps them; an empty list clears them
+        send(put("/api/admin/service-types/" + ledId), admin, Map.of("name", Map.of("en", "LED"), "active", false))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.parentIds.length()").value(2));
+        mockMvc.perform(get("/api/admin/service-types").with(admin))
+                .andExpect(jsonPath("$[?(@.id == '" + ledId + "')].parentIds[*]").value(
+                        org.hamcrest.Matchers.containsInAnyOrder(facial.getId().toString(), peel.getId().toString())))
+                .andExpect(jsonPath("$[0].parents").doesNotExist());
+
+        send(put("/api/admin/service-types/" + ledId), admin, Map.of("name", Map.of("en", "LED"),
+                "parentIds", List.of(ledId)))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.code").value("invalid-parent-service"));
+        send(post("/api/admin/service-types"), admin, Map.of("name", Map.of("en", "Ghost"),
+                "parentIds", List.of(UUID.randomUUID())))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.code").value("invalid-parent-service"));
+        send(post("/api/admin/service-types"), admin, Map.of("name", Map.of("en", "Nested"),
+                "parentIds", List.of(ledId)))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.code").value("parent-is-sub-treatment"));
+        send(put("/api/admin/service-types/" + facial.getId()), admin, Map.of("name", Map.of("en", "Facial"),
+                "parentIds", List.of(peel.getId())))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.code").value("has-sub-treatments"));
+
+        send(put("/api/admin/service-types/" + ledId), admin, Map.of("name", Map.of("en", "LED"),
+                "parentIds", List.of()))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.parentIds.length()").value(0));
+    }
+
+    @Test
+    void showsASubTreatmentOnlyWhenTheEmployeeOffersOneOfItsParents() throws Exception {
+        ServiceType facial = serviceTypes.save(new ServiceType(text("Facial " + UUID.randomUUID()), null, null));
+        ServiceType peel = serviceTypes.save(new ServiceType(text("Peel " + UUID.randomUUID()), null, null));
+        ServiceType led = new ServiceType(text("LED " + UUID.randomUUID()), null, null);
+        led.replaceParents(List.of(facial.getId(), peel.getId()));
+        serviceTypes.save(led);
+        UUID employeeId = UUID.randomUUID();
+        offer(employeeId, led, 1500, 15);
+
+        mockMvc.perform(get("/api/public/employees/" + employeeId + "/offerings"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.services.length()").value(0));
+
+        offer(employeeId, peel, 6000, 45);
+        mockMvc.perform(get("/api/public/employees/" + employeeId + "/offerings"))
+                .andExpect(jsonPath("$.services.length()").value(2))
+                .andExpect(jsonPath("$.services[?(@.serviceTypeId == '" + led.getId() + "')].parentIds.length()")
+                        .value(2));
+        mockMvc.perform(get("/api/public/services"))
+                .andExpect(jsonPath("$[?(@.serviceTypeId == '" + led.getId() + "')].parentIds.length()").value(2));
+    }
+
+    private String id(ResultActions result) throws Exception {
+        return tools.jackson.databind.json.JsonMapper.builder().build()
+                .readTree(result.andReturn().getResponse().getContentAsString()).get("id").asString();
+    }
+
     private void offer(UUID employeeId, ServiceType type, int priceCents, int durationMinutes, int displayOrder)
             throws Exception {
         send(put("/api/staff/me/service-offerings/" + type.getId()), keycloakJwt(employeeId, "employee"),

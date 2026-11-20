@@ -93,7 +93,10 @@ function scrollToPrices() {
               v-for="service in group.items"
               :key="service.serviceTypeId"
               :name="localize(service.name)!"
-              :price="formatPriceRange(service.minPriceCents!, service.maxPriceCents!, locale)"
+              :price="
+                (service.parentIds.length ? '+ ' : '') +
+                formatPriceRange(service.minPriceCents!, service.maxPriceCents!, locale)
+              "
             />
           </PriceSection>
         </PriceList>

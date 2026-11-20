@@ -814,6 +814,7 @@ export interface components {
             description?: components["schemas"]["LocalizedDescription"];
             category?: components["schemas"]["LocalizedCategory"];
             active?: boolean | null;
+            parentIds?: string[] | null;
         };
         LocalizedText: {
             en: string;
@@ -828,6 +829,7 @@ export interface components {
             active: boolean;
             /** Format: int32 */
             version: number;
+            parentIds: string[];
         };
         ProductRequest: {
             name: components["schemas"]["LocalizedName"];
@@ -1035,6 +1037,7 @@ export interface components {
             /** Format: int32 */
             maxDurationMinutes?: number | null;
             employeeIds: string[];
+            parentIds: string[];
         };
         PushKey: {
             publicKey: string;
@@ -1086,6 +1089,7 @@ export interface components {
             durationMinutes: number;
             /** Format: int32 */
             displayOrder?: number | null;
+            parentIds: string[];
         };
         Me: {
             username: string;

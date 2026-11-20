@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.UUID;
 
 import org.springframework.stereotype.Service;
@@ -44,6 +45,7 @@ public class PriceCalculator {
         }
 
         List<BookingServiceLine> serviceLines = new ArrayList<>();
+        List<ServiceType> types = new ArrayList<>();
         for (UUID serviceId : serviceIds) {
             ServiceOffering offering = employee.serviceOffering(serviceId)
                     .filter(ServiceOffering::active)
@@ -53,8 +55,17 @@ public class PriceCalculator {
                     .filter(ServiceType::isActive)
                     .orElseThrow(() -> new InvalidRequestException(ErrorCode.SERVICE_UNAVAILABLE,
                             "Service " + serviceId + " is not available"));
+            types.add(type);
             serviceLines.add(new BookingServiceLine(serviceId, type.getName(), offering.priceCents(),
                     offering.durationMinutes()));
+        }
+        // a sub-treatment needs one of its parents in the same booking; those were just checked like any other
+        Set<UUID> selected = Set.copyOf(serviceIds);
+        for (ServiceType type : types) {
+            if (type.hasParents() && type.parentIds().stream().noneMatch(selected::contains)) {
+                throw new InvalidRequestException(ErrorCode.SUB_TREATMENT_WITHOUT_PARENT,
+                        "Service " + type.getId() + " can only be booked with one of " + type.parentIds());
+            }
         }
 
         List<BookingProductLine> productLines = new ArrayList<>();

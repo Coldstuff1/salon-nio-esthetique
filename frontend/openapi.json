@@ -3937,6 +3937,15 @@
           },
           "active" : {
             "type" : [ "boolean", "null" ]
+          },
+          "parentIds" : {
+            "type" : [ "array", "null" ],
+            "items" : {
+              "type" : "string",
+              "format" : "uuid"
+            },
+            "maxItems" : 50,
+            "minItems" : 0
           }
         },
         "required" : [ "name" ]
@@ -3975,9 +3984,16 @@
           "version" : {
             "type" : "integer",
             "format" : "int32"
+          },
+          "parentIds" : {
+            "type" : "array",
+            "items" : {
+              "type" : "string",
+              "format" : "uuid"
+            }
           }
         },
-        "required" : [ "active", "id", "name", "version" ]
+        "required" : [ "active", "id", "name", "parentIds", "version" ]
       },
       "ProductRequest" : {
         "type" : "object",
@@ -4568,9 +4584,16 @@
               "type" : "string",
               "format" : "uuid"
             }
+          },
+          "parentIds" : {
+            "type" : "array",
+            "items" : {
+              "type" : "string",
+              "format" : "uuid"
+            }
           }
         },
-        "required" : [ "employeeIds", "name", "serviceTypeId" ]
+        "required" : [ "employeeIds", "name", "parentIds", "serviceTypeId" ]
       },
       "PushKey" : {
         "type" : "object",
@@ -4707,9 +4730,16 @@
           "displayOrder" : {
             "type" : [ "integer", "null" ],
             "format" : "int32"
+          },
+          "parentIds" : {
+            "type" : "array",
+            "items" : {
+              "type" : "string",
+              "format" : "uuid"
+            }
           }
         },
-        "required" : [ "durationMinutes", "name", "priceCents", "serviceTypeId" ]
+        "required" : [ "durationMinutes", "name", "parentIds", "priceCents", "serviceTypeId" ]
       },
       "Me" : {
         "type" : "object",

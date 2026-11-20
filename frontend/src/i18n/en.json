@@ -332,7 +332,11 @@
       "bug-report-not-found": "This report could not be found.",
       "notification-not-found": "This notification could not be found.",
       "unsupported-push-service": "This browser uses a notification service the site doesn't support.",
-      "invalid-unsubscribe-link": "This unsubscribe link isn't valid."
+      "invalid-unsubscribe-link": "This unsubscribe link isn't valid.",
+      "sub-treatment-without-parent": "An add-on can only be booked together with one of its treatments.",
+      "invalid-parent-service": "A treatment can only be an add-on to another existing treatment.",
+      "parent-is-sub-treatment": "An add-on can't have add-ons of its own.",
+      "has-sub-treatments": "Other treatments are add-ons to this one, so it can't be an add-on itself."
     }
   },
   "services": {
@@ -342,7 +346,8 @@
     "empty": "No treatments are offered right now.",
     "otherCategory": "Other treatments",
     "book": "Book this treatment",
-    "notOffered": "Coming soon"
+    "notOffered": "Coming soon",
+    "addOnTo": "Add-on to {treatments}"
   },
   "team": {
     "title": "Our team",
@@ -459,7 +464,8 @@
       "order": "Order",
       "orderInvalid": "Leave blank, or a whole number from 1 to 999.",
       "stockInvalid": "A whole number, 0 or more.",
-      "cost": "Cost ($)"
+      "cost": "Cost ($)",
+      "addOnHint": "Add-on: clients only see it if you also offer {treatments}."
     }
   },
   "admin": {
@@ -500,7 +506,11 @@
       "categoryInvalid": "At most 60 characters.",
       "offeredBy": "Offered by",
       "employees": "nobody | 1 aesthetician | {n} aestheticians",
-      "descriptionHint": "Shown on the treatments page and while booking."
+      "descriptionHint": "Shown on the treatments page and while booking.",
+      "addOnTo": "Add-on to {treatments}",
+      "parents": "Add-on to",
+      "parentsHint": "Leave empty for a treatment booked on its own. Otherwise it can only be booked together with one of the checked treatments.",
+      "hasAddOns": "Other treatments are add-ons to this one, so it can't be an add-on itself."
     },
     "products": {
       "intro": "Products sold at the salon. Each aesthetician buys their own stock and records their cost, selling price and quantity. Costs are never shown to clients. A deactivated product is no longer offered but stays on past appointments.",

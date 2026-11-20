@@ -82,3 +82,8 @@ export function parsePrice(text: string): number | undefined {
   if (!/^\d+(\.\d{1,2})?$/.test(cleaned)) return undefined
   return Math.round(Number(cleaned) * 100)
 }
+
+/** "Facial or Peel" / "Soin du visage ou Peeling": the treatments an add-on can go with. */
+export function formatAlternatives(names: readonly string[], locale: Locale): string {
+  return new Intl.ListFormat(intlLocale[locale], { type: 'disjunction' }).format(names)
+}
