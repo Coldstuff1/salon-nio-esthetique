@@ -306,6 +306,7 @@
       "start-in-past": "That time has passed. Please choose another.",
       "outside-working-hours": "That time is no longer offered. Please choose another.",
       "slot-taken": "That time was just booked. Please choose another.",
+      "daily-limit-reached": "\"{service}\" is fully booked that day. Please choose another day.",
       "cancel-after-start": "An appointment can't be cancelled once it has started.",
       "booking-closed": "This appointment is already finished or cancelled.",
       "invalid-outcome": "That status isn't allowed.",
@@ -454,7 +455,7 @@
       "clashes": "No booked appointments fall in this time off. | 1 booked appointment falls in this time off; it isn't cancelled automatically: | {n} booked appointments fall in this time off; they aren't cancelled automatically:"
     },
     "offerings": {
-      "servicesIntro": "Tick the treatments you offer and set your price and how long to book. Changes apply to new bookings only. Give a treatment a number to list it first (1 comes first); unnumbered ones follow alphabetically.",
+      "servicesIntro": "Tick the treatments you offer and set your price and how long to book. Changes apply to new bookings only. Give a treatment a number to list it first (1 comes first); unnumbered ones follow alphabetically. Set a max per day to stop taking bookings of a treatment once that many are booked on a day; leave it blank for no limit.",
       "productsIntro": "Tick the products you sell, with your price, what a unit cost you and how many you have on hand. Costs are never shown to clients. Stock goes down when an appointment reserves some and back up if it's cancelled.",
       "price": "Price ($)",
       "duration": "Duration (min)",
@@ -463,6 +464,8 @@
       "durationInvalid": "At least 5 minutes.",
       "order": "Order",
       "orderInvalid": "Leave blank, or a whole number from 1 to 999.",
+      "limit": "Max / day",
+      "limitInvalid": "Leave blank, or a whole number from 1 to 99.",
       "stockInvalid": "A whole number, 0 or more.",
       "cost": "Cost ($)",
       "addOnHint": "Add-on: clients only see it if you also offer {treatments}."

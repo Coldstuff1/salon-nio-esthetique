@@ -289,6 +289,52 @@ class BookingFlowIntegrationTest {
                 .andExpect(jsonPath("$.endsAt").value(at(10, 15).toString()));
     }
 
+    @Test
+    void capsATreatmentAtTheEmployeesDailyLimit() throws Exception {
+        send(put("/api/staff/me/service-offerings/" + facial.getId()), employee(),
+                Map.of("priceCents", 8000, "durationMinutes", 60, "dailyLimit", 1))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.serviceOfferings[0].dailyLimit").value(1));
+        ServiceType manicure = serviceTypes.save(new ServiceType(new LocalizedText("Manicure", null), null, null));
+        send(put("/api/staff/me/service-offerings/" + manicure.getId()), employee(),
+                Map.of("priceCents", 4500, "durationMinutes", 30))
+                .andExpect(status().isOk());
+
+        String id = com.jayway.jsonpath.JsonPath.read(book(at(9, 0), 0)
+                .andExpect(status().isCreated())
+                .andReturn().getResponse().getContentAsString(), "$.id");
+
+        book(at(10, 0), 0)
+                .andExpect(status().isConflict())
+                .andExpect(jsonPath("$.code").value("daily-limit-reached"))
+                .andExpect(jsonPath("$.params.service").value("Facial"));
+        mockMvc.perform(get("/api/public/employees/" + employeeId + "/slots")
+                        .param("date", monday.toString()).param("serviceIds", facial.getId().toString()))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.length()").value(0));
+        mockMvc.perform(get("/api/public/employees/" + employeeId + "/slots")
+                        .param("date", monday.plusWeeks(1).toString()).param("serviceIds", facial.getId().toString()))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.length()").value(9));
+        // other treatments aren't affected
+        send(post("/api/bookings"), customer(), Map.of("employeeId", employeeId, "startsAt", at(10, 0),
+                "serviceIds", List.of(manicure.getId()), "products", List.of()))
+                .andExpect(status().isCreated());
+
+        // cancelling frees the place again
+        mockMvc.perform(post("/api/bookings/" + id + "/cancel").with(customer()))
+                .andExpect(status().isOk());
+        book(at(10, 30), 0).andExpect(status().isCreated());
+    }
+
+    @Test
+    void validatesTheDailyLimit() throws Exception {
+        send(put("/api/staff/me/service-offerings/" + facial.getId()), employee(),
+                Map.of("priceCents", 8000, "durationMinutes", 60, "dailyLimit", 0))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.code").value("validation"));
+    }
+
     private ResultActions book(Instant startsAt, int creams) throws Exception {
         List<Map<String, Object>> selection = creams == 0 ? List.of()
                 : List.of(Map.of("productId", cream.getId(), "quantity", creams));

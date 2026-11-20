@@ -112,7 +112,7 @@ public class StaffController {
         UUID id = currentUser.employee(jwt).getId();
         return profile(staffService.putServiceOffering(id, new ServiceOffering(serviceTypeId,
                 request.priceCents(), request.durationMinutes(), request.active() == null || request.active(),
-                request.displayOrder())));
+                request.displayOrder(), request.dailyLimit())));
     }
 
     @PutMapping("/product-offerings/{productId}")
@@ -148,11 +148,15 @@ public class StaffController {
                                  @Size(max = 255) @Nullable String reason) {
     }
 
-    /** @param displayOrder where the treatment sits in the employee's list, 1 first; null lists it alphabetically */
+    /**
+     * @param displayOrder where the treatment sits in the employee's list, 1 first; null lists it alphabetically
+     * @param dailyLimit   the most bookings of the treatment the employee takes per day; null for no limit
+     */
     public record ServiceOfferingRequest(@Min(0) @Max(1_000_000) int priceCents,
                                          @Min(5) @Max(600) int durationMinutes,
                                          @Nullable Boolean active,
-                                         @Min(1) @Max(999) @Nullable Integer displayOrder) {
+                                         @Min(1) @Max(999) @Nullable Integer displayOrder,
+                                         @Min(1) @Max(99) @Nullable Integer dailyLimit) {
     }
 
     public record ProductOfferingRequest(@Min(0) @Max(1_000_000) int priceCents,

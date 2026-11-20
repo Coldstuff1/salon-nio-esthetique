@@ -37,8 +37,8 @@ class PriceCalculatorTest {
         when(serviceTypes.findById(facial.getId())).thenReturn(Optional.of(facial));
         when(serviceTypes.findById(manicure.getId())).thenReturn(Optional.of(manicure));
         when(products.findById(cream.getId())).thenReturn(Optional.of(cream));
-        employee.putServiceOffering(new ServiceOffering(facial.getId(), 8000, 60, true, null));
-        employee.putServiceOffering(new ServiceOffering(manicure.getId(), 4500, 30, true, null));
+        employee.putServiceOffering(new ServiceOffering(facial.getId(), 8000, 60, true, null, null));
+        employee.putServiceOffering(new ServiceOffering(manicure.getId(), 4500, 30, true, null, null));
         employee.putProductOffering(new ProductOffering(cream.getId(), 2500, 1500, 3, true));
     }
 
@@ -58,7 +58,7 @@ class PriceCalculatorTest {
 
     @Test
     void rejectsInactiveOffering() {
-        employee.putServiceOffering(new ServiceOffering(manicure.getId(), 4500, 30, false, null));
+        employee.putServiceOffering(new ServiceOffering(manicure.getId(), 4500, 30, false, null, null));
 
         assertThatThrownBy(() -> calculator.quote(employee, List.of(manicure.getId()), List.of()))
                 .isInstanceOf(InvalidRequestException.class);
@@ -89,7 +89,7 @@ class PriceCalculatorTest {
         ServiceType led = new ServiceType(text("LED add-on"), null, null);
         led.replaceParents(List.of(facial.getId(), peel.getId()));
         when(serviceTypes.findById(led.getId())).thenReturn(Optional.of(led));
-        employee.putServiceOffering(new ServiceOffering(led.getId(), 1500, 15, true, null));
+        employee.putServiceOffering(new ServiceOffering(led.getId(), 1500, 15, true, null, null));
 
         assertThatThrownBy(() -> calculator.quote(employee, List.of(led.getId()), List.of()))
                 .isInstanceOfSatisfying(InvalidRequestException.class,

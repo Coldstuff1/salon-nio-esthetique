@@ -710,6 +710,8 @@ export interface components {
             active: boolean;
             /** Format: int32 */
             displayOrder?: number | null;
+            /** Format: int32 */
+            dailyLimit?: number | null;
         };
         StaffProfile: {
             /** Format: uuid */
@@ -741,6 +743,8 @@ export interface components {
             active?: boolean | null;
             /** Format: int32 */
             displayOrder?: number | null;
+            /** Format: int32 */
+            dailyLimit?: number | null;
         };
         ProductOfferingRequest: {
             /** Format: int32 */
