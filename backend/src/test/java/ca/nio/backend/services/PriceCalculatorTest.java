@@ -83,6 +83,25 @@ class PriceCalculatorTest {
                 .isInstanceOf(InvalidRequestException.class);
     }
 
+    @Test
+    void booksASubTreatmentOnlyAlongsideOneOfItsParents() {
+        ServiceType peel = new ServiceType(text("Peel"), null, text("face"));
+        ServiceType led = new ServiceType(text("LED add-on"), null, null);
+        led.replaceParents(List.of(facial.getId(), peel.getId()));
+        when(serviceTypes.findById(led.getId())).thenReturn(Optional.of(led));
+        employee.putServiceOffering(new ServiceOffering(led.getId(), 1500, 15, true, null));
+
+        assertThatThrownBy(() -> calculator.quote(employee, List.of(led.getId()), List.of()))
+                .isInstanceOfSatisfying(InvalidRequestException.class,
+                        e -> assertThat(e.code()).isEqualTo(ErrorCode.SUB_TREATMENT_WITHOUT_PARENT));
+        assertThatThrownBy(() -> calculator.quote(employee, List.of(manicure.getId(), led.getId()), List.of()))
+                .isInstanceOf(InvalidRequestException.class);
+
+        Quote quote = calculator.quote(employee, List.of(led.getId(), facial.getId()), List.of());
+        assertThat(quote.subtotalCents()).isEqualTo(8000 + 1500);
+        assertThat(quote.totalDurationMinutes()).isEqualTo(75);
+    }
+
     private static LocalizedText text(String en) {
         return new LocalizedText(en, null);
     }

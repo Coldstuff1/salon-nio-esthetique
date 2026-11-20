@@ -268,6 +268,27 @@ class BookingFlowIntegrationTest {
                 .andExpect(jsonPath("$.code").value("invalid-range"));
     }
 
+    @Test
+    void booksASubTreatmentOnlyWithItsParent() throws Exception {
+        ServiceType led = new ServiceType(new LocalizedText("LED add-on", null), null, null);
+        led.replaceParents(List.of(facial.getId()));
+        serviceTypes.save(led);
+        send(put("/api/staff/me/service-offerings/" + led.getId()), employee(),
+                Map.of("priceCents", 1500, "durationMinutes", 15))
+                .andExpect(status().isOk());
+
+        send(post("/api/bookings"), customer(), Map.of("employeeId", employeeId, "startsAt", at(9, 0),
+                "serviceIds", List.of(led.getId()), "products", List.of()))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.code").value("sub-treatment-without-parent"));
+
+        send(post("/api/bookings"), customer(), Map.of("employeeId", employeeId, "startsAt", at(9, 0),
+                "serviceIds", List.of(facial.getId(), led.getId()), "products", List.of()))
+                .andExpect(status().isCreated())
+                .andExpect(jsonPath("$.subtotalCents").value(9500))
+                .andExpect(jsonPath("$.endsAt").value(at(10, 15).toString()));
+    }
+
     private ResultActions book(Instant startsAt, int creams) throws Exception {
         List<Map<String, Object>> selection = creams == 0 ? List.of()
                 : List.of(Map.of("productId", cream.getId(), "quantity", creams));

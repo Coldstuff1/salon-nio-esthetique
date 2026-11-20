@@ -13,6 +13,8 @@ import BaseInput from '@/components/ui/BaseInput.vue'
 defineProps<{
   name: string
   description?: string | null
+  /** A remark under the description, e.g. what an add-on goes with. */
+  note?: string | null
   amountLabel: string
   amountMin: number
   amountStep?: number
@@ -50,6 +52,7 @@ const { t } = useI18n()
     <div class="flex flex-col gap-1 md:pt-7">
       <BaseCheckbox v-model="offered" :label="name" />
       <p v-if="description" class="pl-7 text-sm text-ink-muted">{{ description }}</p>
+      <p v-if="note" class="pl-7 text-sm text-accent">{{ note }}</p>
     </div>
     <BaseInput
       v-model="price"

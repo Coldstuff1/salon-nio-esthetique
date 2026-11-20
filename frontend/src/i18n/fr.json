@@ -332,7 +332,11 @@
       "bug-report-not-found": "Ce signalement est introuvable.",
       "notification-not-found": "Cette notification est introuvable.",
       "unsupported-push-service": "Ce navigateur utilise un service de notifications que le site ne prend pas en charge.",
-      "invalid-unsubscribe-link": "Ce lien de désabonnement n'est pas valide."
+      "invalid-unsubscribe-link": "Ce lien de désabonnement n'est pas valide.",
+      "sub-treatment-without-parent": "Un complément ne peut être réservé qu'avec l'un de ses soins.",
+      "invalid-parent-service": "Un soin ne peut compléter qu'un autre soin existant.",
+      "parent-is-sub-treatment": "Un complément ne peut pas avoir ses propres compléments.",
+      "has-sub-treatments": "D'autres soins sont des compléments de celui-ci : il ne peut donc pas en être un."
     }
   },
   "services": {
@@ -342,7 +346,8 @@
     "empty": "Aucun soin n'est offert pour le moment.",
     "otherCategory": "Autres soins",
     "book": "Réserver ce soin",
-    "notOffered": "Bientôt offert"
+    "notOffered": "Bientôt offert",
+    "addOnTo": "En complément de {treatments}"
   },
   "team": {
     "title": "Notre équipe",
@@ -459,7 +464,8 @@
       "order": "Ordre",
       "orderInvalid": "Laissez vide, ou un nombre entier de 1 à 999.",
       "stockInvalid": "Un nombre entier, 0 ou plus.",
-      "cost": "Coût ($)"
+      "cost": "Coût ($)",
+      "addOnHint": "Complément : les clientes ne le voient que si vous offrez aussi {treatments}."
     }
   },
   "admin": {
@@ -500,7 +506,11 @@
       "categoryInvalid": "60 caractères au plus.",
       "offeredBy": "Offert par",
       "employees": "personne | 1 esthéticienne | {n} esthéticiennes",
-      "descriptionHint": "Affichée sur la page des soins et lors de la réservation."
+      "descriptionHint": "Affichée sur la page des soins et lors de la réservation.",
+      "addOnTo": "En complément de {treatments}",
+      "parents": "En complément de",
+      "parentsHint": "Laissez vide pour un soin réservable seul. Sinon, il ne peut être réservé qu'avec l'un des soins cochés.",
+      "hasAddOns": "D'autres soins sont des compléments de celui-ci : il ne peut donc pas en être un."
     },
     "products": {
       "intro": "Les produits vendus au salon. Chaque esthéticienne achète son propre stock : elle y inscrit son coût, son prix de vente et sa quantité. Le coût n'est jamais affiché aux clients. Un produit désactivé n'est plus offert mais reste sur les anciens rendez-vous.",

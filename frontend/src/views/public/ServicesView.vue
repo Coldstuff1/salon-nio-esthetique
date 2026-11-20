@@ -10,7 +10,7 @@ import RequestState from '@/components/ui/RequestState.vue'
 import { useRequest } from '@/composables/useRequest'
 import { useLocale } from '@/i18n'
 import { byName, groupByCategory } from '@/utils/catalog'
-import { formatDurationRange, formatPriceRange } from '@/utils/format'
+import { formatAlternatives, formatDurationRange, formatPriceRange } from '@/utils/format'
 
 const { t } = useI18n()
 const { locale, localize } = useLocale()
@@ -19,6 +19,15 @@ const { data: services, loading, error, reload } = useRequest(() => api.GET('/ap
 const categories = computed(() =>
   groupByCategory(byName(services.value ?? [], localize), (s) => localize(s.category)),
 )
+// an add-on is booked from one of its treatments, so it names them instead of offering its own button
+const addOnTo = (parentIds: readonly string[]) =>
+  formatAlternatives(
+    parentIds
+      .map((id) => services.value?.find((s) => s.serviceTypeId === id))
+      .filter((s) => s != null)
+      .map((s) => localize(s.name)!),
+    locale.value,
+  )
 </script>
 
 <template>
@@ -52,6 +61,9 @@ const categories = computed(() =>
                 <h3 class="display-caps text-2xl">
                   {{ localize(service.name) }}
                 </h3>
+                <p v-if="service.parentIds.length" class="label-caps -mt-2 text-accent">
+                  {{ t('services.addOnTo', { treatments: addOnTo(service.parentIds) }) }}
+                </p>
                 <p v-if="service.description" class="flex-1 text-ink-muted">
                   {{ localize(service.description) }}
                 </p>
@@ -71,6 +83,7 @@ const categories = computed(() =>
                     </span>
                   </div>
                   <BaseButton
+                    v-if="!service.parentIds.length"
                     :to="{
                       name: 'booking',
                       query: { services: service.serviceTypeId },

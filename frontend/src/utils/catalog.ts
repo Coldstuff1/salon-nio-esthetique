@@ -54,3 +54,35 @@ export function fromInputs(inputs: { en: string; fr: string }): LocalizedText | 
   const fr = inputs.fr.trim()
   return en || fr ? { en, fr: fr || null } : undefined
 }
+
+/** A sub-treatment names the treatments it can be booked with; a top-level one names none. */
+type WithParents = { serviceTypeId: string; parentIds: readonly string[] }
+
+/** The selection without the sub-treatments none of whose parents are still selected. */
+export function withoutOrphans(ids: readonly string[], services: readonly WithParents[]): string[] {
+  const parentsOf = new Map(services.map((s) => [s.serviceTypeId, s.parentIds]))
+  return ids.filter((id) => {
+    const parents = parentsOf.get(id) ?? []
+    return !parents.length || parents.some((p) => ids.includes(p))
+  })
+}
+
+/**
+ * Top-level treatments in the order given, each with the sub-treatments to show under it: those of a selected
+ * parent, each under the first selected parent it belongs to so it's listed once. Unselected parents get none.
+ */
+export function nestSubTreatments<T extends WithParents>(
+  services: readonly T[],
+  selectedIds: readonly string[],
+): { service: T; children: T[] }[] {
+  const parents = services.filter((s) => !s.parentIds.length)
+  const placed = new Set<string>()
+  return parents.map((service) => {
+    if (!selectedIds.includes(service.serviceTypeId)) return { service, children: [] }
+    const children = services.filter(
+      (s) => s.parentIds.includes(service.serviceTypeId) && !placed.has(s.serviceTypeId),
+    )
+    children.forEach((c) => placed.add(c.serviceTypeId))
+    return { service, children }
+  })
+}

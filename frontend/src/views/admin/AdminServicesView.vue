@@ -18,7 +18,8 @@ import { fromInputs, toInputs } from '@/utils/catalog'
 
 /**
  * The salon's treatment catalog. Employees then choose which they offer and at what price; deactivating hides
- * a treatment everywhere but keeps it on past appointments.
+ * a treatment everywhere but keeps it on past appointments. A sub-treatment (add-on) names the treatments it can
+ * be booked with; only one level deep, so a treatment with add-ons can't be one.
  */
 type ServiceType = Schemas['ServiceType']
 
@@ -39,6 +40,18 @@ const sorted = computed(() =>
       localize(a.name)!.localeCompare(localize(b.name)!),
   ),
 )
+const byId = computed(() => new Map((types.value ?? []).map((s) => [s.id, s])))
+const hasSubTreatments = (id: string) => (types.value ?? []).some((s) => s.parentIds.includes(id))
+const parentNames = (type: ServiceType) =>
+  type.parentIds
+    .map((id) => byId.value.get(id))
+    .filter((p) => p != null)
+    .map((p) => localize(p.name)!)
+    .join(', ')
+// an add-on whose treatments are all deactivated can't be booked
+const stranded = (type: ServiceType) =>
+  type.active && type.parentIds.length > 0 && type.parentIds.every((id) => !byId.value.get(id)?.active)
+
 // existing categories to pick from, per language
 const categories = (side: 'en' | 'fr') =>
   [...new Set((types.value ?? []).map((s) => s.category?.[side]?.trim()).filter(Boolean))] as string[]
@@ -46,7 +59,20 @@ const categories = (side: 'en' | 'fr') =>
 // add / edit dialog
 const dialogOpen = ref(false)
 const editing = ref<ServiceType>()
-const form = ref({ name: toInputs(), category: toInputs(), description: toInputs(), active: true })
+const form = ref({
+  name: toInputs(),
+  category: toInputs(),
+  description: toInputs(),
+  active: true,
+  parentIds: [] as string[],
+})
+// top-level treatments this one can be an add-on to
+const parentChoices = computed(() =>
+  sorted.value.filter((s) => !s.parentIds.length && s.id !== editing.value?.id),
+)
+function toggleParent(id: string, on: boolean) {
+  form.value.parentIds = on ? [...form.value.parentIds, id] : form.value.parentIds.filter((p) => p !== id)
+}
 const invalid = ref<string[]>([])
 const formError = ref<string>()
 const saving = ref(false)
@@ -58,6 +84,7 @@ function open(type?: ServiceType) {
     category: toInputs(type?.category),
     description: toInputs(type?.description),
     active: type?.active ?? true,
+    parentIds: [...(type?.parentIds ?? [])],
   }
   invalid.value = []
   formError.value = undefined
@@ -69,6 +96,7 @@ const body = (values: typeof form.value) => ({
   category: fromInputs(values.category),
   description: fromInputs(values.description),
   active: values.active,
+  parentIds: values.parentIds,
 })
 
 async function save() {
@@ -162,6 +190,13 @@ async function toggle(type: ServiceType) {
               <tr v-for="type in sorted" :key="type.id" :class="{ 'text-ink-muted': !type.active }">
                 <td class="px-4 py-3">
                   <p class="font-medium">{{ localize(type.name) }}</p>
+                  <p
+                    v-if="type.parentIds.length"
+                    class="text-sm"
+                    :class="stranded(type) ? 'text-danger' : 'text-accent'"
+                  >
+                    {{ t('admin.services.addOnTo', { treatments: parentNames(type) }) }}
+                  </p>
                   <p v-if="type.description" class="line-clamp-1 text-ink-muted">
                     {{ localize(type.description) }}
                   </p>
@@ -251,6 +286,20 @@ async function toggle(type: ServiceType) {
           v-model="form.description.fr"
           :label="t('admin.inFrench', { label: t('admin.description') })"
         />
+        <p v-if="editing && hasSubTreatments(editing.id)" class="text-sm text-ink-muted">
+          {{ t('admin.services.hasAddOns') }}
+        </p>
+        <fieldset v-else-if="parentChoices.length" class="flex flex-col gap-2">
+          <legend class="label-caps mb-1.5 text-ink-muted">{{ t('admin.services.parents') }}</legend>
+          <p class="mb-1 text-sm text-ink-muted">{{ t('admin.services.parentsHint') }}</p>
+          <BaseCheckbox
+            v-for="choice in parentChoices"
+            :key="choice.id"
+            :label="localize(choice.name)! + (choice.active ? '' : ` (${t('admin.inactive').toLowerCase()})`)"
+            :model-value="form.parentIds.includes(choice.id)"
+            @update:model-value="toggleParent(choice.id, !!$event)"
+          />
+        </fieldset>
         <BaseCheckbox v-if="editing" v-model="form.active" :label="t('admin.activeLabel')" />
         <BaseAlert v-if="formError" tone="danger">{{ formError }}</BaseAlert>
       </form>

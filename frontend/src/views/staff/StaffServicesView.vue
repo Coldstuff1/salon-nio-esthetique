@@ -9,13 +9,14 @@ import { useOfferingRows } from '@/composables/useOfferingRows'
 import { useRequest } from '@/composables/useRequest'
 import { useLocale } from '@/i18n'
 import { byDisplayOrder, groupByCategory } from '@/utils/catalog'
+import { formatAlternatives } from '@/utils/format'
 
 /**
  * Which of the salon's treatments the employee does, at what price, in how long, and in what order clients see
  * them. Listed in the order last saved, so rows don't move while a number is being typed.
  */
 const { t } = useI18n()
-const { localize } = useLocale()
+const { locale, localize } = useLocale()
 
 const catalog = useRequest(() => api.GET('/api/public/service-types'))
 const staff = useRequest(() => api.GET('/api/staff/me'))
@@ -31,6 +32,16 @@ const categories = computed(() =>
     (s) => localize(s.category),
   ),
 )
+
+// an add-on only reaches clients alongside one of its treatments, so say which
+function addOnNote(parentIds: readonly string[]) {
+  if (!parentIds.length) return null
+  const names = parentIds
+    .map((id) => catalog.data.value?.find((s) => s.id === id))
+    .filter((s) => s != null)
+    .map((s) => localize(s.name)!)
+  return t('staff.offerings.addOnHint', { treatments: formatAlternatives(names, locale.value) })
+}
 
 const offerings = useOfferingRows({
   profile: staff.data,
@@ -87,6 +98,7 @@ const offerings = useOfferingRows({
               v-model:order="offerings.row(service.id).order"
               :name="localize(service.name)!"
               :description="localize(service.description)"
+              :note="addOnNote(service.parentIds)"
               :amount-label="t('staff.offerings.duration')"
               :amount-min="5"
               :amount-step="5"

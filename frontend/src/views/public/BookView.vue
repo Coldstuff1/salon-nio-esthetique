@@ -23,6 +23,7 @@ import {
   type DraftChanges,
 } from '@/composables/useBookingDraft'
 import { useRequest } from '@/composables/useRequest'
+import { withoutOrphans } from '@/utils/catalog'
 
 const { t } = useI18n()
 const router = useRouter()
@@ -77,7 +78,11 @@ watch(employeeId, loadOfferings, { immediate: true })
 watch(offerings, (current) => {
   if (!current) return
   const offered = new Set(current.services.map((s) => s.serviceTypeId))
-  const keptServices = serviceIds.value.filter((id) => offered.has(id))
+  // add-ons go too when none of the treatments they come with is left (e.g. a link to an add-on alone)
+  const keptServices = withoutOrphans(
+    serviceIds.value.filter((id) => offered.has(id)),
+    current.services,
+  )
   const keptProducts = products.value
     .map((p) => ({
       ...p,

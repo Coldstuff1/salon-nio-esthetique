@@ -8,6 +8,7 @@ import java.util.IntSummaryStatistics;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.UUID;
 import java.util.function.Function;
 import java.util.stream.Collectors;
@@ -119,10 +120,15 @@ public class PublicController {
                 employee.getProductOfferings().stream().map(ProductOffering::productId).toList()),
                 Product::getId);
 
-        List<ServiceView> services = employee.getServiceOfferings().stream()
+        List<ServiceOffering> bookable = employee.getServiceOfferings().stream()
                 .filter(ServiceOffering::active)
                 .filter(o -> typesById.containsKey(o.serviceTypeId()) && typesById.get(o.serviceTypeId()).isActive())
+                .toList();
+        // a sub-treatment only shows when this employee also offers one of its parents
+        Set<UUID> bookableIds = bookable.stream().map(ServiceOffering::serviceTypeId).collect(Collectors.toSet());
+        List<ServiceView> services = bookable.stream()
                 .map(o -> ServiceView.of(typesById.get(o.serviceTypeId()), o))
+                .filter(view -> view.parentIds().isEmpty() || view.parentIds().stream().anyMatch(bookableIds::contains))
                 .sorted(Comparator.comparing(ServiceView::displayOrder, Comparator.nullsLast(Comparator.naturalOrder()))
                         .thenComparing(view -> view.name().en()))
                 .toList();
@@ -191,11 +197,12 @@ public class PublicController {
 
     public record ServiceView(UUID serviceTypeId, LocalizedText name, @Nullable LocalizedText description,
                               @Nullable LocalizedText category,
-                              int priceCents, int durationMinutes, @Nullable Integer displayOrder) {
+                              int priceCents, int durationMinutes, @Nullable Integer displayOrder,
+                              List<UUID> parentIds) {
 
         static ServiceView of(ServiceType type, ServiceOffering offering) {
             return new ServiceView(type.getId(), type.getName(), type.getDescription(), type.getCategory(),
-                    offering.priceCents(), offering.durationMinutes(), offering.displayOrder());
+                    offering.priceCents(), offering.durationMinutes(), offering.displayOrder(), type.parentIds());
         }
 
     }
@@ -204,7 +211,7 @@ public class PublicController {
                                  @Nullable LocalizedText category,
                                  @Nullable Integer minPriceCents, @Nullable Integer maxPriceCents,
                                  @Nullable Integer minDurationMinutes, @Nullable Integer maxDurationMinutes,
-                                 List<UUID> employeeIds) {
+                                 List<UUID> employeeIds, List<UUID> parentIds) {
 
         static ServiceSummary of(ServiceType type, Map<UUID, ServiceOffering> offeringsByEmployee) {
             boolean offered = !offeringsByEmployee.isEmpty();
@@ -215,7 +222,7 @@ public class PublicController {
             return new ServiceSummary(type.getId(), type.getName(), type.getDescription(), type.getCategory(),
                     offered ? prices.getMin() : null, offered ? prices.getMax() : null,
                     offered ? durations.getMin() : null, offered ? durations.getMax() : null,
-                    List.copyOf(offeringsByEmployee.keySet()));
+                    List.copyOf(offeringsByEmployee.keySet()), type.parentIds());
         }
 
     }
