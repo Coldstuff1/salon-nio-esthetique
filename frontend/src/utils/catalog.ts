@@ -29,6 +29,19 @@ export function byName<T extends { name: LocalizedText }>(
   return [...items].sort((a, b) => localize(a.name)!.localeCompare(localize(b.name)!))
 }
 
+/**
+ * An employee's treatments in the order they chose: numbered ones first, lowest number first, then the rest by
+ * name in the current language (ties on a number also go by name). Pass `useLocale().localize`.
+ */
+export function byDisplayOrder<T extends { name: LocalizedText; displayOrder?: number | null }>(
+  items: readonly T[],
+  localize: (text: LocalizedText) => string | null,
+): T[] {
+  // the sort is stable, so items with the same number (or none) keep their alphabetical order
+  const rank = (item: T) => item.displayOrder ?? Number.MAX_SAFE_INTEGER
+  return byName(items, localize).sort((a, b) => rank(a) - rank(b))
+}
+
 /** Catalog text as the two inputs of an admin form, English and French. */
 export const toInputs = (text?: LocalizedText | null) => ({
   en: text?.en ?? '',

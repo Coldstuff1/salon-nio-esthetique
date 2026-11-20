@@ -8,16 +8,28 @@ import RequestState from '@/components/ui/RequestState.vue'
 import { useOfferingRows } from '@/composables/useOfferingRows'
 import { useRequest } from '@/composables/useRequest'
 import { useLocale } from '@/i18n'
-import { byName, groupByCategory } from '@/utils/catalog'
+import { byDisplayOrder, groupByCategory } from '@/utils/catalog'
 
-/** Which of the salon's treatments the employee does, at what price and in how long. */
+/**
+ * Which of the salon's treatments the employee does, at what price, in how long, and in what order clients see
+ * them. Listed in the order last saved, so rows don't move while a number is being typed.
+ */
 const { t } = useI18n()
 const { localize } = useLocale()
 
 const catalog = useRequest(() => api.GET('/api/public/service-types'))
 const staff = useRequest(() => api.GET('/api/staff/me'))
+const savedOrder = computed(
+  () => new Map((staff.data.value?.serviceOfferings ?? []).map((o) => [o.serviceTypeId, o.displayOrder])),
+)
 const categories = computed(() =>
-  groupByCategory(byName(catalog.data.value ?? [], localize), (s) => localize(s.category)),
+  groupByCategory(
+    byDisplayOrder(
+      (catalog.data.value ?? []).map((s) => ({ ...s, displayOrder: savedOrder.value.get(s.id) })),
+      localize,
+    ),
+    (s) => localize(s.category),
+  ),
 )
 
 const offerings = useOfferingRows({
@@ -27,16 +39,27 @@ const offerings = useOfferingRows({
     new Map(
       profile.serviceOfferings.map((o) => [
         o.serviceTypeId,
-        { priceCents: o.priceCents, amount: o.durationMinutes, active: o.active },
+        {
+          priceCents: o.priceCents,
+          amount: o.durationMinutes,
+          active: o.active,
+          displayOrder: o.displayOrder,
+        },
       ]),
     ),
   defaultAmount: 60,
   minAmount: 5,
   amountError: t('staff.offerings.durationInvalid'),
+  withOrder: true,
   save: (id, o) =>
     api.PUT('/api/staff/me/service-offerings/{serviceTypeId}', {
       params: { path: { serviceTypeId: id } },
-      body: { priceCents: o.priceCents, durationMinutes: o.amount, active: o.active },
+      body: {
+        priceCents: o.priceCents,
+        durationMinutes: o.amount,
+        active: o.active,
+        displayOrder: o.displayOrder ?? null,
+      },
     }),
 })
 </script>
@@ -61,13 +84,16 @@ const offerings = useOfferingRows({
               v-model:offered="offerings.row(service.id).offered"
               v-model:price="offerings.row(service.id).price"
               v-model:amount="offerings.row(service.id).amount"
+              v-model:order="offerings.row(service.id).order"
               :name="localize(service.name)!"
               :description="localize(service.description)"
               :amount-label="t('staff.offerings.duration')"
               :amount-min="5"
               :amount-step="5"
+              :order-label="t('staff.offerings.order')"
               :price-error="offerings.priceError(service.id)"
               :amount-error="offerings.amountError(service.id)"
+              :order-error="offerings.orderError(service.id)"
               :error="offerings.row(service.id).error"
               :dirty="offerings.dirty(service.id)"
               :saving="offerings.row(service.id).saving"

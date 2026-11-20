@@ -3610,6 +3610,10 @@
           },
           "active" : {
             "type" : "boolean"
+          },
+          "displayOrder" : {
+            "type" : [ "integer", "null" ],
+            "format" : "int32"
           }
         },
         "required" : [ "active", "durationMinutes", "priceCents", "serviceTypeId" ]
@@ -3701,6 +3705,12 @@
           },
           "active" : {
             "type" : [ "boolean", "null" ]
+          },
+          "displayOrder" : {
+            "type" : [ "integer", "null" ],
+            "format" : "int32",
+            "maximum" : 999,
+            "minimum" : 1
           }
         },
         "required" : [ "durationMinutes", "priceCents" ]
@@ -4692,6 +4702,10 @@
           },
           "durationMinutes" : {
             "type" : "integer",
+            "format" : "int32"
+          },
+          "displayOrder" : {
+            "type" : [ "integer", "null" ],
             "format" : "int32"
           }
         },

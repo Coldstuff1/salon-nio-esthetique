@@ -449,13 +449,15 @@
       "clashes": "No booked appointments fall in this time off. | 1 booked appointment falls in this time off; it isn't cancelled automatically: | {n} booked appointments fall in this time off; they aren't cancelled automatically:"
     },
     "offerings": {
-      "servicesIntro": "Tick the treatments you offer and set your price and how long to book. Changes apply to new bookings only.",
+      "servicesIntro": "Tick the treatments you offer and set your price and how long to book. Changes apply to new bookings only. Give a treatment a number to list it first (1 comes first); unnumbered ones follow alphabetically.",
       "productsIntro": "Tick the products you sell, with your price, what a unit cost you and how many you have on hand. Costs are never shown to clients. Stock goes down when an appointment reserves some and back up if it's cancelled.",
       "price": "Price ($)",
       "duration": "Duration (min)",
       "stock": "In stock",
       "priceInvalid": "Enter an amount, e.g. 60 or 60.50.",
       "durationInvalid": "At least 5 minutes.",
+      "order": "Order",
+      "orderInvalid": "Leave blank, or a whole number from 1 to 999.",
       "stockInvalid": "A whole number, 0 or more.",
       "cost": "Cost ($)"
     }

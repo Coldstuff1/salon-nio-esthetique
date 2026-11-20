@@ -185,6 +185,42 @@ class CatalogIntegrationTest {
                 .andExpect(jsonPath("$.code").value("invalid-request"));
     }
 
+    @Test
+    void listsAnEmployeesNumberedTreatmentsFirstThenTheRestAlphabetically() throws Exception {
+        String suffix = " " + UUID.randomUUID();
+        ServiceType zebra = serviceTypes.save(new ServiceType(text("Zebra" + suffix), null, null));
+        ServiceType second = serviceTypes.save(new ServiceType(text("Mango" + suffix), null, null));
+        ServiceType alpha = serviceTypes.save(new ServiceType(text("Alpha" + suffix), null, null));
+        ServiceType first = serviceTypes.save(new ServiceType(text("Yarrow" + suffix), null, null));
+        UUID employeeId = UUID.randomUUID();
+        offer(employeeId, zebra, 1000, 30);
+        offer(employeeId, second, 1000, 30, 2);
+        offer(employeeId, alpha, 1000, 30);
+        offer(employeeId, first, 1000, 30, 1);
+
+        mockMvc.perform(get("/api/public/employees/" + employeeId + "/offerings"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.services.length()").value(4))
+                .andExpect(jsonPath("$.services[0].serviceTypeId").value(first.getId().toString()))
+                .andExpect(jsonPath("$.services[1].serviceTypeId").value(second.getId().toString()))
+                .andExpect(jsonPath("$.services[2].serviceTypeId").value(alpha.getId().toString()))
+                .andExpect(jsonPath("$.services[3].serviceTypeId").value(zebra.getId().toString()))
+                .andExpect(jsonPath("$.services[0].displayOrder").value(1))
+                .andExpect(jsonPath("$.services[2].displayOrder").value((Object) null));
+
+        send(put("/api/staff/me/service-offerings/" + alpha.getId()), keycloakJwt(employeeId, "employee"),
+                Map.of("priceCents", 1000, "durationMinutes", 30, "displayOrder", 0))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.code").value("validation"));
+    }
+
+    private void offer(UUID employeeId, ServiceType type, int priceCents, int durationMinutes, int displayOrder)
+            throws Exception {
+        send(put("/api/staff/me/service-offerings/" + type.getId()), keycloakJwt(employeeId, "employee"),
+                Map.of("priceCents", priceCents, "durationMinutes", durationMinutes, "displayOrder", displayOrder))
+                .andExpect(status().isOk());
+    }
+
     private void offer(UUID employeeId, ServiceType type, int priceCents, int durationMinutes) throws Exception {
         send(put("/api/staff/me/service-offerings/" + type.getId()), keycloakJwt(employeeId, "employee"),
                 Map.of("priceCents", priceCents, "durationMinutes", durationMinutes))

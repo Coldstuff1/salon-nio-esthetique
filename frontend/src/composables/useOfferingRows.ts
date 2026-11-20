@@ -8,21 +8,27 @@ import { centsToInput, parsePrice } from '@/utils/format'
 type StaffProfile = Schemas['StaffProfile']
 
 /**
- * An offering as the editor sees it: a price, one more whole number (duration or stock) and, for products, what a
- * unit cost the employee.
+ * An offering as the editor sees it: a price, one more whole number (duration or stock), for products what a unit
+ * cost the employee, and for treatments where it sits in their list (null: alphabetically, after numbered ones).
  */
 export interface Offering {
   priceCents: number
   costCents?: number
   amount: number
   active: boolean
+  displayOrder?: number | null
 }
+
+/** The highest list position a treatment can be given. */
+const MAX_ORDER = 999
 
 interface Row {
   offered: boolean
   price: string
   cost: string
   amount: string
+  /** list position; blank for none (a number input's v-model may hand back a number) */
+  order: string
   /** what was last saved, to know if the row changed */
   saved: string
   saving: boolean
@@ -45,6 +51,8 @@ export function useOfferingRows(options: {
   amountError: string
   /** products also record their cost */
   withCost?: boolean
+  /** treatments also take an optional list position */
+  withOrder?: boolean
   save: (
     id: string,
     offering: Offering,
@@ -53,8 +61,8 @@ export function useOfferingRows(options: {
   const { t } = useI18n()
   const { locale } = useLocale()
   const rows = reactive<Record<string, Row>>({})
-  const snapshot = (row: Pick<Row, 'offered' | 'price' | 'cost' | 'amount'>) =>
-    `${row.offered}|${row.price}|${row.cost}|${row.amount}`
+  const snapshot = (row: Pick<Row, 'offered' | 'price' | 'cost' | 'amount' | 'order'>) =>
+    `${row.offered}|${row.price}|${row.cost}|${row.amount}|${row.order}`
 
   /** Takes the server's values, leaving rows with unsaved changes alone unless `only` names one. */
   function reset(profile: StaffProfile, only?: string) {
@@ -66,6 +74,7 @@ export function useOfferingRows(options: {
         price: centsToInput(offering.priceCents, locale.value),
         cost: offering.costCents === undefined ? '' : centsToInput(offering.costCents, locale.value),
         amount: String(offering.amount),
+        order: offering.displayOrder == null ? '' : String(offering.displayOrder),
       }
       rows[id] = { ...values, saved: snapshot(values), saving: false }
     }
@@ -77,7 +86,13 @@ export function useOfferingRows(options: {
     (ids) => {
       for (const id of ids) {
         if (rows[id]) continue
-        const values = { offered: false, price: '', cost: '', amount: String(options.defaultAmount) }
+        const values = {
+          offered: false,
+          price: '',
+          cost: '',
+          amount: String(options.defaultAmount),
+          order: '',
+        }
         rows[id] = { ...values, saved: snapshot(values), saving: false }
       }
     },
@@ -100,11 +115,22 @@ export function useOfferingRows(options: {
       : undefined
   }
 
+  const orderError = (id: string) => {
+    const order = String(row(id).order).trim()
+    const value = Number(order)
+    return options.withOrder &&
+      dirty(id) &&
+      order !== '' &&
+      !(Number.isInteger(value) && value >= 1 && value <= MAX_ORDER)
+      ? t('staff.offerings.orderInvalid')
+      : undefined
+  }
+
   async function save(id: string) {
     const current = row(id)
     const priceCents = parsePrice(current.price)
     const costCents = options.withCost ? parsePrice(current.cost) : undefined
-    if (priceCents === undefined || amountError(id) || costError(id)) return
+    if (priceCents === undefined || amountError(id) || costError(id) || orderError(id)) return
     current.saving = true
     current.error = undefined
     try {
@@ -113,6 +139,7 @@ export function useOfferingRows(options: {
         costCents,
         amount: Number(current.amount),
         active: current.offered,
+        displayOrder: options.withOrder && String(current.order).trim() !== '' ? Number(current.order) : null,
       })
       if (data) {
         reset(data, id)
@@ -127,5 +154,5 @@ export function useOfferingRows(options: {
     }
   }
 
-  return { row, dirty, priceError, costError, amountError, save }
+  return { row, dirty, priceError, costError, amountError, orderError, save }
 }

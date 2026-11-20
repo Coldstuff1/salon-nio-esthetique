@@ -13,7 +13,11 @@ COPY --from=build /workspace/app.jar app.jar
 RUN java -Djarmode=tools -jar app.jar extract --layers --launcher --destination extracted
 
 FROM eclipse-temurin:26.0.2.1_1-jre-noble
-RUN useradd --system --uid 1001 spring
+# take Ubuntu's security fixes published since the Temurin image was last rebuilt
+RUN apt-get update \
+    && apt-get upgrade -y --no-install-recommends \
+    && rm -rf /var/lib/apt/lists/* \
+    && useradd --system --uid 1001 spring
 USER spring
 WORKDIR /app
 COPY --from=extract /workspace/extracted/dependencies/ ./

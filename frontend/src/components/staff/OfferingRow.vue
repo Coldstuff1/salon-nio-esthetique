@@ -7,7 +7,8 @@ import BaseInput from '@/components/ui/BaseInput.vue'
 
 /**
  * One catalog item the employee may offer, with their own price and one more number: a treatment's duration or
- * a product's stock. Products also take what a unit cost them (`costLabel`). Saved on its own.
+ * a product's stock. Products also take what a unit cost them (`costLabel`), treatments an optional position in
+ * the employee's list (`orderLabel`). Saved on its own.
  */
 defineProps<{
   name: string
@@ -16,9 +17,11 @@ defineProps<{
   amountMin: number
   amountStep?: number
   costLabel?: string
+  orderLabel?: string
   priceError?: string
   costError?: string
   amountError?: string
+  orderError?: string
   error?: string
   dirty: boolean
   saving: boolean
@@ -27,6 +30,7 @@ const offered = defineModel<boolean>('offered', { required: true })
 const price = defineModel<string>('price', { required: true })
 const cost = defineModel<string>('cost', { default: '' })
 const amount = defineModel<string>('amount', { required: true })
+const order = defineModel<string>('order', { default: '' })
 defineEmits<{ save: [] }>()
 
 const { t } = useI18n()
@@ -37,7 +41,9 @@ const { t } = useI18n()
     class="grid gap-4 border bg-surface px-5 py-4 transition-colors md:items-start"
     :class="[
       offered ? 'border-accent' : 'border-line-soft',
-      costLabel ? 'md:grid-cols-[1fr_8rem_8rem_8rem_auto]' : 'md:grid-cols-[1fr_8rem_8rem_auto]',
+      costLabel || orderLabel
+        ? 'md:grid-cols-[1fr_8rem_8rem_8rem_auto]'
+        : 'md:grid-cols-[1fr_8rem_8rem_auto]',
     ]"
     @submit.prevent="$emit('save')"
   >
@@ -70,18 +76,32 @@ const { t } = useI18n()
       :error="amountError"
       :disabled="!offered"
     />
+    <BaseInput
+      v-if="orderLabel"
+      v-model="order"
+      type="number"
+      inputmode="numeric"
+      :min="1"
+      :max="999"
+      :label="orderLabel"
+      :error="orderError"
+      :disabled="!offered"
+    />
     <div class="flex items-center gap-3 md:pt-7">
       <BaseButton
         type="submit"
         size="sm"
         :loading="saving"
-        :disabled="!dirty || !!priceError || !!costError || !!amountError"
+        :disabled="!dirty || !!priceError || !!costError || !!amountError || !!orderError"
       >
         {{ t('common.save') }}
       </BaseButton>
     </div>
-    <BaseAlert v-if="error" tone="danger" :class="costLabel ? 'md:col-span-5' : 'md:col-span-4'">{{
-      error
-    }}</BaseAlert>
+    <BaseAlert
+      v-if="error"
+      tone="danger"
+      :class="costLabel || orderLabel ? 'md:col-span-5' : 'md:col-span-4'"
+      >{{ error }}</BaseAlert
+    >
   </form>
 </template>

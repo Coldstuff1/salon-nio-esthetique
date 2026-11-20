@@ -449,13 +449,15 @@
       "clashes": "Aucun rendez-vous déjà pris pendant ce congé. | 1 rendez-vous déjà pris tombe pendant ce congé ; il n'est pas annulé automatiquement : | {n} rendez-vous déjà pris tombent pendant ce congé ; ils ne sont pas annulés automatiquement :"
     },
     "offerings": {
-      "servicesIntro": "Cochez les soins que vous offrez et fixez votre prix et la durée à réserver. Les changements s'appliquent aux nouvelles réservations seulement.",
+      "servicesIntro": "Cochez les soins que vous offrez et fixez votre prix et la durée à réserver. Les changements s'appliquent aux nouvelles réservations seulement. Donnez un numéro à un soin pour l'afficher en premier (1 d'abord); les autres suivent en ordre alphabétique.",
       "productsIntro": "Cochez les produits que vous vendez, avec votre prix, ce qu'une unité vous a coûté et la quantité en main. Le coût n'est jamais montré aux clients. Le stock baisse quand un rendez-vous en réserve et remonte s'il est annulé.",
       "price": "Prix ($)",
       "duration": "Durée (min)",
       "stock": "En stock",
       "priceInvalid": "Entrez un montant, ex. 60 ou 60,50.",
       "durationInvalid": "Au moins 5 minutes.",
+      "order": "Ordre",
+      "orderInvalid": "Laissez vide, ou un nombre entier de 1 à 999.",
       "stockInvalid": "Un nombre entier, 0 ou plus.",
       "cost": "Coût ($)"
     }
