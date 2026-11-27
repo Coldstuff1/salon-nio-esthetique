@@ -17,7 +17,7 @@ x-service: &service
 services:
   caddy:
     <<: *service
-    image: 'caddy:2.11.7-alpine'
+    image: 'caddy:2.11.9-alpine'
     ports:
       - '80:80'
       - '443:443'
